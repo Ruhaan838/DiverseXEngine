@@ -3,3 +3,22 @@
 //
 
 #include "Node.h"
+#include "Graphics.h"
+#include "Widget.h"
+
+#include "../../Canvas/Scene/CanvasScene.h"
+#include "../Scene/NodeScene.h"
+
+Node::Node(Scene *scene_, const std::string &title) : scene(scene_) {
+
+    content = new WidgetNode();
+
+    grNode = new GraphicsNode(this);
+    grNode->setTitle(title);
+    scene->addNode(this);
+    scene->grScene->addItem(grNode);
+
+
+
+}
+
