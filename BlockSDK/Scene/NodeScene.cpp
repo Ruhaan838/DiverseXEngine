@@ -4,6 +4,7 @@
 
 #include "NodeScene.h"
 #include "../../Canvas/Scene/CanvasScene.h"
+#include "../Node/Node.h"
 
 Scene::Scene() {
     initUI();
@@ -14,23 +15,21 @@ void Scene::initUI() {
     grScene->setScene(scene_width, scene_height);
 }
 
-//TODO: change the type
-void Scene::addNode(int Node) {
-    nodes.emplace_back(Node);
+void Scene::addNode(Node* node) {
+    nodes.emplace_back(node);
 }
 
-// TODO: change the type
-void Scene::addEdge(int Edge) {
-    nodes.emplace_back(Edge);
+void Scene::addEdge(Node* edge) {
+    nodes.emplace_back(edge);
 }
 
-// TODO: change the type or chack is this method works?
-void Scene::removeNode(int Node) {
-    nodes.erase(std::find(nodes.begin(), nodes.end(), Node));
+// TODO: check is this method works?
+void Scene::removeNode(Node* node) {
+    nodes.erase(std::find(nodes.begin(), nodes.end(), node));
 }
 
-// TODO: change the type or chack is this method works?
-void Scene::removeEdge(int Edge) {
-    nodes.erase(std::find(nodes.begin(), nodes.end(), Edge));
+// TODO: check is this method works?
+void Scene::removeEdge(Node* edge) {
+    nodes.erase(std::find(nodes.begin(), nodes.end(), edge));
 }
 

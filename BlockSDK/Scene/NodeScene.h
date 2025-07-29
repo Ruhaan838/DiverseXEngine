@@ -4,28 +4,29 @@
 
 #ifndef NODESCENE_H
 #define NODESCENE_H
+
+
 #include <vector>
 
 class CanvasScene;
+class Node;
 
 class Scene {
 public:
     Scene();
 
-    // TODO: change the type
-    std::vector<int> nodes;
-    std::vector<int> edges;
+    std::vector<Node*> nodes;
+    std::vector<Node*> edges;
 
     int scene_width = 64000;
     int scene_height = 64000;
 
-    // TODO: change the type
-    void addNode(int Node);
-    void addEdge(int Edge);
-    void removeNode(int Node);
-    void removeEdge(int Edge);
+    void addNode(Node* node);
+    void addEdge(Node* edge);
+    void removeNode(Node* node);
+    void removeEdge(Node* edge);
 
-    CanvasScene *grScene{};
+    CanvasScene *grScene;
 
     void initUI();
 };
