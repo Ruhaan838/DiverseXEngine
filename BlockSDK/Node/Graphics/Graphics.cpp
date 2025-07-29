@@ -8,14 +8,14 @@
 #include <QDebug>
 #include <QPainter>
 
-#include "Node.h"
-#include "Widget.h"
+#include "../Node.h"
+#include "../Widget/Widget.h"
 
 
 GraphicsNode::GraphicsNode(Node *node, QGraphicsItem *parent) : QGraphicsItem(parent), node(node) {
 
     _title_color = Qt::white;
-    _title_font = QFont("Ubuntu", 10);
+    _title_font = QFont("Ubuntu", 12);
     _pen_default =  QPen(QColor("#7F000000"));
     _pen_selected =  QPen(QColor("#FFFFA637"));
 

@@ -3,8 +3,8 @@
 //
 
 #include "Node.h"
-#include "Graphics.h"
-#include "Widget.h"
+#include "Graphics/Graphics.h"
+#include "Widget/Widget.h"
 
 #include "../../Canvas/Scene/CanvasScene.h"
 #include "../Scene/NodeScene.h"
