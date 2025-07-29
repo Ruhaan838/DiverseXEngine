@@ -6,14 +6,15 @@
 #define MAINWINDOW_H
 
 #include <QApplication>
-#include <QGraphicsView>
 #include <QVBoxLayout>
 #include "Canvas/Scene/CanvasScene.h"
+#include "Canvas/View/CanvasView.h"
 
 class MainWindow : public QWidget {
 public:
     MainWindow(QWidget *parent = nullptr);
     void initUI();
+    void addDebugContent();
 
     QGraphicsView* view;
     QVBoxLayout* layout;

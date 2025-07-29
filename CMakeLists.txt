@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
         mainWindow.h
         Canvas/Scene/CanvasScene.cpp
         Canvas/Scene/CanvasScene.h
+        Canvas/View/CanvasView.cpp
+        Canvas/View/CanvasView.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
