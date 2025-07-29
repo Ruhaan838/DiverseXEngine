@@ -3,15 +3,14 @@
 //
 
 #include "CanvasScene.h"
+#include "../../BlockSDK/Scene/NodeScene.h"
 
-#include <codecvt>
 #include <qpainter.h>
 using namespace std;
 
-CanvasScene::CanvasScene(QGraphicsScene *parent) : QGraphicsScene(parent) {
-
+CanvasScene::CanvasScene(Scene* scene_ , QGraphicsScene *parent) : QGraphicsScene(parent) {
+    scene = scene_;
     setBackgroundBrush(_color_background);
-    setSceneRect(-scene_width / 2, -scene_height / 2, scene_width, scene_height);
 
     _pen_light.setWidth(1);
     _pen_dark.setWidth(2);
@@ -57,3 +56,8 @@ void CanvasScene::drawBackground(QPainter *painter, const QRectF &rect) {
     painter->drawLines(lines_dark.data(), static_cast<uint8_t>(lines_dark.size()));
 
 }
+
+void CanvasScene::setScene(int width, int height) {
+    setSceneRect(-width / 2, -height / 2, width, height);
+}
+
