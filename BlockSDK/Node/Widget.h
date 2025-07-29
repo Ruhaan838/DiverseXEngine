@@ -4,12 +4,21 @@
 
 #ifndef WIDGETNODE_H
 #define WIDGETNODE_H
+#include <QVBoxLayout>
 #include <QWidget>
+#include <QLabel>
 
-class WidgetNodeContent : public QWidget {
+
+class WidgetNode : public QWidget {
     Q_OBJECT
 public:
-    WidgetNodeContent(QWidget* parent = nullptr);
+    WidgetNode(QWidget* parent = nullptr);
+
+    void initUI();
+
+    QVBoxLayout *layout;
+    QLabel *wdg_label;
+
 };
 
 #endif //WIDGETNODE_H
