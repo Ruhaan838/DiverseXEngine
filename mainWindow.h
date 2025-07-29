@@ -7,6 +7,8 @@
 
 #include <QApplication>
 #include <QVBoxLayout>
+#include <string>
+
 #include "Canvas/Scene/CanvasScene.h"
 #include "Canvas/View/CanvasView.h"
 
@@ -16,9 +18,10 @@ public:
     void initUI();
     void addDebugContent();
 
-    QGraphicsView* view;
-    QVBoxLayout* layout;
-    CanvasScene *grScene;
+    QGraphicsView* view{};
+    QVBoxLayout* layout{};
+    CanvasScene *grScene{};
+    Scene *scene{};
 };
 
 #endif //MAINWINDOW_H

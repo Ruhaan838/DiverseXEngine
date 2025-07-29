@@ -22,7 +22,18 @@ set(PROJECT_SOURCES
         Canvas/Scene/CanvasScene.h
         Canvas/View/CanvasView.cpp
         Canvas/View/CanvasView.h
+        BlockSDK/Scene/NodeScene.cpp
+        BlockSDK/Scene/NodeScene.h
+        BlockSDK/Node/Node.cpp
+        BlockSDK/Node/Node.h
+        BlockSDK/Node/Graphics.cpp
+        BlockSDK/Node/Graphics.h
+        BlockSDK/Node/Widget.cpp
+        BlockSDK/Node/Widget.h
 )
+
+set(STYLE_PATH "${CMAKE_SOURCE_DIR}/style/nodestyle.qss")
+set_source_files_properties(${STYLE_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/style)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(DiverseXEngine
@@ -48,6 +59,7 @@ else()
 endif()
 
 target_link_libraries(DiverseXEngine PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_sources(DiverseXEngine PRIVATE ${STYLE_PATH})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
