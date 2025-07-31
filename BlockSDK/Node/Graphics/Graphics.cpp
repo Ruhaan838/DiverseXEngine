@@ -69,7 +69,7 @@ std::string GraphicsNode::getTitle() {
 }
 
 QRectF GraphicsNode::boundingRect() const {
-    return QRectF(0, 0, 2 * edge_size + width, 2 * edge_size + height).normalized();
+    return QRectF(0, 0, width, height).normalized();
 }
 
 void GraphicsNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) {
