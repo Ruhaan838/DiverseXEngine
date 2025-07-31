@@ -4,16 +4,14 @@
 
 #include "mainWindow.h"
 
-#include <iostream>
 #include <QColor>
 #include <QPushButton>
-#include <QGraphicsProxyWidget>
 #include <QTextEdit>
 #include <QApplication>
-#include <fstream>
 
 #include "BlockSDK/Node/Graphics/Graphics.h"
 #include "BlockSDK/Node/Node.h"
+#include "BlockSDK/Node/Socket/Socket.h"
 #include "BlockSDK/Scene/NodeScene.h"
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
@@ -42,7 +40,7 @@ void MainWindow::initUI() {
     view->setScene(grScene);
     layout->addWidget(view);
 
-    const auto *node = new Node(scene, "Awesome Node");
+    const auto *node = new Node(scene, "Awesome Node", 2, 1);
     node->grNode->setPos(-250, -150);
 
     setWindowTitle("DiversXEngine");

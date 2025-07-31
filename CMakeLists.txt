@@ -30,6 +30,10 @@ set(PROJECT_SOURCES
         BlockSDK/Node/Graphics/Graphics.h
         BlockSDK/Node/Widget/Widget.cpp
         BlockSDK/Node/Widget/Widget.h
+        BlockSDK/Node/Socket/Socket.cpp
+        BlockSDK/Node/Socket/Socket.h
+        BlockSDK/Node/Socket/Graphics.cpp
+        BlockSDK/Node/Socket/Graphics.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
