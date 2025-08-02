@@ -19,7 +19,7 @@ CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
 }
 
 void CanvasView::initUI() {
-    setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
