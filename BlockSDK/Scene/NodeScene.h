@@ -10,21 +10,22 @@
 
 class CanvasScene;
 class Node;
+class NodeEdges;
 
 class Scene {
 public:
     Scene();
 
     std::vector<Node*> nodes;
-    std::vector<Node*> edges;
+    std::vector<NodeEdges*> edges;
 
     int scene_width = 64000;
     int scene_height = 64000;
 
     void addNode(Node* node);
-    void addEdge(Node* edge);
+    void addEdge(NodeEdges* edge);
     void removeNode(Node* node);
-    void removeEdge(Node* edge);
+    void removeEdge(NodeEdges* edge);
 
     CanvasScene *grScene;
 

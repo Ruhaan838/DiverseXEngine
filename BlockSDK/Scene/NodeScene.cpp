@@ -19,17 +19,15 @@ void Scene::addNode(Node* node) {
     nodes.emplace_back(node);
 }
 
-void Scene::addEdge(Node* edge) {
-    nodes.emplace_back(edge);
+void Scene::addEdge(NodeEdges* edge) {
+    edges.emplace_back(edge);
 }
 
-// TODO: check is this method works?
 void Scene::removeNode(Node* node) {
     nodes.erase(std::find(nodes.begin(), nodes.end(), node));
 }
 
-// TODO: check is this method works?
-void Scene::removeEdge(Node* edge) {
-    nodes.erase(std::find(nodes.begin(), nodes.end(), edge));
+void Scene::removeEdge(NodeEdges* edge) {
+    edges.erase(std::find(edges.begin(), edges.end(), edge));
 }
 
