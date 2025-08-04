@@ -14,7 +14,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        main.cpp
         main.ui
         mainWindow.cpp
         mainWindow.h
@@ -34,6 +33,10 @@ set(PROJECT_SOURCES
         BlockSDK/Node/Socket/Socket.h
         BlockSDK/Node/Socket/Graphics.cpp
         BlockSDK/Node/Socket/Graphics.h
+        BlockSDK/Node/Edges/NodeEdgs.cpp
+        BlockSDK/Node/Edges/NodeEdgs.h
+        BlockSDK/Node/Edges/Graphics.cpp
+        BlockSDK/Node/Edges/Graphics.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

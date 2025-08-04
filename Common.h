@@ -6,6 +6,8 @@
 #define COMMAN_H
 #include <QColor>
 
+inline bool DEBUG = true;
+
 enum POSITION {
     LEFT_TOP = 1,
     LEFT_BOTTOM = 2,
@@ -27,7 +29,13 @@ enum SOCKETTYPES {
     COLOR_6 = 6,
 };
 
-// Helper function to convert SOCKETTYPES enum to QColor
+enum EDGEDRAGMODS {
+    MODE_NO_OP = 1,
+    MODE_EDGE_DRAG = 2,
+
+    EDGE_DRAG_START_THRESHOLD = 10
+};
+
 inline QColor getSocketColor(SOCKETTYPES type) {
     switch (type) {
         case COLOR_1: return QColor("#FFFF7700");
@@ -36,7 +44,7 @@ inline QColor getSocketColor(SOCKETTYPES type) {
         case COLOR_4: return QColor("#FFa86db1");
         case COLOR_5: return QColor("#FFb54747");
         case COLOR_6: return QColor("#FFdbe220");
-        default: return QColor("#FF000000"); // Default black color
+        default: return QColor("#FFFF7700");
     }
 }
 
