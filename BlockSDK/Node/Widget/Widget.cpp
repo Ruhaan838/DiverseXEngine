@@ -22,5 +22,4 @@ void WidgetNode::initUI() {
     wdg_label = new QLabel("Some Title");
     layout->addWidget(wdg_label);
     layout->addWidget(new QTextEdit("foo"));
-
 }
