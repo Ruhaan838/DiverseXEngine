@@ -8,10 +8,14 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QApplication>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QRect>
+#include <QDebug>
 
 #include "BlockSDK/Node/Graphics/Graphics.h"
 #include "BlockSDK/Node/Node.h"
-#include "BlockSDK/Node/Socket/Socket.h"
+#include "BlockSDK/Node/Edges/NodeEdgs.h"
 #include "BlockSDK/Scene/NodeScene.h"
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
@@ -22,9 +26,17 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 
 void MainWindow::initUI() {
 
-    const int mid_h = this->height() / 2;
-    const int mid_w = this->width() / 2;
-    setGeometry(mid_w, mid_h, 800, 600);
+    // Set window size first, then center it
+    resize(800, 600);
+    
+    // Center the window on screen
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->geometry();
+        int x = (screenGeometry.width() - width()) / 2;
+        int y = (screenGeometry.height() - height()) / 2;
+        move(x, y);
+    }
 
     layout = new QVBoxLayout();
     layout->setContentsMargins(0, 0, 0, 0);
@@ -34,18 +46,34 @@ void MainWindow::initUI() {
     scene = new Scene();
     grScene = scene->grScene;
 
-
     //graphics View
     view = new CanvasView(grScene);
     view->setScene(grScene);
     layout->addWidget(view);
 
-    const auto *node = new Node(scene, "Awesome Node", 2, 1);
-    node->grNode->setPos(-250, -150);
+    addNodes();
 
     setWindowTitle("DiversXEngine");
-    show();
 }
+
+void MainWindow::addNodes() {
+    auto *node = new Node(scene, "Awesome Node", {COLOR_1, COLOR_2, COLOR_3}, {COLOR_2});
+    node->setPos(-350, -150);
+
+    auto *node1 = new Node(scene, "Awesome Node 1", {COLOR_3, COLOR_4, COLOR_5}, {COLOR_2});
+    node1->setPos(200, -250);
+
+    auto *node2 = new Node(scene, "Awesome Node 2", {COLOR_6, COLOR_1, COLOR_3}, {COLOR_2});
+    node2->setPos(-50, 50);
+
+    if (!node->outputs.empty() && !node1->inputs.empty()) {
+        auto *edge1 = new NodeEdges(scene, node->outputs.at(0), node1->inputs.at(0), EDGE_TYPE_BEZIER);
+        auto *edge2 = new NodeEdges(scene, node2->outputs.at(0), node1->inputs.at(1), EDGE_TYPE_BEZIER);
+    } else {
+        qDebug() << "Warning: Cannot create edge - missing sockets";
+    }
+}
+
 
 void MainWindow::addDebugContent() {
     auto greenBrush = QBrush(Qt::darkGreen);

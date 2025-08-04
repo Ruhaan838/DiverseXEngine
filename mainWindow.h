@@ -11,12 +11,14 @@
 
 #include "Canvas/Scene/CanvasScene.h"
 #include "Canvas/View/CanvasView.h"
+#include "BlockSDK/Scene/NodeScene.h"
 
 class MainWindow : public QWidget {
 public:
     MainWindow(QWidget *parent = nullptr);
     void initUI();
     void addDebugContent();
+    void addNodes();
 
     QGraphicsView* view{};
     QVBoxLayout* layout{};
