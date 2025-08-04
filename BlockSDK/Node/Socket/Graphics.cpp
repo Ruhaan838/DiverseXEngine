@@ -4,12 +4,19 @@
 
 #include "Graphics.h"
 #include "../Graphics/Graphics.h"
-#include <QPainter>
 
-SocketGraphics::SocketGraphics(GraphicsNode *parent): QGraphicsItem(parent) {
+#include <iostream>
+#include <QPainter>
+#include <QDebug>
+
+SocketGraphics::SocketGraphics(GraphicsNode *parent, SOCKETTYPES item): QGraphicsItem(parent) {
+
+    _color_background = getSocketColor(item);
+
     _pen = QPen(_color_outline);
     _pen.setWidthF(outline_width);
     _brush = QBrush(_color_background);
+
 }
 
 void SocketGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -23,6 +30,6 @@ void SocketGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
 QRectF SocketGraphics::boundingRect() const {
     return {-radius - outline_width, -radius - outline_width,
-        2 * (radius - outline_width), 2 * (radius - outline_width)};
+        3 * (radius - outline_width), 3 * (radius - outline_width)};
 }
 

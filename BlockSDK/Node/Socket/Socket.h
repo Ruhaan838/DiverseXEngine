@@ -5,19 +5,28 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "../../Common.h"
+#include <utility>
+
+#include "../../../Common.h"
 
 class SocketGraphics;
 class Node;
+class NodeEdges;
 
 class SocketNode {
 public:
-    SocketNode(Node* node_, int index = 0, POSITION position = LEFT_TOP);
+    SocketNode(Node* node_, int index = 0, POSITION position = LEFT_TOP, SOCKETTYPES item = COLOR_1);
+    void setConnectedEdge(NodeEdges* edge = nullptr);
+    std::pair<int, int> getSocketPos() const;
+    bool hasEdge() const;
+    void setEdge(NodeEdges* edge = nullptr);
 
     SocketGraphics* grSocket{};
     int index;
-    Node* node;
+    Node *node;
     POSITION position;
+
+    NodeEdges* edge;
 
 };
 
