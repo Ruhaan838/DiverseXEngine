@@ -5,21 +5,27 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <qpoint.h>
 #include <string>
 #include <vector>
-#include "../Common.h"
+#include "../../Common.h"
 
 class Scene;
-class GraphicsNode;
 class WidgetNode;
 class SocketNode;
+class GraphicsNode;
 
 
 class Node {
 public:
-    Node(Scene* scene_, const std::string &title = "Undefine Node", int input_size=0, int output_size=0);
+    Node(Scene* scene_, const std::string &title = "Undefine Node", std::vector<SOCKETTYPES> input_size = {COLOR_1}, std::vector<SOCKETTYPES> output_size = {COLOR_2});
 
     std::pair<int, int> getSocketPos(int index, POSITION position);
+    void setPos(int x, int y);
+    std::pair<int, int> Pos();
+    QPointF pos() const;
+    void updateConnectedEdges() const;
+
 
     std::vector<SocketNode*> inputs;
     std::vector<SocketNode*> outputs;
@@ -32,6 +38,7 @@ public:
     WidgetNode *content;
 
     int socket_spacing = 22;
+    int x_pos, y_pos;
 
 
 
