@@ -11,27 +11,25 @@
 #include "../Node.h"
 #include "../Widget/Widget.h"
 
-
 GraphicsNode::GraphicsNode(Node *node, QGraphicsItem *parent) : QGraphicsItem(parent), node(node) {
 
-    _title_color = Qt::white;
-    _title_font = QFont("Ubuntu", 12);
-    _pen_default =  QPen(QColor("#7F000000"));
-    _pen_selected =  QPen(QColor("#FFFFA637"));
+        _title_color = Qt::white;
+        _title_font = QFont("Ubuntu", 12);
+        _pen_default =  QPen(QColor("#7F000000"));
+        _pen_selected =  QPen(QColor("#FFFFA637"));
 
-    _title_brush = QBrush(QColor("#FF313131"));
-    _bg_brush = QBrush(QColor("#E3212121"));
+        _title_brush = QBrush(QColor("#FF313131"));
+        _bg_brush = QBrush(QColor("#E3212121"));
+        content = node->content;
 
-    content = node->content;
+        initUI();
+        initTitle();
+        setTitle("Undefine Node");
 
-    initUI();
-    initTitle();
-    setTitle("Undefine Node");
+        // init sockets
 
-    // init sockets
-
-    //init content
-    initContent();
+        //init content
+        initContent();
 
 }
 
@@ -103,4 +101,9 @@ void GraphicsNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->setBrush(Qt::NoBrush);
     painter->drawPath(path_outline.simplified());
+}
+
+void GraphicsNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+    QGraphicsItem::mouseMoveEvent(event);
+    node->updateConnectedEdges();
 }

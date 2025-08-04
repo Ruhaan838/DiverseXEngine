@@ -1,9 +1,9 @@
 //
 // Created by Ruhaan on 29/07/25.
 //
-
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
+
 #include <QGraphicsItem>
 #include <Qt>
 #include <QGraphicsProxyWidget>
@@ -19,6 +19,7 @@ public:
     GraphicsNode(Node *node, QGraphicsItem *parent = nullptr);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
     void initUI();
     void initTitle();
@@ -49,8 +50,7 @@ public:
     QBrush _title_brush;
     QBrush _bg_brush;
 
-
-
 };
+
 
 #endif //GRAPHICS_H
