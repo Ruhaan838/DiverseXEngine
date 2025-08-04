@@ -5,17 +5,17 @@
 #include "CanvasView.h"
 
 #include <qevent.h>
+#include <QDebug>
 
 #include "../Scene/CanvasScene.h"
-#include <Qt>
+#include "../../BlockSDK/Node/Socket/Graphics.h"
+
 
 CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
     : QGraphicsView(scene_, parent), grScene(scene_) {
+
     initUI();
-
     setScene(grScene);
-
-
 }
 
 void CanvasView::initUI() {
@@ -107,10 +107,40 @@ void CanvasView::middleMouseButtonRelease(QMouseEvent *event) {
 
 //helper methods
 void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
+
+    last_lmb_click_scene_pos = mapToScene(event->pos());
+
+    if (auto item = getItemAtClick(event)) {
+        if (dynamic_cast<SocketGraphics*>(item)) {
+            if (mode == MODE_NO_OP) {
+                mode = MODE_EDGE_DRAG;
+                edgeDragStart(item);
+                return;
+            }
+        }
+        if (mode == MODE_EDGE_DRAG) {
+            if (edgeDragEnd(item)) {
+                return;
+            }
+        }
+    }
     QGraphicsView::mousePressEvent(event);
 }
 
 void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
+    if (auto item = getItemAtClick(event)) {
+        if (mode == MODE_EDGE_DRAG) {
+
+            if (distanceBetween(event)) {
+                {}
+            } else {
+                if (edgeDragEnd(item)) {
+                    return;
+                }
+            }
+        }
+    }
+
     QGraphicsView::mouseReleaseEvent(event);
 }
 
@@ -121,3 +151,39 @@ void CanvasView::rightMouseButtonPress(QMouseEvent *event) {
 void CanvasView::rightMouseButtonRelease(QMouseEvent *event) {
     QGraphicsView::mouseReleaseEvent(event);
 }
+
+QGraphicsItem* CanvasView::getItemAtClick(QMouseEvent *event) {
+    auto pos = event->pos();
+    return itemAt(pos);;
+}
+
+bool CanvasView::edgeDragStart(QGraphicsItem *item) {
+    if (DEBUG) {
+        qDebug() << "View::edgeDragStart - Start Dragging Edge";
+        qDebug() << "View::edgeDragStart - assign Start Socket";
+    }
+}
+
+bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
+    mode = MODE_NO_OP;
+    if (DEBUG)
+        qDebug() << "View::edgeDragEnd - End Dragging Edge";
+    if (dynamic_cast<SocketGraphics*>(item)) {
+        if (DEBUG)
+            qDebug() << "View::edgeDragEnd - assign end Socket";
+        return true;
+    }
+    return false;
+}
+
+//measures if we are too far from the last LMB click scene position
+bool CanvasView::distanceBetween(QMouseEvent *event) {
+    auto new_lmb_release_scene_pos = mapToScene(event->pos());
+    auto dist_scene_pos = new_lmb_release_scene_pos - last_lmb_click_scene_pos;
+
+    double val = (dist_scene_pos.x() * dist_scene_pos.x()) + (dist_scene_pos.y() * dist_scene_pos.y());
+    int edge_threshold = EDGE_DRAG_START_THRESHOLD * EDGE_DRAG_START_THRESHOLD;
+    return val < edge_threshold;
+}
+
+

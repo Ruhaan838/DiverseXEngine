@@ -7,6 +7,7 @@
 
 #include <QGraphicsView>
 #include <vector>
+#include "../../Common.h"
 
 class CanvasScene;
 
@@ -19,6 +20,11 @@ public:
     bool zoomClap = true;
     float zoomStep = 1;
     std::vector<float> zoomRange = {0, 20};
+
+    //draging socket
+    EDGEDRAGMODS mode = MODE_NO_OP;
+    QPointF last_lmb_click_scene_pos;
+
 
 
     void initUI();
@@ -37,6 +43,11 @@ public:
 
     void rightMouseButtonPress(QMouseEvent *event);
     void rightMouseButtonRelease(QMouseEvent *event);
+
+    QGraphicsItem* getItemAtClick(QMouseEvent* event);
+    bool edgeDragStart(QGraphicsItem* item);
+    bool edgeDragEnd(QGraphicsItem* item);
+    bool distanceBetween(QMouseEvent* event);
 
 };
 

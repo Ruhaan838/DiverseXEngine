@@ -14,7 +14,6 @@ CanvasScene::CanvasScene(Scene* scene_ , QGraphicsScene *parent) : QGraphicsScen
 
     _pen_light.setWidth(1);
     _pen_dark.setWidth(2);
-
 }
 
 void CanvasScene::drawBackground(QPainter *painter, const QRectF &rect) {
