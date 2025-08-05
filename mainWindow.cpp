@@ -54,6 +54,7 @@ void MainWindow::initUI() {
     addNodes();
 
     setWindowTitle("DiversXEngine");
+    show();
 }
 
 void MainWindow::addNodes() {
