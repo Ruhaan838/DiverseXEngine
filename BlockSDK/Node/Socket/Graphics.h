@@ -13,13 +13,15 @@
 #include "../../../Common.h"
 
 class GraphicsNode :public QGraphicsItem{};
+class SocketNode;
 
 class SocketGraphics : public QGraphicsItem{
 public:
-    SocketGraphics(GraphicsNode* parent = nullptr, SOCKETTYPES item = COLOR_1);
+    SocketGraphics(SocketNode *socket, GraphicsNode* parent = nullptr,SOCKETTYPES item = COLOR_1);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
+    std::string str();
 
     float radius = 6.0;
     float outline_width = 1.0;
@@ -28,8 +30,9 @@ public:
 
     QPen _pen;
     QBrush _brush;
+    SocketNode *socket;
 
 
 };
 
-#endif //GRAPHICS_H
+#endif //SOCKET_GRAPHICS_H

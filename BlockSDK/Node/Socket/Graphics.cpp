@@ -3,13 +3,14 @@
 //
 
 #include "Graphics.h"
+#include "Socket.h"
 #include "../Graphics/Graphics.h"
 
-#include <iostream>
 #include <QPainter>
-#include <QDebug>
+#include <qtextstream.h>
+#include <sstream>
 
-SocketGraphics::SocketGraphics(GraphicsNode *parent, SOCKETTYPES item): QGraphicsItem(parent) {
+SocketGraphics::SocketGraphics(SocketNode *socket, GraphicsNode *parent, SOCKETTYPES item): QGraphicsItem(parent), socket(socket) {
 
     _color_background = getSocketColor(item);
 
@@ -33,3 +34,9 @@ QRectF SocketGraphics::boundingRect() const {
         3 * (radius - outline_width), 3 * (radius - outline_width)};
 }
 
+
+std::string SocketGraphics::str() {
+    std::ostringstream oss;
+    oss << "\t <SocketGraphics " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
+    return oss.str();
+}
