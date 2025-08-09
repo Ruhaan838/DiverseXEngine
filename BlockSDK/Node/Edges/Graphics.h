@@ -24,8 +24,10 @@ public:
 
     QPen _pen;
     QPen _selectedPen;
+    QPen _pen_dragging;
     QColor _color;
     QColor _selectedColor;
+
 
     std::vector<int> posSource = {0, 0};
     std::vector<int> posDestination = {200, 100};
