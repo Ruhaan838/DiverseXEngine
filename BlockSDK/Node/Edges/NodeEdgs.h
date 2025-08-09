@@ -10,6 +10,7 @@ class SocketNode;
 class EdgeGraphics;
 
 #include "../../../Common.h"
+using namespace std;
 
 class NodeEdges {
 public:
@@ -18,12 +19,15 @@ public:
     void updatePos() const;
     void remove_from_sockets();
     void remove();
+    string str();
 
     Scene* scene;
     SocketNode* startSocket;
     SocketNode* endSocket;
 
     EdgeGraphics* grEdge;
+
+    void setDestination(int x, int y);
 
 };
 
