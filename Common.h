@@ -6,7 +6,7 @@
 #define COMMAN_H
 #include <QColor>
 
-inline bool DEBUG = true;
+inline int EDGE_CP_ROUNDNESS = 100;
 
 enum POSITION {
     LEFT_TOP = 1,
