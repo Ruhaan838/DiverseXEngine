@@ -9,7 +9,11 @@
 #include <vector>
 #include "../../Common.h"
 
+
 class CanvasScene;
+class NodeEdges;
+class SocketGraphics;
+class SocketNode;
 
 class CanvasView : public QGraphicsView {
 public:
@@ -25,12 +29,16 @@ public:
     EDGEDRAGMODS mode = MODE_NO_OP;
     QPointF last_lmb_click_scene_pos;
 
+    NodeEdges* dragEdge;
+    NodeEdges* prevEdge;
+    SocketNode* lastStartSocket;
 
 
     void initUI();
 
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
     // void wheelEvent(QWheelEvent *event) override;
 
 
@@ -45,7 +53,7 @@ public:
     void rightMouseButtonRelease(QMouseEvent *event);
 
     QGraphicsItem* getItemAtClick(QMouseEvent* event);
-    bool edgeDragStart(QGraphicsItem* item);
+    bool edgeDragStart(SocketGraphics * item);
     bool edgeDragEnd(QGraphicsItem* item);
     bool distanceBetween(QMouseEvent* event);
 

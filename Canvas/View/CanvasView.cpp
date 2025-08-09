@@ -7,9 +7,15 @@
 #include <qevent.h>
 #include <QDebug>
 
+#include "../../BlockSDK/Node/Node.h"
+// #include "../../BlockSDK/Node/Edges/Graphics.h"
+#include "../../BlockSDK/Node/Edges/NodeEdgs.h"
 #include "../Scene/CanvasScene.h"
+#include "../../BlockSDK/Node/Socket/Socket.h"
 #include "../../BlockSDK/Node/Socket/Graphics.h"
+#include "../../BlockSDK/Scene/NodeScene.h"
 
+inline bool DEBUG = false;
 
 CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
     : QGraphicsView(scene_, parent), grScene(scene_) {
@@ -111,10 +117,10 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
     last_lmb_click_scene_pos = mapToScene(event->pos());
 
     if (auto item = getItemAtClick(event)) {
-        if (dynamic_cast<SocketGraphics*>(item)) {
+        if (auto sk = dynamic_cast<SocketGraphics*>(item)) {
             if (mode == MODE_NO_OP) {
                 mode = MODE_EDGE_DRAG;
-                edgeDragStart(item);
+                edgeDragStart(sk);
                 return;
             }
         }
@@ -146,33 +152,109 @@ void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
 
 void CanvasView::rightMouseButtonPress(QMouseEvent *event) {
     QGraphicsView::mousePressEvent(event);
+
+    if (auto item = getItemAtClick(event)) {
+        if (DEBUG) {
+            if (auto sok = dynamic_cast<SocketGraphics*>(item)) {
+                qDebug() << "RightMouseButtonPress DEBUG";
+                qDebug() << "Socket:" << sok->socket << "\t Edge:" << sok->socket->edge->str().c_str();
+            }
+            // if (auto edge = dynamic_cast<EdgeGraphics>(item)) {
+            //     qDebug() << "it's a NodeEdges Node";
+            // }
+        }
+    } else {
+        if (DEBUG) {
+            qDebug("Item is nullptr - printing debug info:");;
+            qDebug() << "Scene:"  << scene();
+            qDebug() << "Nodes:";
+            for (const auto n : grScene->scene->nodes) {
+                qDebug("%s", n->str().c_str());
+            }
+            qDebug() << "Edges:";
+            for (const auto n : grScene->scene->edges) {
+                qDebug("%s", n->str().c_str());
+            }
+        }
+    }
 }
 
 void CanvasView::rightMouseButtonRelease(QMouseEvent *event) {
     QGraphicsView::mouseReleaseEvent(event);
 }
 
-QGraphicsItem* CanvasView::getItemAtClick(QMouseEvent *event) {
-    auto pos = event->pos();
-    return itemAt(pos);;
+void CanvasView::mouseMoveEvent(QMouseEvent *event) {
+    if (mode == MODE_EDGE_DRAG) {
+        auto pos = mapToScene(event->pos());
+        dragEdge->setDestination(pos.x(), pos.y());
+    }
+
+    QGraphicsView::mouseMoveEvent(event);
 }
 
-bool CanvasView::edgeDragStart(QGraphicsItem *item) {
+
+QGraphicsItem* CanvasView::getItemAtClick(QMouseEvent *event) {
+    auto pos = event->pos();
+    return itemAt(pos);
+}
+
+bool CanvasView::edgeDragStart(SocketGraphics *item) {
     if (DEBUG) {
-        qDebug() << "View::edgeDragStart - Start Dragging Edge";
-        qDebug() << "View::edgeDragStart - assign Start Socket";
+        qDebug() << "View::edgeDragStart ~ Start Dragging Edge";
+        qDebug() << "View::edgeDragStart ~ assign Start Socket" << item->socket;
     }
+    prevEdge = item->socket->edge;
+    lastStartSocket = item->socket;
+
+    dragEdge = new NodeEdges(grScene->scene, item->socket, nullptr, EDGE_TYPE_BEZIER);
+
+    if (DEBUG) {qDebug() << item << item->socket;};
+    if (DEBUG){qDebug() << "View::edgeDragStart ~ dragEdge" << dragEdge;}
+
+    return true;
+
 }
 
 bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
     mode = MODE_NO_OP;
-    if (DEBUG)
-        qDebug() << "View::edgeDragEnd - End Dragging Edge";
-    if (dynamic_cast<SocketGraphics*>(item)) {
+
+    if (auto sok = dynamic_cast<SocketGraphics*>(item)) {
         if (DEBUG)
-            qDebug() << "View::edgeDragEnd - assign end Socket";
+            qDebug() << "View::edgeDragEnd ~ assign end Socket" << sok->socket;
+        if (sok->socket->hasEdge()) {
+            sok->socket->edge->remove();
+        }
+        if (prevEdge != nullptr)
+            prevEdge->remove();
+        if (DEBUG)
+            qDebug() << "View::edgeDragEnd ~ predEdge removed";
+        dragEdge->startSocket = lastStartSocket;
+        dragEdge->endSocket = sok->socket;
+        dragEdge->startSocket->setConnectedEdge(dragEdge);
+        dragEdge->endSocket->setConnectedEdge(dragEdge);
+        if (DEBUG)
+            qDebug() << "View::edgeDragEnd ~ assignd st and end to drag edge";
+
+        dragEdge->updatePos();
         return true;
     }
+
+    if (DEBUG)
+        qDebug() << "View::edgeDragEnd ~ End Dragging Edge";
+
+    dragEdge->remove();
+    dragEdge = nullptr;
+
+    if (DEBUG)
+        qDebug() << "View: edgeDragEnd ~ set to previous edge:" << prevEdge;
+
+    if (prevEdge != nullptr) {
+        prevEdge->startSocket->edge = prevEdge;
+    }
+
+    if (DEBUG)
+        qDebug() << "View: edgeDragEnd ~ everything done.";
+
     return false;
 }
 
