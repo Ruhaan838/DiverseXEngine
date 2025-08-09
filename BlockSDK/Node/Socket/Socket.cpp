@@ -2,17 +2,16 @@
 // Created by Ruhaan on 29/07/25.
 //
 
-#include "Socket.h"
 
 #include <iostream>
 
 #include "Graphics.h"
-#include "../Graphics/Graphics.h"
+#include "Socket.h"
 #include "../Node.h"
 
 SocketNode::SocketNode(Node* node_, int index, POSITION position, SOCKETTYPES item) : node(node_), index(index), position(position) {
 
-    grSocket = new SocketGraphics(node->grNode, item);
+    grSocket = new SocketGraphics(this, node->grNode, item);
 
     auto ans = node->getSocketPos(index, position);
     grSocket->setPos(ans.first, ans.second);
