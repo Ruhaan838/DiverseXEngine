@@ -15,24 +15,26 @@ class WidgetNode;
 class SocketNode;
 class GraphicsNode;
 
+using namespace std;
 
 class Node {
 public:
-    Node(Scene* scene_, const std::string &title = "Undefine Node", std::vector<SOCKETTYPES> input_size = {COLOR_1}, std::vector<SOCKETTYPES> output_size = {COLOR_2});
+    Node(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {COLOR_1}, vector<SOCKETTYPES> output_size = {COLOR_2});
 
-    std::pair<int, int> getSocketPos(int index, POSITION position);
+    pair<int, int> getSocketPos(int index, POSITION position);
     void setPos(int x, int y);
-    std::pair<int, int> Pos();
+    pair<int, int> Pos();
     QPointF pos() const;
     void updateConnectedEdges() const;
+    string str();
 
 
-    std::vector<SocketNode*> inputs;
-    std::vector<SocketNode*> outputs;
+    vector<SocketNode*> inputs;
+    vector<SocketNode*> outputs;
 
 
     Scene* scene;
-    std::string _title;
+    string _title;
 
     GraphicsNode* grNode;
     WidgetNode *content;

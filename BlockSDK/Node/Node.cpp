@@ -5,6 +5,7 @@
 #include "Node.h"
 
 #include <iostream>
+#include <sstream>
 
 #include "../../Canvas/Scene/CanvasScene.h"
 #include "../Scene/NodeScene.h"
@@ -13,7 +14,7 @@
 #include "Widget/Widget.h"
 #include "Socket/Socket.h"
 
-Node::Node(Scene *scene_, const std::string &title, std::vector<SOCKETTYPES> input_size, std::vector<SOCKETTYPES> output_size) : scene(scene_) {
+Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(scene_) {
 
     content = new WidgetNode();
 
@@ -40,7 +41,7 @@ Node::Node(Scene *scene_, const std::string &title, std::vector<SOCKETTYPES> inp
     }
 }
 
-std::pair<int, int> Node::getSocketPos(int index, POSITION position) {
+ pair<int, int> Node::getSocketPos(int index, POSITION position) {
     int x = 0, y = 0;
 
     if (position == POSITION::LEFT_TOP || position == POSITION::LEFT_BOTTOM) {x = 0;}
@@ -58,7 +59,7 @@ void Node::setPos(int x, int y) {
     grNode->setPos(x, y);
 }
 
-std::pair<int, int> Node::Pos() {
+pair<int, int> Node::Pos() {
     return {x_pos, y_pos};
 }
 
@@ -69,7 +70,7 @@ QPointF Node::pos() const {
 void Node::updateConnectedEdges() const {
 
 
-    size_t max_size = std::max(inputs.size(), outputs.size());
+    size_t max_size =  max(inputs.size(), outputs.size());
     
     for (size_t i = 0; i < max_size; i++) {
         if (i < inputs.size() && inputs[i]->hasEdge()) {
@@ -80,4 +81,10 @@ void Node::updateConnectedEdges() const {
             outputs[i]->edge->updatePos();
         }
     }
+}
+
+ string Node::str() {
+     ostringstream oss;
+    oss << "\t <Node " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
+    return oss.str();
 }
