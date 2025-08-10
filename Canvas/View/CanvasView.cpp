@@ -22,6 +22,7 @@ CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
 
     initUI();
     setScene(grScene);
+    setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 void CanvasView::initUI() {

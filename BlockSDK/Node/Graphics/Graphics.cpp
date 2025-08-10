@@ -6,10 +6,13 @@
 
 #include <iostream>
 #include <QDebug>
+#include <QGraphicsScene>
 #include <QPainter>
 
 #include "../Node.h"
 #include "../Widget/Widget.h"
+#include "../../../Canvas/Scene/CanvasScene.h"
+#include "../../Scene/NodeScene.h"
 
 GraphicsNode::GraphicsNode(Node *node, QGraphicsItem *parent) : QGraphicsItem(parent), node(node) {
 
@@ -105,5 +108,15 @@ void GraphicsNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void GraphicsNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     QGraphicsItem::mouseMoveEvent(event);
-    node->updateConnectedEdges();
+    
+    if (scene()) {
+        auto* nodeScene = dynamic_cast<CanvasScene*>(scene());
+        if (nodeScene && nodeScene->scene) {
+            for (auto* sceneNode : nodeScene->scene->nodes) {
+                if (sceneNode->grNode->isSelected()) {
+                    sceneNode->updateConnectedEdges();
+                }
+            }
+        }
+    }
 }
