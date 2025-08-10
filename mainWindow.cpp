@@ -13,7 +13,7 @@
 #include <QRect>
 #include <QDebug>
 
-#include "BlockSDK/Node/Graphics/Graphics.h"
+#include "BlockSDK/Node/Graphics.h"
 #include "BlockSDK/Node/Node.h"
 #include "BlockSDK/Node/Edges/NodeEdgs.h"
 #include "BlockSDK/Scene/NodeScene.h"

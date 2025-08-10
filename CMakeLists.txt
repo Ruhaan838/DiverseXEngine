@@ -25,8 +25,8 @@ set(PROJECT_SOURCES
         BlockSDK/Scene/NodeScene.h
         BlockSDK/Node/Node.cpp
         BlockSDK/Node/Node.h
-        BlockSDK/Node/Graphics/Graphics.cpp
-        BlockSDK/Node/Graphics/Graphics.h
+        BlockSDK/Node/Graphics.cpp
+        BlockSDK/Node/Graphics.h
         BlockSDK/Node/Widget/Widget.cpp
         BlockSDK/Node/Widget/Widget.h
         BlockSDK/Node/Socket/Socket.cpp

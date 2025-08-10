@@ -6,13 +6,12 @@
 
 #include <iostream>
 #include <QDebug>
-#include <QGraphicsScene>
 #include <QPainter>
 
-#include "../Node.h"
-#include "../Widget/Widget.h"
-#include "../../../Canvas/Scene/CanvasScene.h"
-#include "../../Scene/NodeScene.h"
+#include "Node.h"
+#include "Widget/Widget.h"
+#include "../../Canvas/Scene/CanvasScene.h"
+#include "../Scene/NodeScene.h"
 
 GraphicsNode::GraphicsNode(Node *node, QGraphicsItem *parent) : QGraphicsItem(parent), node(node) {
 

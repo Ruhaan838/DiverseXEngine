@@ -10,7 +10,7 @@
 #include "../../Canvas/Scene/CanvasScene.h"
 #include "../Scene/NodeScene.h"
 #include "Edges/NodeEdgs.h"
-#include "Graphics/Graphics.h"
+#include "Graphics.h"
 #include "Widget/Widget.h"
 #include "Socket/Socket.h"
 
