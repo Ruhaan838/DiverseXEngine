@@ -3,7 +3,7 @@
 ## Current TODO:
 - [X] ~~add the graphics of the edge connection.~~
 - [ ] check the folder structure
-- [ ] implement the selection and deletion.
+- [X] ~~implement the selection and deletion.~~
 - [ ] implement the zoom with wheel and trackpad zoom.
 - [ ] Serialization and Deserialization of the nodes.
 - [ ] add funcs to cut the edges.
