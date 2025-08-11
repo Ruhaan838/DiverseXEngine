@@ -34,7 +34,7 @@ void EdgeGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         if (!isSelected())
             painter->setPen(_pen);
         else
-            painter->setPen(_selectedPen);  // Fix: use _selectedPen instead of _selectedColor
+            painter->setPen(_selectedPen);
     }
     painter->setBrush(Qt::NoBrush);
     painter->drawPath(path());

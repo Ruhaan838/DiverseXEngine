@@ -12,7 +12,9 @@
 #include "../Node.h"
 #include "../../../Canvas/Scene/CanvasScene.h"
 #include "../Socket/Socket.h"
+#include <QDebug>
 
+inline bool DEBUG = false;
 
 NodeEdges::NodeEdges(Scene *scene, SocketNode *start_socket, SocketNode *end_socket, EDGETYPES type) : scene(scene), startSocket(start_socket), endSocket(end_socket) {
 
@@ -56,10 +58,13 @@ void NodeEdges::updatePos() const {
 
 
 void NodeEdges::remove_from_sockets() {
+    if (DEBUG) qDebug() << "we have this st socket and end socket" << startSocket << " " << endSocket;
     if (startSocket != nullptr) {
+        if (DEBUG) qDebug() << "\t \t Start Socket:" << startSocket;
         startSocket->setEdge(nullptr);
     }
     if (endSocket != nullptr) {
+        if (DEBUG) qDebug() << "\t \t End Socket:" << endSocket;
         endSocket->setEdge(nullptr);
     }
     endSocket = nullptr;
@@ -67,10 +72,15 @@ void NodeEdges::remove_from_sockets() {
 }
 
 void NodeEdges::remove() {
+    if (DEBUG) qDebug() << "NodeEdges:remove ~ " << this->str().c_str() << "\nwith (Sockets, Edges):";
+    if (DEBUG) qDebug() << "\t remove edge from all sockets";
     remove_from_sockets();
-    scene->grScene->removeItem(grEdge);
-    grEdge = nullptr;
-    scene->removeEdge(this);
+
+    if (DEBUG) qDebug() << "\t removed the grEdge";
+    if (grEdge && scene && scene->grScene) {
+        scene->grScene->removeItem(grEdge);
+        grEdge = nullptr;
+    }
 }
 
 string NodeEdges::str() {
@@ -84,3 +94,6 @@ void NodeEdges::setDestination(int x, int y) {
     grEdge->update();
 }
 
+NodeEdges::~NodeEdges() {
+    if (DEBUG) qDebug() << "NodeEdges destructor called for" << this;
+}

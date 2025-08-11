@@ -29,6 +29,7 @@ public:
 
     void setDestination(int x, int y);
 
+    ~NodeEdges();
 };
 
 #endif
