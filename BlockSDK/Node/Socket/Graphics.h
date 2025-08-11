@@ -12,12 +12,12 @@
 
 #include "../../../Common.h"
 
-class GraphicsNode :public QGraphicsItem{};
+class GraphicsNode;
 class SocketNode;
 
 class SocketGraphics : public QGraphicsItem{
 public:
-    SocketGraphics(SocketNode *socket, GraphicsNode* parent = nullptr,SOCKETTYPES item = COLOR_1);
+    SocketGraphics(SocketNode *socket, GraphicsNode* parent = nullptr, SOCKETTYPES item = COLOR_1);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;

@@ -7,6 +7,7 @@
 
 #include "Graphics.h"
 #include "Socket.h"
+#include <sstream>
 #include "../Node.h"
 
 SocketNode::SocketNode(Node* node_, int index, POSITION position, SOCKETTYPES item) : node(node_), index(index), position(position) {
@@ -33,4 +34,10 @@ bool SocketNode::hasEdge() const {
 
 void SocketNode::setEdge(NodeEdges *edge_) {
     edge = edge_;
+}
+
+string SocketNode::str() {
+    ostringstream oss;
+    oss << "\t <Socket " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
+    return oss.str();
 }

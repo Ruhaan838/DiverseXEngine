@@ -4,7 +4,7 @@
 
 #include "Graphics.h"
 #include "Socket.h"
-#include "../Graphics.h"
+#include "../NodeGraphics.h"
 
 #include <QPainter>
 #include <qtextstream.h>

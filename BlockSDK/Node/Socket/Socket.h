@@ -21,6 +21,8 @@ public:
     bool hasEdge() const;
     void setEdge(NodeEdges* edge = nullptr);
 
+    std::string str();
+
     SocketGraphics* grSocket{};
     int index;
     Node *node;
