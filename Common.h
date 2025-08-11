@@ -42,7 +42,7 @@ inline QColor getSocketColor(SOCKETTYPES type) {
         case COLOR_2: return QColor("#FF52e220");
         case COLOR_3: return QColor("#FF0056a6");
         case COLOR_4: return QColor("#FFa86db1");
-        case COLOR_5: return QColor("#FFb54747");
+        case COLOR_5: return QColor("#FF40E0D0");
         case COLOR_6: return QColor("#FFdbe220");
         default: return QColor("#FFFF7700");
     }

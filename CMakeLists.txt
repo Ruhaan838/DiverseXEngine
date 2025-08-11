@@ -25,8 +25,8 @@ set(PROJECT_SOURCES
         BlockSDK/Scene/NodeScene.h
         BlockSDK/Node/Node.cpp
         BlockSDK/Node/Node.h
-        BlockSDK/Node/Graphics.cpp
-        BlockSDK/Node/Graphics.h
+        BlockSDK/Node/NodeGraphics.cpp
+        BlockSDK/Node/NodeGraphics.h
         BlockSDK/Node/Widget/Widget.cpp
         BlockSDK/Node/Widget/Widget.h
         BlockSDK/Node/Socket/Socket.cpp
@@ -37,6 +37,7 @@ set(PROJECT_SOURCES
         BlockSDK/Node/Edges/NodeEdgs.h
         BlockSDK/Node/Edges/Graphics.cpp
         BlockSDK/Node/Edges/Graphics.h
+        Canvas/View/helper.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
