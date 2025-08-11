@@ -2,8 +2,8 @@
 // Created by Ruhaan on 29/07/25.
 //
 
-#ifndef GRAPHICS_H
-#define GRAPHICS_H
+#ifndef NODE_GRAPHICS_H
+#define NODE_GRAPHICS_H
 
 #include <QGraphicsItem>
 #include <Qt>

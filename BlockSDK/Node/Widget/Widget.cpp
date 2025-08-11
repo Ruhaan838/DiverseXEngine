@@ -4,11 +4,12 @@
 
 #include "Widget.h"
 
-#include <QTextEdit>
+#include <QGraphicsView>
 
-WidgetNode::WidgetNode(QWidget *parent) {
-    QWidget::setParent(parent);
+#include "../Node.h"
 
+
+WidgetNode::WidgetNode(Node* node, QWidget *parent) : node(node), QWidget(parent) {
     initUI();
 
 }
@@ -21,5 +22,9 @@ void WidgetNode::initUI() {
 
     wdg_label = new QLabel("Some Title");
     layout->addWidget(wdg_label);
-    layout->addWidget(new QTextEdit("foo"));
+    layout->addWidget(new TextEdit("foo"));
+}
+
+void WidgetNode::setEditingFlag(bool flag) {
+    node->setEditingFlag(flag);
 }

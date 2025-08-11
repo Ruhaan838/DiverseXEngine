@@ -2,7 +2,7 @@
 // Created by Ruhaan on 29/07/25.
 //
 
-#include "Graphics.h"
+#include "NodeGraphics.h"
 
 #include <iostream>
 #include <QDebug>
@@ -12,6 +12,10 @@
 #include "Widget/Widget.h"
 #include "../../Canvas/Scene/CanvasScene.h"
 #include "../Scene/NodeScene.h"
+#include "Edges/NodeEdgs.h"
+#include "Socket/Socket.h"
+
+inline const bool DEBUG = true;
 
 GraphicsNode::GraphicsNode(Node *node, QGraphicsItem *parent) : QGraphicsItem(parent), node(node) {
 
@@ -118,4 +122,29 @@ void GraphicsNode::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
             }
         }
     }
+}
+
+void Node::remove() {
+    if (DEBUG) qDebug() << "Node:remove ~ " << this->str().c_str() << "\nwith (Sockets, Edges):";
+
+    for (auto s: inputs) {
+        if (s->hasEdge()) {
+        // if (DEBUG) qDebug() << "\t\t Removing node" << s->str().c_str();
+            s->edge->remove();
+            s->edge = nullptr;
+        }
+    }
+
+    for (auto s: outputs) {
+        if (s->hasEdge()) {
+            if (DEBUG) qDebug() << "\t\t Removing Edge" << s->str().c_str();
+            s->edge->remove();
+            s->edge = nullptr;
+        }
+    }
+
+    if (DEBUG) qDebug() << "\tRemoving NodeGraphics" << grNode;
+    scene->grScene->removeItem(grNode);
+    grNode = nullptr;
+    scene->removeNode(this);
 }

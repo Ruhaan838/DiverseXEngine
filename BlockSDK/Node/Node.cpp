@@ -10,13 +10,14 @@
 #include "../../Canvas/Scene/CanvasScene.h"
 #include "../Scene/NodeScene.h"
 #include "Edges/NodeEdgs.h"
-#include "Graphics.h"
+#include "NodeGraphics.h"
 #include "Widget/Widget.h"
 #include "Socket/Socket.h"
+#include "../../Canvas/View/CanvasView.h"
 
 Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(scene_) {
 
-    content = new WidgetNode();
+    content = new WidgetNode(this);
 
     grNode = new GraphicsNode(this);
     grNode->setTitle(title);
@@ -83,8 +84,19 @@ void Node::updateConnectedEdges() const {
     }
 }
 
- string Node::str() {
+string Node::str() {
      ostringstream oss;
-    oss << "\t <Node " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
+    oss << "\t <Node " <<  hex << reinterpret_cast< uintptr_t>(this) << " title:" << grNode->getTitle().c_str() << ">";
     return oss.str();
 }
+
+void Node::setEditingFlag(bool flag) {
+    auto grScene = scene->grScene;
+    QList<QGraphicsView*> viewList = grScene->views();
+    if (!viewList.isEmpty()) {
+        if (CanvasView* canvasView = dynamic_cast<CanvasView*>(viewList[0])) {
+            canvasView->editingFlag = flag;
+        }
+    }
+}
+

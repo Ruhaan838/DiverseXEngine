@@ -27,6 +27,8 @@ public:
     QPointF pos() const;
     void updateConnectedEdges() const;
     string str();
+    void remove();
+    void setEditingFlag(bool flag);
 
 
     vector<SocketNode*> inputs;
