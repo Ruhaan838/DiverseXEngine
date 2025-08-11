@@ -5,6 +5,7 @@
 #include "NodeScene.h"
 #include "../../Canvas/Scene/CanvasScene.h"
 #include "../Node/Node.h"
+#include <QDebug>
 
 Scene::Scene() {
     initUI();
