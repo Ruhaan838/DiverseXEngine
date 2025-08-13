@@ -15,29 +15,29 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
         main.cpp
         main.ui
-        mainWindow.cpp
-        mainWindow.h
-        Canvas/Scene/CanvasScene.cpp
-        Canvas/Scene/CanvasScene.h
-        Canvas/View/CanvasView.cpp
-        Canvas/View/CanvasView.h
-        BlockSDK/Scene/NodeScene.cpp
-        BlockSDK/Scene/NodeScene.h
-        BlockSDK/Node/Node.cpp
-        BlockSDK/Node/Node.h
-        BlockSDK/Node/NodeGraphics.cpp
-        BlockSDK/Node/NodeGraphics.h
-        BlockSDK/Node/Widget/Widget.cpp
-        BlockSDK/Node/Widget/Widget.h
-        BlockSDK/Node/Socket/Socket.cpp
-        BlockSDK/Node/Socket/Socket.h
-        BlockSDK/Node/Socket/Graphics.cpp
-        BlockSDK/Node/Socket/Graphics.h
-        BlockSDK/Node/Edges/NodeEdgs.cpp
-        BlockSDK/Node/Edges/NodeEdgs.h
-        BlockSDK/Node/Edges/Graphics.cpp
-        BlockSDK/Node/Edges/Graphics.h
-        Canvas/View/helper.cpp
+        core/nodes/node.cpp
+        core/nodes/node.h
+        core/nodes/edge.cpp
+        core/nodes/edge.h
+        core/nodes/socket.cpp
+        core/nodes/socket.h
+        core/scene/nodescene.cpp
+        core/scene/nodescene.h
+        ui/canvas/canvasScene.cpp
+        ui/canvas/canvasScene.h
+        ui/canvas/helper.cpp
+        ui/mainwindow/mainWindow.cpp
+        ui/mainwindow/mainWindow.h
+        core/widgets/widgets.cpp
+        core/widgets/widgets.h
+        ui/graphics/nodeGraphics.cpp
+        ui/graphics/nodeGraphics.h
+        ui/graphics/edgeGraphics.cpp
+        ui/graphics/edgeGraphics.h
+        ui/graphics/socketGraphics.cpp
+        ui/graphics/socketGraphics.h
+        ui/canvas/canvasview.cpp
+        ui/canvas/canvasview.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
