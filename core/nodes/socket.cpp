@@ -1,14 +1,13 @@
 //
-// Created by Ruhaan on 29/07/25.
+// Created by Ruhaan on 12/08/25.
 //
 
+#include "socket.h"
 
-#include <iostream>
-
-#include "Graphics.h"
-#include "Socket.h"
 #include <sstream>
-#include "../Node.h"
+
+#include "node.h"
+#include "../../ui/graphics/socketGraphics.h"
 
 SocketNode::SocketNode(Node* node_, int index, POSITION position, SOCKETTYPES item) : node(node_), index(index), position(position) {
 

@@ -1,5 +1,5 @@
 //
-// Created by Ruhaan on 29/07/25.
+// Created by Ruhaan on 12/08/25.
 //
 
 #ifndef NODE_H
@@ -13,7 +13,7 @@
 class Scene;
 class WidgetNode;
 class SocketNode;
-class GraphicsNode;
+class NodeGraphics;
 
 using namespace std;
 
@@ -38,7 +38,7 @@ public:
     Scene* scene;
     string _title;
 
-    GraphicsNode* grNode;
+    NodeGraphics* grNode;
     WidgetNode *content;
 
     int socket_spacing = 22;

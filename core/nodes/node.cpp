@@ -1,25 +1,25 @@
 //
-// Created by Ruhaan on 29/07/25.
+// Created by Ruhaan on 12/08/25.
 //
 
-#include "Node.h"
+#include "node.h"
 
 #include <iostream>
 #include <sstream>
 
-#include "../../Canvas/Scene/CanvasScene.h"
-#include "../Scene/NodeScene.h"
-#include "Edges/NodeEdgs.h"
-#include "NodeGraphics.h"
-#include "Widget/Widget.h"
-#include "Socket/Socket.h"
-#include "../../Canvas/View/CanvasView.h"
+#include "socket.h"
+#include "edge.h"
+#include "../scene/nodescene.h"
+#include "../widgets/widgets.h"
+#include "../../ui/canvas/canvasScene.h"
+#include "../../ui/canvas/canvasview.h"
+#include "../../ui/graphics/nodeGraphics.h"
 
 Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(scene_) {
 
     content = new WidgetNode(this);
 
-    grNode = new GraphicsNode(this);
+    grNode = new NodeGraphics(this);
     grNode->setTitle(title);
 
     scene->addNode(this);
@@ -72,12 +72,12 @@ void Node::updateConnectedEdges() const {
 
 
     size_t max_size =  max(inputs.size(), outputs.size());
-    
+
     for (size_t i = 0; i < max_size; i++) {
         if (i < inputs.size() && inputs[i]->hasEdge()) {
             inputs[i]->edge->updatePos();
         }
-        
+
         if (i < outputs.size() && outputs[i]->hasEdge()) {
             outputs[i]->edge->updatePos();
         }
@@ -99,4 +99,3 @@ void Node::setEditingFlag(bool flag) {
         }
     }
 }
-

@@ -1,18 +1,18 @@
 //
-// Created by Ruhaan on 03/08/25.
+// Created by Ruhaan on 12/08/25.
 //
 
-#include "NodeEdgs.h"
+#include "edge.h"
 
 #include <iostream>
 #include <sstream>
-
-#include "../../Scene/NodeScene.h"
-#include "Graphics.h"
-#include "../Node.h"
-#include "../../../Canvas/Scene/CanvasScene.h"
-#include "../Socket/Socket.h"
 #include <QDebug>
+
+#include "node.h"
+#include "socket.h"
+#include "../scene/nodescene.h"
+#include "../../ui/graphics/edgeGraphics.h"
+#include "../../ui/canvas/canvasScene.h"
 
 inline bool DEBUG = false;
 
@@ -39,7 +39,7 @@ void NodeEdges::updatePos() const {
     if (startSocket == nullptr || grEdge == nullptr) {
         return;
     }
-    
+
     auto xy = startSocket->getSocketPos();
     xy.first += startSocket->node->pos().x();
     xy.second += startSocket->node->pos().y();
@@ -61,11 +61,11 @@ void NodeEdges::remove_from_sockets() {
     if (DEBUG) qDebug() << "we have this st socket and end socket" << startSocket << " " << endSocket;
     if (startSocket != nullptr) {
         if (DEBUG) qDebug() << "\t \t Start Socket:" << startSocket;
-        startSocket->setEdge(nullptr);
+        startSocket = nullptr;
     }
     if (endSocket != nullptr) {
         if (DEBUG) qDebug() << "\t \t End Socket:" << endSocket;
-        endSocket->setEdge(nullptr);
+        endSocket = nullptr;
     }
     endSocket = nullptr;
     startSocket = nullptr;
@@ -92,8 +92,4 @@ string NodeEdges::str() {
 void NodeEdges::setDestination(int x, int y) {
     grEdge->setDestination(x, y);
     grEdge->update();
-}
-
-NodeEdges::~NodeEdges() {
-    if (DEBUG) qDebug() << "NodeEdges destructor called for" << this;
 }

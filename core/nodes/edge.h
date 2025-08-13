@@ -1,9 +1,9 @@
 //
-// Created by Ruhaan on 03/08/25.
+// Created by Ruhaan on 12/08/25.
 //
 
-#ifndef NODEEGDS_H
-#define NODEEGDS_H
+#ifndef EDGE_H
+#define EDGE_H
 
 class Scene;
 class SocketNode;
@@ -32,4 +32,4 @@ public:
     ~NodeEdges();
 };
 
-#endif
+#endif //EDGE_H
