@@ -2,8 +2,8 @@
 // Created by Ruhaan on 31/07/25.
 //
 
-#ifndef COMMAN_H
-#define COMMAN_H
+#ifndef COMMON_H
+#define COMMON_H
 #include <QColor>
 
 inline int EDGE_CP_ROUNDNESS = 100;
