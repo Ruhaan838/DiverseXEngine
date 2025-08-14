@@ -10,7 +10,7 @@
 #include <QPen>
 #include <QBrush>
 
-#include "../../../Common.h"
+#include "../../Common.h"
 
 class NodeGraphics;
 class SocketNode;

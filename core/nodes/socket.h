@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "../../../Common.h"
+#include "../../Common.h"
 
 class SocketGraphics;
 class Node;
