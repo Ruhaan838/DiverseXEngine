@@ -37,6 +37,6 @@ QRectF SocketGraphics::boundingRect() const {
 
 std::string SocketGraphics::str() {
     std::ostringstream oss;
-    oss << "\t <SocketGraphics " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
+    oss << "\t <SocketGraphics " <<  std::hex << reinterpret_cast< uintptr_t>(this) << ">";
     return oss.str();
 }

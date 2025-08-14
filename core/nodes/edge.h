@@ -9,7 +9,7 @@ class Scene;
 class SocketNode;
 class EdgeGraphics;
 
-#include "../../../Common.h"
+#include "../../Common.h"
 using namespace std;
 
 class NodeEdges {
