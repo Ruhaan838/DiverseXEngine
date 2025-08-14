@@ -4,15 +4,17 @@
 
 #include "canvasview.h"
 
+#include <QApplication>
 #include <QEvent>
 #include <QDebug>
 #include <qevent.h>
 
+#include "canvasScene.h"
+#include "../graphics/socketGraphics.h"
+#include "../graphics/cutlineGraphics.h"
 #include "../../core/nodes/node.h"
 #include "../../core/nodes/edge.h"
-#include "canvasScene.h"
 #include "../../core/nodes/socket.h"
-#include "../graphics/socketGraphics.h"
 #include "../../core/scene/nodescene.h"
 
 inline bool DEBUG = true;
@@ -23,6 +25,9 @@ CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
     initUI();
     setScene(grScene);
     setDragMode(QGraphicsView::RubberBandDrag);
+
+    cutline = new CutLineGraphics();
+    grScene->addItem(cutline);
 }
 
 void CanvasView::initUI() {
@@ -130,35 +135,57 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
 
     last_lmb_click_scene_pos = mapToScene(event->pos());
 
-    if (auto item = getItemAtClick(event)) {
-        if (auto sk = dynamic_cast<SocketGraphics*>(item)) {
-            if (mode == MODE_NO_OP) {
-                mode = MODE_EDGE_DRAG;
-                edgeDragStart(sk);
-                return;
-            }
+    auto item = getItemAtClick(event);
+
+    if (auto sk = dynamic_cast<SocketGraphics*>(item)) {
+        if (mode == MODE_NO_OP) {
+            mode = MODE_EDGE_DRAG;
+            edgeDragStart(sk);
+            return;
         }
-        if (mode == MODE_EDGE_DRAG) {
+    }
+
+    if (mode == MODE_EDGE_DRAG) {
+        if (edgeDragEnd(item)) {
+            return;
+        }
+    }
+
+    if (!item) {
+        if (event->modifiers()  & Qt::ShiftModifier) {
+            mode = MODE_EDGE_CUT;
+            auto fake = QMouseEvent(QEvent::MouseButtonRelease, event->localPos(), event->screenPos(),
+                Qt::LeftButton, Qt::NoButton, event->modifiers());
+            QGraphicsView::mouseReleaseEvent(&fake);
+            QApplication::setOverrideCursor(Qt::CrossCursor);
+            return;
+        }
+    }
+
+    QGraphicsView::mousePressEvent(event);
+}
+
+void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
+
+    auto item = getItemAtClick(event);
+
+    if (mode == MODE_EDGE_DRAG) {
+        if (distanceBetween(event)) {
+            {}
+        } else {
             if (edgeDragEnd(item)) {
                 return;
             }
         }
     }
-    QGraphicsView::mousePressEvent(event);
-}
 
-void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
-    if (auto item = getItemAtClick(event)) {
-        if (mode == MODE_EDGE_DRAG) {
-
-            if (distanceBetween(event)) {
-                {}
-            } else {
-                if (edgeDragEnd(item)) {
-                    return;
-                }
-            }
-        }
+    if (mode == MODE_EDGE_CUT) {
+        cutIntersectingEdges();
+        cutline->line_points = {};
+        cutline->update();
+        QApplication::setOverrideCursor(Qt::ArrowCursor);
+        mode = MODE_NO_OP;
+        return;
     }
 
     QGraphicsView::mouseReleaseEvent(event);
@@ -198,6 +225,11 @@ void CanvasView::mouseMoveEvent(QMouseEvent *event) {
     if (mode == MODE_EDGE_DRAG) {
         auto pos = mapToScene(event->pos());
         dragEdge->setDestination(pos.x(), pos.y());
+    }
+    if (mode == MODE_EDGE_CUT) {
+        auto pos = mapToScene(event->pos());
+        cutline->line_points.append(pos);
+        cutline->update();
     }
 
     QGraphicsView::mouseMoveEvent(event);

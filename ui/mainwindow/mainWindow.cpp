@@ -7,20 +7,19 @@
 #include <QColor>
 #include <QPushButton>
 #include <QTextEdit>
-#include <QApplication>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QRect>
 #include <QDebug>
 
+#include "../canvas/canvasview.h"
+#include "../canvas/canvasScene.h"
 #include "../graphics/edgeGraphics.h"
 #include "../graphics/nodeGraphics.h"
 #include "../graphics/socketGraphics.h"
 #include "../../core/nodes/node.h"
 #include "../../core/nodes/edge.h"
 #include "../../core/scene/nodescene.h"
-#include "../canvas/canvasScene.h"
-#include "../canvas/canvasview.h"
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
     //load the style file like CSS

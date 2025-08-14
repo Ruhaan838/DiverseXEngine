@@ -38,6 +38,8 @@ set(PROJECT_SOURCES
         ui/graphics/socketGraphics.h
         ui/canvas/canvasview.cpp
         ui/canvas/canvasview.h
+        ui/graphics/cutlineGraphics.cpp
+        ui/graphics/cutlineGraphics.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

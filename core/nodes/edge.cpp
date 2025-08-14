@@ -77,7 +77,7 @@ void NodeEdges::remove() {
     remove_from_sockets();
 
     if (DEBUG) qDebug() << "\t removed the grEdge";
-    if (grEdge && scene && scene->grScene) {
+    if (grEdge && scene && scene->grScene && grEdge != nullptr) {
         scene->grScene->removeItem(grEdge);
         grEdge = nullptr;
     }

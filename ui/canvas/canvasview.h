@@ -14,6 +14,7 @@ class CanvasScene;
 class NodeEdges;
 class SocketGraphics;
 class SocketNode;
+class CutLineGraphics;
 
 class CanvasView : public QGraphicsView {
 public:
@@ -33,6 +34,9 @@ public:
     NodeEdges* prevEdge{};
     SocketNode* lastStartSocket{};
     bool editingFlag = false;
+
+    //cutline
+    CutLineGraphics* cutline;
 
 
     void initUI();
@@ -60,6 +64,7 @@ public:
     bool distanceBetween(QMouseEvent* event);
 
     void deleteSelected() const;
+    void cutIntersectingEdges() const;
 
 };
 

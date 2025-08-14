@@ -27,7 +27,8 @@ EdgeGraphics::EdgeGraphics(NodeEdges* edge, QGraphicsPathItem *parent): QGraphic
 }
 
 void EdgeGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-    updatePath();
+    auto p = calPath();
+    setPath(p);
 
     if (edge->endSocket == nullptr) {
         painter->setPen(_pen_dragging);
@@ -53,18 +54,25 @@ void EdgeGraphics::setDestination(int x, int y) {
     posDestination = {x, y};
 }
 
+bool EdgeGraphics::intersectsWith(QPointF p1, QPointF p2) {
+    auto cutpath = QPainterPath(QPointF(p1));
+    cutpath.lineTo(p2);
+    auto p = calPath();
+    return cutpath.intersects(p);
+}
 
 EdgeGraphicsDirect::EdgeGraphicsDirect(NodeEdges *edge, QGraphicsPathItem *parent): EdgeGraphics(edge, parent) {}
 
-void EdgeGraphicsDirect::updatePath() {
+QPainterPath EdgeGraphicsDirect::calPath() {
     auto path = QPainterPath(QPointF(posSource.at(0), posSource.at(1)));
     path.lineTo(posDestination.at(0), posDestination.at(1));
     setPath(path);
+    return path;
 }
 
 EdgeGraphicsBezier::EdgeGraphicsBezier(NodeEdges *edge, QGraphicsPathItem *parent): EdgeGraphics(edge, parent) {}
 
-void EdgeGraphicsBezier::updatePath() {
+QPainterPath EdgeGraphicsBezier::calPath() {
     auto s = posSource;
     auto d = posDestination;
     auto dist = ((d[0] - s[0]) * 0.5);
@@ -100,6 +108,7 @@ void EdgeGraphicsBezier::updatePath() {
     path.cubicTo(QPointF(s[0] + cpx_s, s[1] + cpy_s),
                  QPointF(d[0] + cpx_d, d[1] + cpy_d),
                  QPointF(posDestination[0], posDestination[1]));
-    setPath(path);
+
+    return path;
 }
 

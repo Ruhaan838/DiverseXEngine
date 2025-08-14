@@ -19,6 +19,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QPainterPath path() const;
+    bool intersectsWith(QPointF p1, QPointF p2);
     void setSource(int x, int y);
     void setDestination(int x, int y);
 
@@ -32,19 +33,19 @@ public:
     std::vector<int> posSource = {0, 0};
     std::vector<int> posDestination = {200, 100};
 
-    virtual void updatePath() {};
+    virtual QPainterPath calPath() { return QPainterPath(); };
 };
 
 class EdgeGraphicsDirect : public EdgeGraphics {
 public:
     EdgeGraphicsDirect(NodeEdges* edge, QGraphicsPathItem *parent=nullptr);
-    void updatePath() override;
+    QPainterPath calPath() override;
 };
 
 class EdgeGraphicsBezier : public EdgeGraphics {
 public:
     EdgeGraphicsBezier(NodeEdges* edge, QGraphicsPathItem *parent=nullptr);
-    void updatePath() override;
+    QPainterPath calPath() override;
 };
 
 #endif //EDGEGRAPHICS_H
