@@ -5,13 +5,17 @@
 #ifndef NODESCENE_H
 #define NODESCENE_H
 
+#include <qjsonobject.h>
 #include <vector>
+
+#include "../serialization/serializator.h"
 
 class CanvasScene;
 class Node;
 class NodeEdges;
+class Serializable;
 
-class Scene {
+class Scene : public Serializable{
 public:
     Scene();
 
@@ -25,8 +29,17 @@ public:
     void addEdge(NodeEdges* edge);
     void removeNode(Node* node);
     void removeEdge(NodeEdges* edge);
+    void saveToFile(const std::string &filename);
 
-    CanvasScene *grScene;
+
+
+    void loadFromFile(const std::string &filename);
+
+    QJsonObject serialize() override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap = {}) override;
+
+
+    CanvasScene *grScene{};
 
     void initUI();
 };
