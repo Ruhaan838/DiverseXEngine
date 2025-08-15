@@ -11,15 +11,19 @@
 #include <QLabel>
 #include <QTextEdit>
 
+#include "../serialization/serializator.h"
+
 class Node;
 
-class WidgetNode : public QWidget {
+class WidgetNode : public QWidget, Serializable {
     Q_OBJECT
 public:
     WidgetNode(Node* node, QWidget* parent = nullptr);
 
     void initUI();
     void setEditingFlag(bool flag);
+    QJsonObject serialize() override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) override;
 
     QVBoxLayout *layout{};
     QLabel *wdg_label{};

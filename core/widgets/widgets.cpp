@@ -5,10 +5,11 @@
 #include "widgets.h"
 
 #include <QGraphicsView>
+#include <QJsonObject>
 
 #include "../nodes/node.h"
 
-WidgetNode::WidgetNode(Node* node, QWidget *parent) : node(node), QWidget(parent) {
+WidgetNode::WidgetNode(Node* node, QWidget *parent) : node(node), QWidget(parent), Serializable() {
     initUI();
 
 }
@@ -27,3 +28,14 @@ void WidgetNode::initUI() {
 void WidgetNode::setEditingFlag(bool flag) {
     node->setEditingFlag(flag);
 }
+
+QJsonObject WidgetNode::serialize() {
+    auto arr = QJsonObject{{"id", static_cast<int>(id)}};
+    return arr;
+}
+
+bool WidgetNode::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
+    return false;
+}
+
+
