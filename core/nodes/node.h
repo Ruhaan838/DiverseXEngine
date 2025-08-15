@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "../../Common.h"
+#include "../serialization/serializator.h"
 
 class Scene;
 class WidgetNode;
@@ -17,7 +18,7 @@ class NodeGraphics;
 
 using namespace std;
 
-class Node {
+class Node : public Serializable{
 public:
     Node(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {COLOR_1}, vector<SOCKETTYPES> output_size = {COLOR_2});
 
@@ -29,6 +30,8 @@ public:
     string str();
     void remove();
     void setEditingFlag(bool flag);
+    QJsonObject serialize() override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) override;
 
 
     vector<SocketNode*> inputs;
@@ -36,7 +39,6 @@ public:
 
 
     Scene* scene;
-    string _title;
 
     NodeGraphics* grNode;
     WidgetNode *content;

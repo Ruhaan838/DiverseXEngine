@@ -11,12 +11,13 @@
 #include "node.h"
 #include "socket.h"
 #include "../scene/nodescene.h"
+#include "../serialization/serializator.h"
 #include "../../ui/graphics/edgeGraphics.h"
 #include "../../ui/canvas/canvasScene.h"
 
 inline bool DEBUG = false;
 
-NodeEdges::NodeEdges(Scene *scene, SocketNode *start_socket, SocketNode *end_socket, EDGETYPES type) : scene(scene), startSocket(start_socket), endSocket(end_socket) {
+NodeEdges::NodeEdges(Scene *scene, SocketNode *start_socket, SocketNode *end_socket, EDGETYPES type) : scene(scene), startSocket(start_socket), endSocket(end_socket), Serializable() {
 
     if (type == EDGE_TYPE_DIRECT){
         grEdge = new EdgeGraphicsDirect(this);
@@ -30,7 +31,7 @@ NodeEdges::NodeEdges(Scene *scene, SocketNode *start_socket, SocketNode *end_soc
     if (endSocket != nullptr) {
         endSocket->setEdge(this);
     }
-
+    edge_type = type;
     updatePos();
 
 }
@@ -92,4 +93,18 @@ string NodeEdges::str() {
 void NodeEdges::setDestination(int x, int y) {
     grEdge->setDestination(x, y);
     grEdge->update();
+}
+
+QJsonObject NodeEdges::serialize() {
+    auto arr = QJsonObject{
+        {"id", static_cast<int>(id)},
+        {"edge_type", edge_type},
+        {"start", static_cast<int>(startSocket->id)},
+        {"end", static_cast<int>(endSocket->id)}
+    };
+    return arr;
+}
+
+bool NodeEdges::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
+    return false;
 }

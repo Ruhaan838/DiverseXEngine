@@ -11,11 +11,12 @@
 #include "edge.h"
 #include "../scene/nodescene.h"
 #include "../widgets/widgets.h"
+#include "../serialization/serializator.h"
 #include "../../ui/canvas/canvasScene.h"
 #include "../../ui/canvas/canvasview.h"
 #include "../../ui/graphics/nodeGraphics.h"
 
-Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(scene_) {
+Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(scene_), Serializable() {
 
     content = new WidgetNode(this);
 
@@ -98,4 +99,34 @@ void Node::setEditingFlag(bool flag) {
             canvasView->editingFlag = flag;
         }
     }
+}
+
+QJsonObject Node::serialize() {
+    QJsonObject arr;
+    QJsonArray in, out;
+
+    auto pos = Pos();
+
+    for (auto i: inputs) {
+        in.append(i->serialize());
+    }
+    for (auto o:outputs) {
+        out.append(o->serialize());
+    }
+
+    arr = QJsonObject{
+            {"id", static_cast<int>(id)},
+            { "title", QString::fromStdString(grNode->getTitle())},
+            {"x", pos.first},
+            {"y", pos.second},
+            {"inputs", in},
+            {"outputs", out},
+            {"contents", content->serialize()}
+    };
+
+    return arr;
+}
+
+bool Node::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
+    return false;
 }

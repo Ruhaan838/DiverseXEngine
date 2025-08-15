@@ -4,18 +4,22 @@
 
 #include "socket.h"
 
+#include <QJsonObject>
 #include <sstream>
 
 #include "node.h"
+#include "../serialization/serializator.h"
 #include "../../ui/graphics/socketGraphics.h"
 
-SocketNode::SocketNode(Node* node_, int index, POSITION position, SOCKETTYPES item) : node(node_), index(index), position(position) {
+SocketNode::SocketNode(Node* node_, int index, POSITION position, SOCKETTYPES item) : node(node_), index(index), position(position), Serializable() {
 
     grSocket = new SocketGraphics(this, node->grNode, item);
 
     auto ans = node->getSocketPos(index, position);
     grSocket->setPos(ans.first, ans.second);
     edge = nullptr;
+
+    socket_type = item;
 
 }
 
@@ -39,4 +43,18 @@ string SocketNode::str() {
     ostringstream oss;
     oss << "\t <Socket " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
     return oss.str();
+}
+
+QJsonObject SocketNode::serialize() {
+    auto arr = QJsonObject{
+        {"id", static_cast<int>(id)},
+        {"index", index},
+        {"position", position},
+        {"socket_type", socket_type}
+    };
+    return arr;
+}
+
+bool SocketNode::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
+    return false;
 }
