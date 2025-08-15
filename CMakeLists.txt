@@ -40,6 +40,8 @@ set(PROJECT_SOURCES
         ui/canvas/canvasview.h
         ui/graphics/cutlineGraphics.cpp
         ui/graphics/cutlineGraphics.h
+        core/serialization/Serializator.cpp
+        core/serialization/Serializator.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

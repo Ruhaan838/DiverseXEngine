@@ -122,7 +122,12 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
             this->deleteSelected();
         else
             QGraphicsView::keyPressEvent(event);
-
+    }
+    else if (event->key() == Qt::Key_S && event->modifiers() && Qt::ControlModifier) {
+        grScene->scene->saveToFile( "Graph.json");
+    }
+    else if (event->key() == Qt::Key_L && event->modifiers() && Qt::ControlModifier) {
+        grScene->scene->loadFromFile("Graph.json");
     }
     else {
         QGraphicsView::keyPressEvent(event);
