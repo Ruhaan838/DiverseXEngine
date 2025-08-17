@@ -71,8 +71,8 @@ void MainWindow::addNodes() {
     node2->setPos(-50, 50);
 
     if (!node->outputs.empty() && !node1->inputs.empty()) {
-        auto *edge1 = new NodeEdges(scene, node->outputs.at(0), node2->inputs.at(0), EDGE_TYPE_BEZIER);
-        auto *edge2 = new NodeEdges(scene, node2->outputs.at(0), node1->inputs.at(1), EDGE_TYPE_BEZIER);
+        auto *edge1 = new EdgesNode(scene, node->outputs.at(0), node2->inputs.at(0), EDGE_TYPE_BEZIER);
+        auto *edge2 = new EdgesNode(scene, node2->outputs.at(0), node1->inputs.at(1), EDGE_TYPE_BEZIER);
     } else {
         qDebug() << "Warning: Cannot create edge - missing sockets";
     }
