@@ -7,6 +7,7 @@
 #include <iostream>
 #include <QDebug>
 #include <QPainter>
+#include <QVariant>
 
 #include "../../core/nodes/node.h"
 #include "../../core/nodes/edge.h"
@@ -124,27 +125,4 @@ void NodeGraphics::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     }
 }
 
-void Node::remove() {
-    if (DEBUG) qDebug() << "Node:remove ~ " << this->str().c_str() << "\nwith (Sockets, Edges):";
 
-    for (auto s: inputs) {
-        if (s->hasEdge()) {
-        // if (DEBUG) qDebug() << "\t\t Removing node" << s->str().c_str();
-            s->edge->remove();
-            s->edge = nullptr;
-        }
-    }
-
-    for (auto s: outputs) {
-        if (s->hasEdge()) {
-            if (DEBUG) qDebug() << "\t\t Removing Edge" << s->str().c_str();
-            s->edge->remove();
-            s->edge = nullptr;
-        }
-    }
-
-    if (DEBUG) qDebug() << "\tRemoving NodeGraphics" << grNode;
-    scene->grScene->removeItem(grNode);
-    grNode = nullptr;
-    scene->removeNode(this);
-}

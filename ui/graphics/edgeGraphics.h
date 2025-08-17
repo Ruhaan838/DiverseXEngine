@@ -9,13 +9,13 @@
 #include <QPen>
 #include <vector>
 
-class NodeEdges;
+class EdgesNode;
 
 class EdgeGraphics : public QGraphicsPathItem {
 public:
-    EdgeGraphics(NodeEdges* edge, QGraphicsPathItem* parent=nullptr);
+    EdgeGraphics(EdgesNode* edge, QGraphicsPathItem* parent=nullptr);
 
-    NodeEdges* edge;
+    EdgesNode* edge;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QPainterPath path() const;
@@ -38,13 +38,13 @@ public:
 
 class EdgeGraphicsDirect : public EdgeGraphics {
 public:
-    EdgeGraphicsDirect(NodeEdges* edge, QGraphicsPathItem *parent=nullptr);
+    EdgeGraphicsDirect(EdgesNode* edge, QGraphicsPathItem *parent=nullptr);
     QPainterPath calPath() override;
 };
 
 class EdgeGraphicsBezier : public EdgeGraphics {
 public:
-    EdgeGraphicsBezier(NodeEdges* edge, QGraphicsPathItem *parent=nullptr);
+    EdgeGraphicsBezier(EdgesNode* edge, QGraphicsPathItem *parent=nullptr);
     QPainterPath calPath() override;
 };
 

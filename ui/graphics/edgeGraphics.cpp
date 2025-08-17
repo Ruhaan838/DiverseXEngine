@@ -11,7 +11,7 @@
 #include "../../core/nodes/socket.h"
 #include "../../Common.h"
 
-EdgeGraphics::EdgeGraphics(NodeEdges* edge, QGraphicsPathItem *parent): QGraphicsPathItem(parent), edge(edge) {
+EdgeGraphics::EdgeGraphics(EdgesNode* edge, QGraphicsPathItem *parent): QGraphicsPathItem(parent), edge(edge) {
     _color = QColor("#001000");
     _selectedColor = QColor("#00ff00");
 
@@ -61,7 +61,7 @@ bool EdgeGraphics::intersectsWith(QPointF p1, QPointF p2) {
     return cutpath.intersects(p);
 }
 
-EdgeGraphicsDirect::EdgeGraphicsDirect(NodeEdges *edge, QGraphicsPathItem *parent): EdgeGraphics(edge, parent) {}
+EdgeGraphicsDirect::EdgeGraphicsDirect(EdgesNode *edge, QGraphicsPathItem *parent): EdgeGraphics(edge, parent) {}
 
 QPainterPath EdgeGraphicsDirect::calPath() {
     auto path = QPainterPath(QPointF(posSource.at(0), posSource.at(1)));
@@ -70,7 +70,7 @@ QPainterPath EdgeGraphicsDirect::calPath() {
     return path;
 }
 
-EdgeGraphicsBezier::EdgeGraphicsBezier(NodeEdges *edge, QGraphicsPathItem *parent): EdgeGraphics(edge, parent) {}
+EdgeGraphicsBezier::EdgeGraphicsBezier(EdgesNode *edge, QGraphicsPathItem *parent): EdgeGraphics(edge, parent) {}
 
 QPainterPath EdgeGraphicsBezier::calPath() {
     auto s = posSource;
