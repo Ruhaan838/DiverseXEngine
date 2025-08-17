@@ -29,7 +29,7 @@ void CanvasView::cutIntersectingEdges() const {
         auto p1 = cutline->line_points.at(idx);
         auto p2 = cutline->line_points.at(idx + 1);
 
-        QList<NodeEdges*> toRemove;
+        QList<EdgesNode*> toRemove;
         for (auto edge : grScene->scene->edges) {
             if (edge->grEdge && edge->grEdge->intersectsWith(p1, p2)) {
                 toRemove.append(edge);

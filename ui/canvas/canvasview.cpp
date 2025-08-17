@@ -16,6 +16,7 @@
 #include "../../core/nodes/edge.h"
 #include "../../core/nodes/socket.h"
 #include "../../core/scene/nodescene.h"
+#include "../graphics/nodeGraphics.h"
 
 inline bool DEBUG = true;
 
@@ -207,10 +208,10 @@ void CanvasView::rightMouseButtonPress(QMouseEvent *event) {
             }
         }
     } else {
-        if (DEBUG) {
             qDebug("Item is nullptr - printing debug info:");;
             qDebug() << "Scene:"  << scene();
             qDebug() << "Nodes:";
+
             for (const auto n : grScene->scene->nodes) {
                 qDebug("%s", n->str().c_str());
             }
@@ -218,7 +219,6 @@ void CanvasView::rightMouseButtonPress(QMouseEvent *event) {
             for (const auto n : grScene->scene->edges) {
                 qDebug("%s", n->str().c_str());
             }
-        }
     }
 }
 
@@ -254,7 +254,7 @@ bool CanvasView::edgeDragStart(SocketGraphics *item) {
     prevEdge = item->socket->edge;
     lastStartSocket = item->socket;
 
-    dragEdge = new NodeEdges(grScene->scene, item->socket, nullptr, EDGE_TYPE_BEZIER);
+    dragEdge = new EdgesNode(grScene->scene, item->socket, nullptr, EDGE_TYPE_BEZIER);
 
     if (DEBUG) {qDebug() << item << item->socket;};
     if (DEBUG){qDebug() << "View::edgeDragStart ~ dragEdge" << dragEdge;}

@@ -11,7 +11,7 @@
 
 
 class CanvasScene;
-class NodeEdges;
+class EdgesNode;
 class SocketGraphics;
 class SocketNode;
 class CutLineGraphics;
@@ -30,8 +30,8 @@ public:
     EDGEDRAGMODS mode = MODE_NO_OP;
     QPointF last_lmb_click_scene_pos;
 
-    NodeEdges* dragEdge{};
-    NodeEdges* prevEdge{};
+    EdgesNode* dragEdge{};
+    EdgesNode* prevEdge{};
     SocketNode* lastStartSocket{};
     bool editingFlag = false;
 
