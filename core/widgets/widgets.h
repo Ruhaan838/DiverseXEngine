@@ -23,7 +23,7 @@ public:
     void initUI();
     void setEditingFlag(bool flag);
     QJsonObject serialize() override;
-    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) override;
 
     QVBoxLayout *layout{};
     QLabel *wdg_label{};

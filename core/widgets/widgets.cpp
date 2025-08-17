@@ -34,7 +34,7 @@ QJsonObject WidgetNode::serialize() {
     return arr;
 }
 
-bool WidgetNode::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
+bool WidgetNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
     return false;
 }
 
