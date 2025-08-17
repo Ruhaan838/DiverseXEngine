@@ -57,12 +57,7 @@ Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, 
 }
 
 void Node::setPos(int x, int y) {
-    x_pos = x; y_pos = y;
     grNode->setPos(x, y);
-}
-
-pair<int, int> Node::Pos() {
-    return {x_pos, y_pos};
 }
 
 QPointF Node::pos() const {
@@ -102,23 +97,37 @@ void Node::setEditingFlag(bool flag) {
 }
 
 QJsonObject Node::serialize() {
-    QJsonObject arr;
-    QJsonArray in, out;
-
-    auto pos = Pos();
-
-    for (auto i: inputs) {
+    QJsonArray in;
+    for (auto i : inputs) {
         in.append(i->serialize());
     }
-    for (auto o:outputs) {
+
+    QVector<QJsonObject> inVector;
+    for (const auto &val : in) {
+        inVector.append(val.toObject());
+    }
+
+    std::sort(inVector.begin(), inVector.end(), [](const QJsonObject &a, const QJsonObject &b) {
+        int keyA = a.value("index").toInt() + a.value("position").toInt() * 10000;
+        int keyB = b.value("index").toInt() + b.value("position").toInt() * 10000;
+        return keyA < keyB;
+    });
+
+    in = QJsonArray();
+    for (const auto &obj : inVector) {
+        in.append(obj);
+    }
+
+    QJsonArray out;
+    for (auto o : outputs) {
         out.append(o->serialize());
     }
 
-    arr = QJsonObject{
+    QJsonObject arr{
             {"id", static_cast<int>(id)},
-            { "title", QString::fromStdString(grNode->getTitle())},
-            {"x", pos.first},
-            {"y", pos.second},
+            {"title", QString::fromStdString(grNode->getTitle())},
+            {"x", this->pos().x()},
+            {"y", this->pos().y()},
             {"inputs", in},
             {"outputs", out},
             {"contents", content->serialize()}
@@ -127,6 +136,62 @@ QJsonObject Node::serialize() {
     return arr;
 }
 
-bool Node::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
-    return false;
+bool Node::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
+    auto i = data.value("id");
+    id = i.toInt();
+
+    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
+
+    int pos_x = data["x"].toInt();
+    int pos_y = data["y"].toInt();
+
+    setPos(pos_x, pos_y);
+
+    grNode->setTitle(data.value("title").toString().toStdString());
+    auto in = data.value("inputs").toArray();
+    auto out = data.value("outputs").toArray();
+
+    inputs.clear();
+    for (auto i: in) {
+        auto new_i = i.toObject();
+        const auto pos = getPosition(new_i.value("position").toInt());
+        const auto item = getSocketType(new_i.value("socket_type").toInt());
+        auto *sok = new SocketNode(this, new_i.value("index").toInt(), pos, item);
+        sok->deserialize(new_i, hashmap);
+        inputs.push_back(sok);
+    }
+
+    for (auto o: out) {
+        auto new_o = o.toObject();
+        const auto pos = getPosition(new_o.value("position").toInt());
+        const auto item = getSocketType(new_o.value("socket_type").toInt());
+        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, item);
+        sok->deserialize(new_o, hashmap);
+        outputs.push_back(sok);
+    }
+
+    return true;
+}
+
+void Node::remove() {
+
+    for (auto s: inputs) {
+        if (s->hasEdge()) {
+            // if (DEBUG) qDebug() << "\t\t Removing node" << s->str().c_str();
+            s->edge->remove();
+            s->edge = nullptr;
+        }
+    }
+
+    for (auto s: outputs) {
+        if (s->hasEdge()) {
+            // if (DEBUG) qDebug() << "\t\t Removing Edge" << s->str().c_str();
+            s->edge->remove();
+            s->edge = nullptr;
+        }
+    }
+
+    scene->grScene->removeItem(grNode);
+    grNode = nullptr;
+    scene->removeNode(this);
 }

@@ -12,17 +12,17 @@
 
 class SocketGraphics;
 class Node;
-class NodeEdges;
+class EdgesNode;
 
 class SocketNode : public Serializable {
 public:
     SocketNode(Node* node_, int index = 0, POSITION position = LEFT_TOP, SOCKETTYPES item = COLOR_1);
-    void setConnectedEdge(NodeEdges* edge = nullptr);
+    void setConnectedEdge(EdgesNode* edge = nullptr);
     std::pair<int, int> getSocketPos() const;
     bool hasEdge() const;
-    void setEdge(NodeEdges* edge = nullptr);
+    void setEdge(EdgesNode* edge = nullptr);
     QJsonObject serialize() override;
-    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) override;
 
     std::string str();
 
@@ -32,7 +32,7 @@ public:
     POSITION position;
     SOCKETTYPES socket_type;
 
-    NodeEdges* edge;
+    EdgesNode* edge;
 
 };
 

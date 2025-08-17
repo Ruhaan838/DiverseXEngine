@@ -16,24 +16,35 @@ class EdgeGraphics;
 
 using namespace std;
 
-class NodeEdges : public Serializable {
+class EdgesNode : public Serializable {
 public:
-    NodeEdges(Scene *scene, SocketNode* start_socket, SocketNode* end_socket, EDGETYPES type = EDGE_TYPE_DIRECT);
+    EdgesNode(Scene *scene, SocketNode* start_socket = nullptr, SocketNode* end_socket = nullptr, EDGETYPES type = EDGE_TYPE_BEZIER);
 
     void updatePos() const;
     void remove_from_sockets();
     void remove();
     string str();
-    void setDestination(int x, int y);
+    void setDestination(int x, int y) const;
+
+    void setStartSocket(SocketNode* socket);
+    SocketNode* getStartSocket() const;
+
+    void setEndSocket(SocketNode* socket);
+    SocketNode* getEndSocket() const;
+
+    EDGETYPES getEdgeType() const;
+    void setEdgeType(EDGETYPES type);
+
+
     QJsonObject serialize() override;
-    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) override;
 
     Scene* scene;
-    SocketNode* startSocket;
-    SocketNode* endSocket;
-    EDGETYPES edge_type;
+    SocketNode* startSocket = nullptr;
+    SocketNode* endSocket = nullptr;
+    EDGETYPES edge_type = EDGE_TYPE_DIRECT;
 
-    EdgeGraphics* grEdge;
+    EdgeGraphics* grEdge = nullptr;
 
 
 };

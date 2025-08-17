@@ -27,7 +27,7 @@ std::pair<int, int> SocketNode::getSocketPos() const {
     return {node->getSocketPos(index, position)};
 }
 
-void SocketNode::setConnectedEdge(NodeEdges *edge) {
+void SocketNode::setConnectedEdge(EdgesNode *edge) {
     this->edge = edge;
 }
 
@@ -35,7 +35,7 @@ bool SocketNode::hasEdge() const {
     return edge != nullptr;
 }
 
-void SocketNode::setEdge(NodeEdges *edge_) {
+void SocketNode::setEdge(EdgesNode *edge_) {
     edge = edge_;
 }
 
@@ -55,6 +55,11 @@ QJsonObject SocketNode::serialize() {
     return arr;
 }
 
-bool SocketNode::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
-    return false;
+bool SocketNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
+    auto i = data.value("id");
+    id = i.toInt();
+
+    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
+
+    return true;
 }

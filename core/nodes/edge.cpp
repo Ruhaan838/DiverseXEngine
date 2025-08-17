@@ -15,28 +15,21 @@
 #include "../../ui/graphics/edgeGraphics.h"
 #include "../../ui/canvas/canvasScene.h"
 
-inline bool DEBUG = false;
+inline bool DEBUG = true;
 
-NodeEdges::NodeEdges(Scene *scene, SocketNode *start_socket, SocketNode *end_socket, EDGETYPES type) : scene(scene), startSocket(start_socket), endSocket(end_socket), Serializable() {
+EdgesNode::EdgesNode(Scene *scene, SocketNode *start_socket, SocketNode *end_socket, EDGETYPES type) : scene(scene), Serializable() {
 
-    if (type == EDGE_TYPE_DIRECT){
-        grEdge = new EdgeGraphicsDirect(this);
-    } else if (type == EDGE_TYPE_BEZIER) {
-        grEdge = new EdgeGraphicsBezier(this);
-    }
-    this->scene->grScene->addItem(grEdge);
+
     this->scene->addEdge(this);
 
-    startSocket->setEdge(this);
-    if (endSocket != nullptr) {
-        endSocket->setEdge(this);
-    }
-    edge_type = type;
-    updatePos();
+    setStartSocket(start_socket);
+    setEndSocket(end_socket);
+
+    setEdgeType(type);
 
 }
 
-void NodeEdges::updatePos() const {
+void EdgesNode::updatePos() const {
     if (startSocket == nullptr || grEdge == nullptr) {
         return;
     }
@@ -58,10 +51,11 @@ void NodeEdges::updatePos() const {
 }
 
 
-void NodeEdges::remove_from_sockets() {
+void EdgesNode::remove_from_sockets() {
     if (DEBUG) qDebug() << "we have this st socket and end socket" << startSocket << " " << endSocket;
     if (startSocket != nullptr) {
         if (DEBUG) qDebug() << "\t \t Start Socket:" << startSocket;
+
         startSocket = nullptr;
     }
     if (endSocket != nullptr) {
@@ -72,7 +66,7 @@ void NodeEdges::remove_from_sockets() {
     startSocket = nullptr;
 }
 
-void NodeEdges::remove() {
+void EdgesNode::remove() {
     if (DEBUG) qDebug() << "NodeEdges:remove ~ " << this->str().c_str() << "\nwith (Sockets, Edges):";
     if (DEBUG) qDebug() << "\t remove edge from all sockets";
     remove_from_sockets();
@@ -82,20 +76,67 @@ void NodeEdges::remove() {
         scene->grScene->removeItem(grEdge);
         grEdge = nullptr;
     }
+    if (scene) {
+        scene->removeEdge(this);
+    }
 }
 
-string NodeEdges::str() {
+void EdgesNode::setStartSocket(SocketNode* socket) {
+    startSocket = socket;
+    if (startSocket != nullptr) {
+        startSocket->setEdge(this);
+    }
+}
+
+SocketNode *EdgesNode::getStartSocket() const {
+    return startSocket;
+}
+
+void EdgesNode::setEndSocket(SocketNode* socket) {
+    endSocket = socket;
+    if (endSocket != nullptr) {
+        endSocket->setEdge(this);
+    }
+}
+
+SocketNode *EdgesNode::getEndSocket() const {
+    return endSocket;
+}
+
+EDGETYPES EdgesNode::getEdgeType() const {
+    return edge_type;
+}
+
+void EdgesNode::setEdgeType(EDGETYPES type) {
+    if (this->grEdge && grEdge != nullptr) {
+        scene->grScene->removeItem(grEdge);
+    }
+    edge_type = type;
+    if (edge_type == EDGE_TYPE_DIRECT) {
+        grEdge = new EdgeGraphicsDirect(this);
+    } else if (edge_type == EDGE_TYPE_BEZIER) {
+        grEdge = new EdgeGraphicsBezier(this);
+    } else {
+        grEdge = new EdgeGraphicsBezier(this);
+    }
+    scene->grScene->addItem(grEdge);
+
+    updatePos();
+
+}
+
+string EdgesNode::str() {
     ostringstream oss;
     oss << "\t <Edge " <<  hex << reinterpret_cast< uintptr_t>(this) << ">";
     return oss.str();
 }
 
-void NodeEdges::setDestination(int x, int y) {
+void EdgesNode::setDestination(int x, int y) const {
     grEdge->setDestination(x, y);
     grEdge->update();
 }
 
-QJsonObject NodeEdges::serialize() {
+QJsonObject EdgesNode::serialize() {
     auto arr = QJsonObject{
         {"id", static_cast<int>(id)},
         {"edge_type", edge_type},
@@ -105,6 +146,22 @@ QJsonObject NodeEdges::serialize() {
     return arr;
 }
 
-bool NodeEdges::deserialize(const QJsonObject &data, unordered_map<string, int> hashmap) {
-    return false;
+bool EdgesNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
+    auto i = data.value("id");
+    id = i.toInt();
+    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
+
+    int start_id = data.value("start").toInt();
+    int end_id = data.value("end").toInt();
+
+    if (hashmap.count(std::to_string(start_id))) {
+        setStartSocket(reinterpret_cast<SocketNode*>(hashmap[std::to_string(start_id)]));
+    }
+    if (hashmap.count(std::to_string(end_id))) {
+        setEndSocket(reinterpret_cast<SocketNode*>(hashmap[std::to_string(end_id)]));
+    }
+
+    setEdgeType(getEdgeEnum(data.value("edge_type").toInt()));
+
+    return true;
 }
