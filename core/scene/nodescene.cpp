@@ -4,6 +4,7 @@
 
 #include "nodescene.h"
 #include "../nodes/node.h"
+#include "../nodes/edge.h"
 #include "../serialization/serializator.h"
 #include "../../ui/canvas/canvasScene.h"
 
@@ -15,7 +16,6 @@
 #include <QJsonDocument>
 #include <QStandardPaths>
 
-#include "../nodes/edge.h"
 
 Scene::Scene() : Serializable() {
 
@@ -31,17 +31,31 @@ void Scene::addNode(Node* node) {
     nodes.emplace_back(node);
 }
 
-void Scene::addEdge(NodeEdges* edge) {
+void Scene::addEdge(EdgesNode* edge) {
     edges.emplace_back(edge);
 }
 
 void Scene::removeNode(Node* node) {
-    nodes.erase(std::find(nodes.begin(), nodes.end(), node));
+    auto it = std::find(nodes.begin(), nodes.end(), node);
+    if (it != nodes.end()) {
+        nodes.erase(it);
+    }
 }
 
-void Scene::removeEdge(NodeEdges* edge) {
-    edges.erase(std::find(edges.begin(), edges.end(), edge));
+void Scene::removeEdge(EdgesNode* edge) {
+    auto it = std::find(edges.begin(), edges.end(), edge);
+    if (it != edges.end()) {
+        edges.erase(it);
+    }
 }
+
+void Scene::clear() {
+
+    while (!nodes.empty()) {
+        nodes.at(0)->remove();
+    }
+}
+
 
 QJsonObject Scene::serialize() {
     QJsonArray nodesArray;
@@ -66,8 +80,33 @@ QJsonObject Scene::serialize() {
 }
 
 
-bool Scene::deserialize(const QJsonObject & data, unordered_map<string, int> hashmap) {
-    return false;
+bool Scene::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
+
+    clear();
+    hashmap = {};
+
+    //create nodes
+    std::vector<Node*> temp_nodes;
+    for (auto node_data : data.value("nodes").toArray()) {
+        auto *node = new Node(this);
+        temp_nodes.push_back(node);
+        addNode(node);
+    }
+
+    int idx = 0;
+    for (auto node_data : data.value("nodes").toArray()) {
+        temp_nodes[idx++]->deserialize(node_data.toObject(), hashmap);
+    }
+
+    // create edges
+    for (auto edge_data : data.value("edges").toArray()) {
+        auto *edge = new EdgesNode(this);
+        edge->deserialize(edge_data.toObject(), hashmap);
+        addEdge(edge);
+        // edge->updatePos();
+    }
+
+    return true;
 }
 
 void Scene::saveToFile(const std::string &filename) {
@@ -94,7 +133,6 @@ void Scene::saveToFile(const std::string &filename) {
 }
 
 void Scene::loadFromFile(const std::string &filename) {
-    // Documents/DiverseXEngine_Saves
     QString docsPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QDir dir(docsPath + "/DiverseXEngine_Saves");
 
@@ -106,19 +144,17 @@ void Scene::loadFromFile(const std::string &filename) {
         return;
     }
 
-    QByteArray data = file.readAll();
+    QByteArray fileData = file.readAll();
     file.close();
 
-    QJsonDocument doc = QJsonDocument::fromJson(data);
-    if (!doc.isObject()) {
-        qWarning() << "Invalid JSON format in file:" << fullPath;
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(fileData, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qWarning() << "Failed to parse JSON:" << parseError.errorString();
         return;
     }
 
-    QJsonObject json = doc.object();
-    if (json.contains("id"))        id = json["id"].toString().toULongLong();
-    if (json.contains("scene_width"))  scene_width = json["scene_width"].toInt();
-    if (json.contains("scene_height")) scene_height = json["scene_height"].toInt();
-
-    qDebug() << "File loaded from location" << fullPath;
+    QJsonObject jsonObj = doc.object();
+    unordered_map<string, uintptr_t> dummy_hashmap;
+    deserialize(jsonObj, dummy_hashmap);
 }

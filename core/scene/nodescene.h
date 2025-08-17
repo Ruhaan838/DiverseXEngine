@@ -12,7 +12,7 @@
 
 class CanvasScene;
 class Node;
-class NodeEdges;
+class EdgesNode;
 class Serializable;
 
 class Scene : public Serializable{
@@ -20,23 +20,24 @@ public:
     Scene();
 
     std::vector<Node*> nodes;
-    std::vector<NodeEdges*> edges;
+    std::vector<EdgesNode*> edges;
 
     int scene_width = 64000;
     int scene_height = 64000;
 
     void addNode(Node* node);
-    void addEdge(NodeEdges* edge);
+    void addEdge(EdgesNode* edge);
     void removeNode(Node* node);
-    void removeEdge(NodeEdges* edge);
+    void removeEdge(EdgesNode* edge);
     void saveToFile(const std::string &filename);
+    void clear();
 
 
 
     void loadFromFile(const std::string &filename);
 
     QJsonObject serialize() override;
-    bool deserialize(const QJsonObject &data, unordered_map<string, int> hashmap = {}) override;
+    bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) override;
 
 
     CanvasScene *grScene{};
