@@ -43,6 +43,7 @@ public:
     CanvasScene *grScene{};
 
     void initUI();
+    void executeGraph();
 };
 
 #endif //NODESCENE_H

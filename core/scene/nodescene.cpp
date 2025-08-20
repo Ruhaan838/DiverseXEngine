@@ -7,6 +7,9 @@
 #include "../nodes/edge.h"
 #include "../serialization/serializator.h"
 #include "../../ui/canvas/canvasScene.h"
+#include "../noderegistry/inoutNode.h"
+#include "../noderegistry/functionNode.h"
+#include "../nodes/socket.h"
 
 #include <QDebug>
 #include <QDir>
@@ -157,4 +160,20 @@ void Scene::loadFromFile(const std::string &filename) {
     QJsonObject jsonObj = doc.object();
     unordered_map<string, uintptr_t> dummy_hashmap;
     deserialize(jsonObj, dummy_hashmap);
+}
+
+void Scene::executeGraph() {
+    for (Node* node : nodes) {
+        if (auto addNode = dynamic_cast<AddNode*>(node)) {
+            addNode->execute();
+        }
+        if (auto subNode = dynamic_cast<SubNode*>(node)) {
+            subNode->execute();
+        }
+    }
+    for (Node* node : nodes) {
+        if (auto outputNode = dynamic_cast<OutputNode*>(node)) {
+            outputNode->execute();
+        }
+    }
 }
