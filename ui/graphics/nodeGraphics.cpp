@@ -16,7 +16,7 @@
 #include "../../core/scene/nodescene.h"
 #include "../../core/nodes/socket.h"
 
-inline bool DEBUG = true;
+inline bool DEBUG = false;
 
 NodeGraphics::NodeGraphics(Node *node, QGraphicsItem *parent) : QGraphicsItem(parent), node(node) {
 
@@ -27,16 +27,10 @@ NodeGraphics::NodeGraphics(Node *node, QGraphicsItem *parent) : QGraphicsItem(pa
 
         _title_brush = QBrush(QColor("#FF313131"));
         _bg_brush = QBrush(QColor("#E3212121"));
-        content = node->content;
 
         initUI();
         initTitle();
         setTitle("Undefine Node");
-
-        // init sockets
-
-        //init content
-        initContent();
 
 }
 
@@ -56,6 +50,7 @@ void NodeGraphics::initTitle() {
 }
 
 void NodeGraphics::initContent() {
+    content = node->content;
     grContent = new QGraphicsProxyWidget(this);
     content->setGeometry(edge_size, title_height + edge_size,
         width - 2 * edge_size, height - 2 * edge_size - title_height);
@@ -91,16 +86,17 @@ void NodeGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     //content
     auto path_content = QPainterPath();
     path_content.setFillRule(Qt::WindingFill);
-    path_content.addRoundedRect(0, title_height, width, height - title_height, edge_size, edge_size);
+    auto hw = getHeightAndWidth();
+    path_content.addRoundedRect(0, title_height, hw.second, hw.first - title_height, edge_size, edge_size);
     path_content.addRect(0, title_height, edge_size, edge_size);
-    path_content.addRect(width - edge_size, title_height, edge_size, edge_size);
+    path_content.addRect(hw.second - edge_size, title_height, edge_size, edge_size);
     painter->setPen(Qt::NoPen);
     painter->setBrush(_bg_brush);
     painter->drawPath(path_content.simplified());
 
     // outline
     auto path_outline = QPainterPath();
-    path_outline.addRoundedRect(0, 0, width, height, edge_size, edge_size);
+    path_outline.addRoundedRect(0, 0, hw.second, hw.first, edge_size, edge_size);
     if (!isSelected())
         painter->setPen(_pen_default);
     else
@@ -125,4 +121,12 @@ void NodeGraphics::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
     }
 }
 
+
+std::pair<int, int> NodeGraphics::getHeightAndWidth() {
+    return {height, width};
+}
+
+void NodeGraphics::setHeightWidth(int h, int w) {
+    height = h; width = w;
+}
 

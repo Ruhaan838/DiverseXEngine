@@ -30,7 +30,7 @@ public:
     std::string getTitle();
 
     Node* node;
-    WidgetNode* content;
+    WidgetNode* content = nullptr;
     QGraphicsProxyWidget* grContent;
 
 
@@ -40,8 +40,12 @@ public:
     QFont _title_font;
     int title_height = 24;
 
-    int width = 180;
-    int height = 240;
+    int width = 240;
+    int height = 180;
+
+    void setHeightWidth(int h, int w);
+    std::pair<int, int> getHeightAndWidth();
+
     float edge_size = 10.0;
     int _padding = 4.0;
 
