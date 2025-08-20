@@ -18,7 +18,7 @@
 #include "../../core/scene/nodescene.h"
 #include "../graphics/nodeGraphics.h"
 
-inline bool DEBUG = true;
+inline bool DEBUG = false;
 
 CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
     : QGraphicsView(scene_, parent), grScene(scene_) {
@@ -29,6 +29,7 @@ CanvasView::CanvasView(CanvasScene *scene_, QWidget *parent)
 
     cutline = new CutLineGraphics();
     grScene->addItem(cutline);
+
 }
 
 void CanvasView::initUI() {
@@ -39,6 +40,7 @@ void CanvasView::initUI() {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
 
 }
 
@@ -129,6 +131,12 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
     }
     else if (event->key() == Qt::Key_L && event->modifiers() && Qt::ControlModifier) {
         grScene->scene->loadFromFile("Graph.json");
+    }
+    else if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && (event->modifiers() & Qt::MetaModifier)) {
+        // Cmd+Enter pressed: execute the node graph
+        if (grScene && grScene->scene) {
+            grScene->scene->executeGraph();
+        }
     }
     else {
         QGraphicsView::keyPressEvent(event);
