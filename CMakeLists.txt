@@ -42,6 +42,13 @@ set(PROJECT_SOURCES
         ui/graphics/cutlineGraphics.h
         core/serialization/Serializator.cpp
         core/serialization/Serializator.h
+        core/noderegistry/noderegister.cpp
+        core/noderegistry/noderegister.h
+        core/noderegistry/functions.cpp
+        core/noderegistry/functionNode.cpp
+        core/noderegistry/functionNode.h
+        core/noderegistry/inoutNode.cpp
+        core/noderegistry/inoutNode.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
