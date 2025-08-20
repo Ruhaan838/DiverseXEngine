@@ -22,6 +22,8 @@ public:
 
     void initUI();
     void setEditingFlag(bool flag);
+    void addContent(vector<QWidget*> content);
+
     QJsonObject serialize() override;
     bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) override;
 

@@ -19,11 +19,18 @@ void WidgetNode::initUI() {
     layout = new QVBoxLayout();
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
-
-    wdg_label = new QLabel("Some Title");
-    layout->addWidget(wdg_label);
-    layout->addWidget(new TextEdit("foo"));
+    //
+    // wdg_label = new QLabel("Some Title");
+    // layout->addWidget(wdg_label);
+    // layout->addWidget(new TextEdit("foo"));
 }
+
+void WidgetNode::addContent(vector<QWidget *> content) {
+    for (auto c: content) {
+        layout->addWidget(c);
+    }
+}
+
 
 void WidgetNode::setEditingFlag(bool flag) {
     node->setEditingFlag(flag);
