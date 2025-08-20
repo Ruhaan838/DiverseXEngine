@@ -16,32 +16,44 @@
 #include "../../ui/canvas/canvasview.h"
 #include "../../ui/graphics/nodeGraphics.h"
 
-Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(scene_), Serializable() {
+Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(
+    scene_), Serializable(), in_socket_type(input_size), out_socket_type(output_size), title(title) {
 
-    content = new WidgetNode(this);
+    grNode = nullptr;
 
+
+}
+
+void Node::initNode(string title, vector<SOCKETTYPES> in, vector<SOCKETTYPES> out) {
     grNode = new NodeGraphics(this);
     grNode->setTitle(title);
 
     scene->addNode(this);
     scene->grScene->addItem(grNode);
 
-    //create the socket for input
+    if (pending_h > 0 && pending_w > 0)
+        grNode->setHeightWidth(pending_h, pending_w);
+
+    if (content != nullptr)
+        grNode->initContent();
+
+    //create socket for inputs
     int counter = 0;
-    for (auto item : input_size) {
-        auto *s = new SocketNode(this, counter, POSITION::LEFT_BOTTOM, item);
+    for (auto item : in) {
+        auto *s = new SocketNode(this, counter, in_pos, item);
         counter++;
         inputs.emplace_back(s);
     }
 
-    //create the socket for output
+    //create socket for outputs
     counter = 0;
-    for (auto item : output_size) {
-        auto *s = new SocketNode(this, counter, POSITION::RIGHT_TOP, item);
+    for (auto item : out) {
+        auto *s = new SocketNode(this, counter, out_pos, item);
         counter++;
         outputs.emplace_back(s);
     }
 }
+
 
  pair<int, int> Node::getSocketPos(int index, POSITION position) {
     int x = 0, y = 0;
@@ -129,8 +141,7 @@ QJsonObject Node::serialize() {
             {"x", this->pos().x()},
             {"y", this->pos().y()},
             {"inputs", in},
-            {"outputs", out},
-            {"contents", content->serialize()}
+            {"outputs", out}
     };
 
     return arr;
@@ -195,3 +206,31 @@ void Node::remove() {
     grNode = nullptr;
     scene->removeNode(this);
 }
+
+std::pair<int, int> Node::getHeightAndWidth() const {
+    return grNode->getHeightAndWidth();
+}
+
+void Node::setContent(WidgetNode *content) {
+    this->content = content;
+}
+
+void Node::setPosition(POSITION in_pos, POSITION out_pos) {
+    this->in_pos = in_pos;
+    this->out_pos = out_pos;
+}
+
+void Node::setHeightWidth(int h, int w) {
+    pending_h = h;
+    pending_w = w;
+    if (grNode) {
+        grNode->setHeightWidth(h, w);
+    }
+}
+
+void Node::show() {
+    if (!grNode) {
+        initNode(title, in_socket_type, out_socket_type);
+    }
+}
+
