@@ -10,7 +10,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QRect>
-#include <QDebug>
+#include <QSplitter>
 
 #include "../canvas/canvasview.h"
 #include "../canvas/canvasScene.h"
@@ -20,6 +20,7 @@
 #include "../../core/nodes/node.h"
 #include "../../core/nodes/edge.h"
 #include "../../core/scene/nodescene.h"
+#include "../../core/noderegistry/noderegister.h"
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
     //load the style file like CSS
@@ -28,11 +29,8 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 }
 
 void MainWindow::initUI() {
+    resize(1200, 800);
 
-    // Set window size first, then center it
-    resize(800, 600);
-
-    // Center the window on screen
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen) {
         QRect screenGeometry = screen->geometry();
@@ -45,20 +43,25 @@ void MainWindow::initUI() {
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    // create Graphics scene
-    scene = new Scene();
+    scene   = new Scene();
     grScene = scene->grScene;
-
-    //graphics View
-    view = new CanvasView(grScene);
+    view    = new CanvasView(grScene);
     view->setScene(grScene);
-    layout->addWidget(view);
 
-    addNodes();
+    auto *nodeList = new NodeRegistery(scene);
+
+    auto *splitter = new QSplitter(Qt::Horizontal, this);
+    splitter->addWidget(nodeList);
+    splitter->addWidget(view);
+
+    layout->addWidget(splitter);
+
+    // addNodes();
 
     setWindowTitle("DiversXEngine");
     show();
 }
+
 
 void MainWindow::addNodes() {
     auto *node = new Node(scene, "Awesome Node", {COLOR_1, COLOR_2, COLOR_3}, {COLOR_2});
