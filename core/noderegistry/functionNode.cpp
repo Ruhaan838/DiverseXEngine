@@ -51,6 +51,9 @@ void AddNode::execute() {
     if (inputs.size() >= 2) {
         auto *prev1 = getPrevNode(0);
         auto *prev2 = getPrevNode(1);
+        if (prev1 == nullptr || prev2 == nullptr) {
+            return;
+        }
         long double v1 = getNodeValue(prev1);
         long double v2 = getNodeValue(prev2);
         vals = v1 + v2;
@@ -67,6 +70,9 @@ void SubNode::execute() {
     if (inputs.size() >= 2) {
         auto *prev1 = getPrevNode(0);
         auto *prev2 = getPrevNode(1);
+        if (prev1 == nullptr || prev2 == nullptr) {
+            return;
+        }
         long double v1 = getNodeValue(prev1);
         long double v2 = getNodeValue(prev2);
         vals = v1 - v2;
@@ -83,6 +89,9 @@ void MulNode::execute() {
     if (inputs.size() >= 2) {
         auto *prev1 = getPrevNode(0);
         auto *prev2 = getPrevNode(1);
+        if (prev1 == nullptr || prev2 == nullptr) {
+            return;
+        }
         long double v1 = getNodeValue(prev1);
         long double v2 = getNodeValue(prev2);
         vals = v1 * v2;
@@ -99,6 +108,9 @@ void DivNode::execute() {
     if (inputs.size() >= 2) {
         auto *prev1 = getPrevNode(0);
         auto *prev2 = getPrevNode(1);
+        if (prev1 == nullptr || prev2 == nullptr) {
+            return;
+        }
         long double v1 = getNodeValue(prev1);
         long double v2 = getNodeValue(prev2);
         if (v2 != 0) {
