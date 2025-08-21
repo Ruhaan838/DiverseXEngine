@@ -132,8 +132,7 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
     else if (event->key() == Qt::Key_L && event->modifiers() && Qt::ControlModifier) {
         grScene->scene->loadFromFile("Graph.json");
     }
-    else if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && (event->modifiers() & Qt::MetaModifier)) {
-        // Cmd+Enter pressed: execute the node graph
+    else if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && (event->modifiers() & Qt::ControlModifier)) {
         if (grScene && grScene->scene) {
             grScene->scene->executeGraph();
         }

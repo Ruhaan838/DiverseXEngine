@@ -164,11 +164,8 @@ void Scene::loadFromFile(const std::string &filename) {
 
 void Scene::executeGraph() {
     for (Node* node : nodes) {
-        if (auto addNode = dynamic_cast<AddNode*>(node)) {
-            addNode->execute();
-        }
-        if (auto subNode = dynamic_cast<SubNode*>(node)) {
-            subNode->execute();
+        if (auto n = dynamic_cast<FunctionNode*>(node)) {
+            n->execute();
         }
     }
     for (Node* node : nodes) {
