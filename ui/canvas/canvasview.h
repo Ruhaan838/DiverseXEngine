@@ -20,11 +20,10 @@ class CanvasView : public QGraphicsView {
 public:
     explicit CanvasView(CanvasScene *scene_, QWidget *parent = nullptr);
     CanvasScene *grScene;
-    float zoomInFactor = 1.25;
-    float zoom = 10;
-    bool zoomClap = true;
-    float zoomStep = 1;
-    std::vector<float> zoomRange = {0, 20};
+    float zoomInFactor = 1.25f;  // optional, if you want multiplicative zoom
+    float zoom = 1.0f;           // start at 100%
+    float zoomStep = 0.1f;       // 10% per scroll
+    std::vector<float> zoomRange = {0.25f, 4.0f};  // 25% to 400%
 
     //draging socket
     EDGEDRAGMODS mode = MODE_NO_OP;
@@ -46,8 +45,7 @@ public:
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
 
-    // void wheelEvent(QWheelEvent *event) override;
-
+    void wheelEvent(QWheelEvent *event) override;
 
     //helper methods
     void middleMouseButtonPress(QMouseEvent *event);
@@ -67,7 +65,12 @@ public:
     void deleteSelected() const;
     void cutIntersectingEdges() const;
 
-};
+protected:
+    bool event(QEvent *ev) override;
 
+private:
+    // helper to apply zoom consistently
+    void applyZoom(float zoomFactor);
+};
 
 #endif //CANVASVIEW_H

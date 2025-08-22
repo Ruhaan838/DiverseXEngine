@@ -6,6 +6,7 @@
 
 #include <QApplication>
 #include <QEvent>
+#include <QScrollBar>
 #include <QDebug>
 #include <qevent.h>
 
@@ -72,52 +73,123 @@ void CanvasView::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void CanvasView::middleMouseButtonPress(QMouseEvent *event) {
-
     setDragMode(QGraphicsView::ScrollHandDrag);
-    auto releaseEvent = QMouseEvent(QEvent::MouseButtonRelease, event->localPos(),
-        event->screenPos(), Qt::LeftButton, Qt::NoButton, event->modifiers());
+
+    auto releaseEvent = QMouseEvent(
+        QEvent::MouseButtonRelease,
+        event->position(),
+        event->globalPosition(),
+        Qt::LeftButton,
+        Qt::NoButton,
+        event->modifiers()
+    );
     QGraphicsView::mouseReleaseEvent(&releaseEvent);
-    auto fakeEvent = QMouseEvent(event->type(), event->localPos(), event->screenPos(),
-        Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
+
+    auto fakeEvent = QMouseEvent(
+        event->type(),
+        event->position(),
+        event->globalPosition(),
+        Qt::LeftButton,
+        event->buttons() | Qt::LeftButton,
+        event->modifiers()
+    );
     QGraphicsView::mousePressEvent(&fakeEvent);
 }
 
 void CanvasView::middleMouseButtonRelease(QMouseEvent *event) {
-    auto fakeEvent = QMouseEvent(event->type(), event->localPos(), event->screenPos(),
-        Qt::LeftButton, event->buttons() & Qt::LeftButton, event->modifiers());
+    auto fakeEvent = QMouseEvent(
+        event->type(),
+        event->position(),
+        event->globalPosition(),
+        Qt::LeftButton,
+        event->buttons() & Qt::LeftButton,
+        event->modifiers()
+    );
     QGraphicsView::mouseReleaseEvent(&fakeEvent);
     setDragMode(QGraphicsView::NoDrag);
 }
 
-// void CanvasView::wheelEvent(QWheelEvent *event) {
-//     // calculate out zoom Factr
-//     float zoomOutFactor = 1 / zoomInFactor;
-//
-//     //calcualte the zoom
-//     float zoomFactor;
-//     if (event->angleDelta().y() > 0) {
-//         zoomFactor = zoomInFactor;
-//         zoom += zoomStep;
-//     }
-//     else {
-//         zoomFactor = zoomOutFactor;
-//         zoom -= zoomStep;
-//     }
-//
-//     //clamping
-//     bool clamped = false;
-//     if (zoom < zoomRange[0]) {
-//         zoom = zoomRange[0];
-//         clamped = true;
-//     } else if (zoom > zoomRange[1]) {
-//         zoom = zoomRange[1];
-//         clamped = true;
-//     }
-//
-//     //set secene scale
-//     if (!clamped | zoomClap == false)
-//         scale(zoomFactor, zoomFactor);
-// }
+void CanvasView::applyZoom(float zoomFactor) {
+    zoom *= zoomFactor;
+
+    // clamp
+    if (zoom < zoomRange[0]) zoom = zoomRange[0];
+    if (zoom > zoomRange[1]) zoom = zoomRange[1];
+
+    // apply transform
+    QTransform t;
+    t.scale(zoom, zoom);
+    setTransform(t);
+}
+
+bool CanvasView::event(QEvent *ev) {
+    if (ev->type() == QEvent::NativeGesture) {
+        auto *ng = static_cast<QNativeGestureEvent*>(ev);
+
+        switch (ng->gestureType()) {
+            case Qt::ZoomNativeGesture: {
+                // pinch zoom
+                float zoomFactor = 1.0f + ng->value();
+                applyZoom(zoomFactor);
+                return true;
+            }
+            case Qt::PanNativeGesture: {
+                QPointF delta = ng->delta();
+                if (qAbs(delta.x()) > qAbs(delta.y())) {
+                    // Horizontal swipe
+                    if (delta.x() > 0)
+                        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - 50); // step size
+                    else
+                        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + 50);
+                } else {
+                    // Vertical swipe
+                    if (delta.y() > 0)
+                        verticalScrollBar()->setValue(verticalScrollBar()->value() - 50);
+                    else
+                        verticalScrollBar()->setValue(verticalScrollBar()->value() + 50);
+                }
+                return true;
+            }
+            default:
+                break;
+        }
+    }
+    return QGraphicsView::event(ev);
+}
+
+void CanvasView::wheelEvent(QWheelEvent *event) {
+    int angleY = event->angleDelta().y();
+    int angleX = event->angleDelta().x();
+
+    bool looksLikeTrackpad =
+        (event->pixelDelta().manhattanLength() > 0) ||
+        (qAbs(angleY) > 0 && qAbs(angleY) < 120) ||   // small steps, not 120
+        (qAbs(angleX) > 0 && qAbs(angleX) < 120);
+
+    // qDebug() << "WheelEvent:"
+    //          << "pixelDelta =" << event->pixelDelta()
+    //          << "angleDelta =" << event->angleDelta()
+    //          << "looksLikeTrackpad =" << looksLikeTrackpad
+    //          << "modifiers =" << event->modifiers();
+
+    if (!looksLikeTrackpad) {
+        // --- real mouse wheel = zoom ---
+        float zoomFactor = (angleY > 0) ? (1 + zoomStep) : (1 - zoomStep);
+        applyZoom(zoomFactor);
+    } else {
+        // --- trackpad --
+        QPointF delta = event->pixelDelta();
+        if (delta.isNull()) {
+            // fall back to scaled angleDelta (because trackpad sends tiny angleDelta)
+            delta = event->angleDelta() / 2;
+        }
+
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - delta.x());
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - delta.y());
+    }
+
+    event->accept();
+}
 
 void CanvasView::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Delete) {
@@ -137,11 +209,18 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
             grScene->scene->executeGraph();
         }
     }
+    else if ((event->key() == Qt::Key_Plus || event->key() == Qt::Key_Equal) && (event->modifiers() & Qt::ControlModifier)) {
+        // Ctrl + "+"
+        applyZoom(1 + zoomStep);
+    }
+    else if (event->key() == Qt::Key_Minus && (event->modifiers() & Qt::ControlModifier)) {
+        // Ctrl + "-"
+        applyZoom(1 - zoomStep);
+    }
     else {
         QGraphicsView::keyPressEvent(event);
     }
 }
-
 
 //helper methods
 void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
@@ -165,10 +244,16 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
     }
 
     if (!item) {
-        if (event->modifiers()  & Qt::ShiftModifier) {
+        if (event->modifiers() & Qt::ShiftModifier) {
             mode = MODE_EDGE_CUT;
-            auto fake = QMouseEvent(QEvent::MouseButtonRelease, event->localPos(), event->screenPos(),
-                Qt::LeftButton, Qt::NoButton, event->modifiers());
+            auto fake = QMouseEvent(
+                QEvent::MouseButtonRelease,
+                event->position(),
+                event->globalPosition(),
+                Qt::LeftButton,
+                Qt::NoButton,
+                event->modifiers()
+            );
             QGraphicsView::mouseReleaseEvent(&fake);
             QApplication::setOverrideCursor(Qt::CrossCursor);
             return;
