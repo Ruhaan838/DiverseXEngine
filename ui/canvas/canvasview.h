@@ -20,12 +20,12 @@ class CanvasView : public QGraphicsView {
 public:
     explicit CanvasView(CanvasScene *scene_, QWidget *parent = nullptr);
     CanvasScene *grScene;
-    float zoomInFactor = 1.25f;  // optional, if you want multiplicative zoom
+    float zoomInFactor = 0.9f;  // optional, if you want multiplicative zoom
     float zoom = 1.0f;           // start at 100%
-    float zoomStep = 0.1f;       // 10% per scroll
-    std::vector<float> zoomRange = {0.25f, 4.0f};  // 25% to 400%
+    float zoomStep = 0.05f;       // 10% per scroll
+    bool zoomClamp = true;
+    std::vector<float> zoomRange = {0.0f, 0.2f};
 
-    //draging socket
     EDGEDRAGMODS mode = MODE_NO_OP;
     QPointF last_lmb_click_scene_pos;
 
@@ -69,7 +69,6 @@ protected:
     bool event(QEvent *ev) override;
 
 private:
-    // helper to apply zoom consistently
     void applyZoom(float zoomFactor);
 };
 
