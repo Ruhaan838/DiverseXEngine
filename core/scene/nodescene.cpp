@@ -31,7 +31,9 @@ void Scene::initUI() {
 }
 
 void Scene::addNode(Node* node) {
-    nodes.emplace_back(node);
+    if (std::find(nodes.begin(), nodes.end(), node) == nodes.end()) {
+        nodes.emplace_back(node);
+    }
 }
 
 void Scene::addEdge(EdgesNode* edge) {
@@ -87,11 +89,12 @@ bool Scene::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t
 
     clear();
     hashmap = {};
-
     //create nodes
-    std::vector<Node*> temp_nodes;
+    vector<Node*> temp_nodes;
     for (auto node_data : data.value("nodes").toArray()) {
-        auto *node = new Node(this);
+        auto obj = node_data.toObject();
+        QString type = obj.value("node_type").toString();
+        Node* node = Node::createNode(type, this);
         temp_nodes.push_back(node);
         addNode(node);
     }
@@ -106,7 +109,6 @@ bool Scene::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t
         auto *edge = new EdgesNode(this);
         edge->deserialize(edge_data.toObject(), hashmap);
         addEdge(edge);
-        // edge->updatePos();
     }
 
     return true;
