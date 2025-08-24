@@ -47,8 +47,9 @@ set(PROJECT_SOURCES
         core/noderegistry/functions.cpp
         core/noderegistry/functionNode.cpp
         core/noderegistry/functionNode.h
-        core/noderegistry/inoutNode.cpp
+        core/noderegistry/inNode.cpp
         core/noderegistry/inoutNode.h
+        core/noderegistry/OutNode.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
