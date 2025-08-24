@@ -8,6 +8,9 @@
 #include <qpoint.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <functional>
+#include <QString>
 #include "../../Common.h"
 #include "../serialization/serializator.h"
 
@@ -52,7 +55,11 @@ public:
 
     int socket_spacing = 22;
 
+    static void registerType(const QString& type, std::function<Node*(Scene*)> creator);
+    static Node* createNode(const QString& type, Scene* scene);
 private:
+    static unordered_map<QString, function<Node*(Scene*)>>& registry();
+
     vector<SOCKETTYPES> in_socket_type;
     vector<SOCKETTYPES> out_socket_type;
     string title;

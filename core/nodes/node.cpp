@@ -18,23 +18,24 @@
 
 Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(
     scene_), Serializable(), in_socket_type(input_size), out_socket_type(output_size), title(title) {
-
     grNode = nullptr;
-
-
 }
 
 void Node::initNode(string title, vector<SOCKETTYPES> in, vector<SOCKETTYPES> out) {
     grNode = new NodeGraphics(this);
     grNode->setTitle(title);
 
-    scene->addNode(this);
-    scene->grScene->addItem(grNode);
+    if (scene) {
+        scene->addNode(this);
+        if (scene->grScene) {
+            scene->grScene->addItem(grNode);
+        }
+    }
 
-    if (pending_h > 0 && pending_w > 0)
+    if (pending_h > 0 && pending_w > 0 && grNode)
         grNode->setHeightWidth(pending_h, pending_w);
 
-    if (content != nullptr)
+    if (content != nullptr && grNode)
         grNode->initContent();
 
     //create socket for inputs
@@ -56,6 +57,8 @@ void Node::initNode(string title, vector<SOCKETTYPES> in, vector<SOCKETTYPES> ou
 
 
  pair<int, int> Node::getSocketPos(int index, POSITION position) {
+    if (!grNode) return {0,0};
+
     int x = 0, y = 0;
 
     if (position == POSITION::LEFT_TOP || position == POSITION::LEFT_BOTTOM) {x = 0;}
@@ -69,11 +72,13 @@ void Node::initNode(string title, vector<SOCKETTYPES> in, vector<SOCKETTYPES> ou
 }
 
 void Node::setPos(int x, int y) {
-    grNode->setPos(x, y);
+    if (grNode) grNode->setPos(x, y);
+    // else: position can't be applied until grNode exists; deserialize uses setPos after show()
 }
 
 QPointF Node::pos() const {
-    return grNode->pos();
+    if (grNode) return grNode->pos();
+    return QPointF(0,0);
 }
 
 void Node::updateConnectedEdges() const {
@@ -94,7 +99,10 @@ void Node::updateConnectedEdges() const {
 
 string Node::str() {
      ostringstream oss;
-    oss << "\t <Node " <<  hex << reinterpret_cast< uintptr_t>(this) << " title:" << grNode->getTitle().c_str() << ">";
+    oss << "\t <Node " <<  hex << reinterpret_cast< uintptr_t>(this);
+    if (grNode) oss << " title:" << grNode->getTitle().c_str();
+    else oss << " title:" << title.c_str();
+    oss << ">";
     return oss.str();
 }
 
@@ -109,41 +117,12 @@ void Node::setEditingFlag(bool flag) {
 }
 
 QJsonObject Node::serialize() {
-    QJsonArray in;
-    for (auto i : inputs) {
-        in.append(i->serialize());
-    }
-
-    QVector<QJsonObject> inVector;
-    for (const auto &val : in) {
-        inVector.append(val.toObject());
-    }
-
-    std::sort(inVector.begin(), inVector.end(), [](const QJsonObject &a, const QJsonObject &b) {
-        int keyA = a.value("index").toInt() + a.value("position").toInt() * 10000;
-        int keyB = b.value("index").toInt() + b.value("position").toInt() * 10000;
-        return keyA < keyB;
-    });
-
-    in = QJsonArray();
-    for (const auto &obj : inVector) {
-        in.append(obj);
-    }
-
-    QJsonArray out;
-    for (auto o : outputs) {
-        out.append(o->serialize());
-    }
-
     QJsonObject arr{
             {"id", static_cast<int>(id)},
-            {"title", QString::fromStdString(grNode->getTitle())},
+            {"title", QString::fromStdString(grNode ? grNode->getTitle() : title)},
             {"x", this->pos().x()},
-            {"y", this->pos().y()},
-            {"inputs", in},
-            {"outputs", out}
+            {"y", this->pos().y()}
     };
-
     return arr;
 }
 
@@ -157,29 +136,10 @@ bool Node::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>
     int pos_y = data["y"].toInt();
 
     setPos(pos_x, pos_y);
-
-    grNode->setTitle(data.value("title").toString().toStdString());
-    auto in = data.value("inputs").toArray();
-    auto out = data.value("outputs").toArray();
-
-    inputs.clear();
-    for (auto i: in) {
-        auto new_i = i.toObject();
-        const auto pos = getPosition(new_i.value("position").toInt());
-        const auto item = getSocketType(new_i.value("socket_type").toInt());
-        auto *sok = new SocketNode(this, new_i.value("index").toInt(), pos, item);
-        sok->deserialize(new_i, hashmap);
-        inputs.push_back(sok);
-    }
-
-    for (auto o: out) {
-        auto new_o = o.toObject();
-        const auto pos = getPosition(new_o.value("position").toInt());
-        const auto item = getSocketType(new_o.value("socket_type").toInt());
-        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, item);
-        sok->deserialize(new_o, hashmap);
-        outputs.push_back(sok);
-    }
+    if (grNode)
+        grNode->setTitle(data.value("title").toString().toStdString());
+    else
+        title = data.value("title").toString().toStdString();
 
     return true;
 }
@@ -188,7 +148,6 @@ void Node::remove() {
 
     for (auto s: inputs) {
         if (s->hasEdge()) {
-            // if (DEBUG) qDebug() << "\t\t Removing node" << s->str().c_str();
             s->edge->remove();
             s->edge = nullptr;
         }
@@ -196,23 +155,34 @@ void Node::remove() {
 
     for (auto s: outputs) {
         if (s->hasEdge()) {
-            // if (DEBUG) qDebug() << "\t\t Removing Edge" << s->str().c_str();
             s->edge->remove();
             s->edge = nullptr;
         }
     }
 
-    scene->grScene->removeItem(grNode);
-    grNode = nullptr;
-    scene->removeNode(this);
+    if (scene) {
+        scene->removeNode(this);
+    }
+
+    if (grNode && scene && scene->grScene) {
+        scene->grScene->removeItem(grNode);
+        delete grNode;
+        grNode = nullptr;
+    }
+
+    if (content)
+        content = nullptr;
+
 }
 
 std::pair<int, int> Node::getHeightAndWidth() const {
-    return grNode->getHeightAndWidth();
+    if (grNode) return grNode->getHeightAndWidth();
+    return {pending_h > 0 ? pending_h : 0, pending_w > 0 ? pending_w : 0};
 }
 
 void Node::setContent(WidgetNode *content) {
     this->content = content;
+    if (grNode) grNode->initContent();
 }
 
 void Node::setPosition(POSITION in_pos, POSITION out_pos) {
@@ -234,3 +204,19 @@ void Node::show() {
     }
 }
 
+std::unordered_map<QString, std::function<Node*(Scene*)>>& Node::registry() {
+    static std::unordered_map<QString, std::function<Node*(Scene*)>> instance;
+    return instance;
+}
+
+void Node::registerType(const QString& type, function<Node*(Scene*)> creator) {
+    registry()[type] = creator;
+}
+
+Node* Node::createNode(const QString& type, Scene* scene) {
+    auto it = registry().find(type);
+    if (it != registry().end()) {
+        return it->second(scene);
+    }
+    return new Node(scene);
+}
