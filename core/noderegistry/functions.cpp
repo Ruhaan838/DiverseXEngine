@@ -17,7 +17,7 @@ QHash<QString, Node*> NodeRegistery::getfunctionalNode() const {
     nodes["Divide"] = new DivNode(scene, "Divide", {COLOR_1, COLOR_3}, {COLOR_2});
 
     for (auto n : nodes) {
-        n->setHeightWidth(140, 200);
+        n->setHeightWidth(90, 180);
         n->setPosition(LEFT_TOP, RIGHT_BOTTOM);
     }
 
@@ -41,3 +41,11 @@ vector<Node*> NodeRegistery::getOutputNode() const {
 
     return {node};
 }
+
+void registerAllNodeTypes() {
+    registerInputNodeType();
+    registerOutputNodeType();
+    registerFunctionNodeType();
+}
+
+static const bool nodeTypesRegistered = (registerAllNodeTypes(), true);

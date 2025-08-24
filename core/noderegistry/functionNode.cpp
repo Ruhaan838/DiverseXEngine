@@ -12,7 +12,7 @@
 FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
 : Node(scene_, title, input_size, output_size){}
 
-long double FunctionNode::getNodeValue(Node* node) {
+double FunctionNode::getNodeValue(Node* node) {
     if (!node) return 0;
     if (auto* fn = dynamic_cast<FunctionNode*>(node)) {
         fn->execute();
@@ -25,19 +25,72 @@ long double FunctionNode::getNodeValue(Node* node) {
 }
 
 Node* FunctionNode::getPrevNode(const int idx) const {
-    if (this->inputs[idx] && this->inputs[idx]->hasEdge() && this->inputs[idx]->edge && this->inputs[idx]->edge->startSocket) {
-        return this->inputs[idx]->edge->startSocket->node;
+    if (idx < 0 || idx >= static_cast<int>(this->inputs.size())) return nullptr;
+    auto *input = this->inputs[idx];
+    if (input && input->hasEdge() && input->edge && input->edge->startSocket) {
+        return input->edge->startSocket->node;
     }
     return nullptr;
 }
 
+QJsonObject FunctionNode::serialize() {
+    auto old_obj = Node::serialize();
+    QJsonArray in;
+    for (auto i : inputs) {
+        in.append(i->serialize());
+    }
+    QJsonArray out;
+    for (auto o : outputs) {
+        out.append(o->serialize());
+    }
+    old_obj["inputs"] = in;
+    old_obj["outputs"] = out;
+    auto hw = this->getHeightAndWidth();
+    old_obj["h"] = hw.first;
+    old_obj["w"] = hw.second;
+    return old_obj;
+}
+
+bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    auto h = data.value("h").toInt();
+    auto w = data.value("w").toInt();
+    setHeightWidth(h, w);
+    show();
+    auto old_obj = Node::deserialize(data, hashmap);
+
+    QJsonArray in = data.value("inputs").toArray();
+    for (auto s : inputs) { delete s; }
+    inputs.clear();
+    for (auto i : in) {
+        auto new_i = i.toObject();
+        const auto pos = getPosition(new_i.value("position").toInt());
+        const auto item = getSocketType(new_i.value("socket_type").toInt());
+        auto *sok = new SocketNode(this, new_i.value("index").toInt(), pos, item);
+        sok->deserialize(new_i, hashmap);
+        inputs.push_back(sok);
+    }
+
+    QJsonArray out = data.value("outputs").toArray();
+    for (auto s : outputs) { delete s; }
+    outputs.clear();
+    for (auto o : out) {
+        auto new_o = o.toObject();
+        const auto pos = getPosition(new_o.value("position").toInt());
+        const auto item = getSocketType(new_o.value("socket_type").toInt());
+        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, item);
+        sok->deserialize(new_o, hashmap);
+        outputs.push_back(sok);
+    }
+
+    return true && old_obj;
+}
 
 /* ==========================================================
  This function Nodes must follow the rules:
  1. It must have the condition checking for the number of inputs in execute function and input_size and the
     input vector must be greater than or equal to the number of inputs required.
  2. It must get the node first and then convert it into the input node be using function getPrevNode(idx) at bound index.
- 3. (optional) make serializing and deserializing methods for function node.
+ 3. make serializing and deserializing methods for function node.
    ==========================================================
 */
 
@@ -60,6 +113,17 @@ void AddNode::execute() {
     }
 }
 
+QJsonObject AddNode::serialize() {
+    auto old_obj = FunctionNode::serialize();
+    old_obj["node_type"] = "AddNode";
+    return old_obj;
+}
+
+bool AddNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    return FunctionNode::deserialize(data, hashmap);
+}
+
+
 // SubNode subtracts the two numbers
 SubNode::SubNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
     :FunctionNode(scene_, title, input_size, output_size){
@@ -79,6 +143,16 @@ void SubNode::execute() {
     }
 }
 
+QJsonObject SubNode::serialize() {
+    auto old_obj = FunctionNode::serialize();
+    old_obj["node_type"] = "SubNode";
+    return old_obj;
+}
+
+bool SubNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    return FunctionNode::deserialize(data, hashmap);
+}
+
 // MulNode multiplies the two numbers
 MulNode::MulNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
     :FunctionNode(scene_, title, input_size, output_size){
@@ -96,6 +170,16 @@ void MulNode::execute() {
         long double v2 = getNodeValue(prev2);
         vals = v1 * v2;
     }
+}
+
+QJsonObject MulNode::serialize() {
+    auto old_obj = FunctionNode::serialize();
+    old_obj["node_type"] = "MulNode";
+    return old_obj;
+}
+
+bool MulNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    return FunctionNode::deserialize(data, hashmap);
 }
 
 // DivNode divides the two numbers
@@ -119,4 +203,21 @@ void DivNode::execute() {
             vals = INFINITY;
         }
     }
+}
+
+QJsonObject DivNode::serialize() {
+    auto old_obj = FunctionNode::serialize();
+    old_obj["node_type"] = "DivNode";
+    return old_obj;
+}
+
+bool DivNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    return FunctionNode::deserialize(data, hashmap);
+}
+
+void registerFunctionNodeType() {
+    Node::registerType("AddNode", [](Scene* scene) { return new AddNode(scene); });
+    Node::registerType("SubNode", [](Scene* scene) { return new SubNode(scene); });
+    Node::registerType("MulNode", [](Scene* scene) { return new MulNode(scene); });
+    Node::registerType("DivNode", [](Scene* scene) { return new DivNode(scene); });
 }
