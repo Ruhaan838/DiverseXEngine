@@ -15,7 +15,7 @@
 #include "../../ui/graphics/edgeGraphics.h"
 #include "../../ui/canvas/canvasScene.h"
 
-inline bool DEBUG = true;
+inline bool DEBUG = false;
 
 EdgesNode::EdgesNode(Scene *scene, SocketNode *start_socket, SocketNode *end_socket, EDGETYPES type) : scene(scene), Serializable() {
 

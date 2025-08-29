@@ -6,7 +6,6 @@
 #include "../nodes/node.h"
 #include "inoutNode.h"
 #include "functionNode.h"
-// #include "../scene/nodescene.h"
 #include "../widgets/widgets.h"
 
 QHash<QString, Node*> NodeRegistery::getfunctionalNode() const {
@@ -27,7 +26,7 @@ QHash<QString, Node*> NodeRegistery::getfunctionalNode() const {
 vector<Node*> NodeRegistery::getInputNode() const {
     auto *node = new InputNode(scene, "Input", {COLOR_2});
 
-    node->setHeightWidth(140, 200);
+    node->setHeightWidth(90, 180);
     node->setPosition(LEFT_TOP, RIGHT_TOP);
 
     return {node};
@@ -36,7 +35,7 @@ vector<Node*> NodeRegistery::getInputNode() const {
 vector<Node*> NodeRegistery::getOutputNode() const {
     auto *node = new OutputNode(scene, "Output", {COLOR_1});
 
-    node->setHeightWidth(140, 200);
+    node->setHeightWidth(90, 180);
     node->setPosition(LEFT_TOP, RIGHT_BOTTOM);
 
     return {node};
