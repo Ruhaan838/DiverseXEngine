@@ -11,6 +11,7 @@
 #include <QSplitter>
 #include <QWidget>
 
+class EditorWindow;
 class CanvasScene;
 class Scene;
 class CanvasView;
@@ -21,7 +22,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     void initUI();
 
-    // Configuration methods
     void setWindowDimensions(int width, int height);
     void setWindowTitle(const QString& title);
 
@@ -37,6 +37,7 @@ private:
     CanvasScene* grScene{};
     Scene* scene{};
     QSplitter* splitter{};
+    EditorWindow* editWin{};
 
     struct Config {
         int windowWidth = 1200;

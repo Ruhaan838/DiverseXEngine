@@ -12,6 +12,7 @@
 
 #include "../canvas/canvasview.h"
 #include "../canvas/canvasScene.h"
+#include "../canvas/editorWindow.h"
 #include "../../core/scene/nodescene.h"
 #include "../../core/noderegistry/noderegister.h"
 
@@ -34,11 +35,14 @@ void MainWindow::initUI() {
     view = new CanvasView(grScene);
     view->setScene(grScene);
 
+    editWin = new EditorWindow(this);
+
     auto* nodeList = new NodeRegistery(scene);
 
     splitter = new QSplitter(config.splitterOrientation, this);
     splitter->addWidget(nodeList);
     splitter->addWidget(view);
+    splitter->addWidget(editWin);
 
     layout->addWidget(splitter);
 

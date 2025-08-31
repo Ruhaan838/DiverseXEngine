@@ -50,6 +50,8 @@ set(PROJECT_SOURCES
         core/noderegistry/inNode.cpp
         core/noderegistry/inoutNode.h
         core/noderegistry/OutNode.cpp
+        ui/canvas/editorWindow.cpp
+        ui/canvas/editorWindow.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

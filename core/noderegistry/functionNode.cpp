@@ -8,6 +8,15 @@
 #include "../nodes/edge.h"
 #include "../nodes/socket.h"
 
+inline const string out_node_stylesheet = R"(
+    QTextEdit {
+        background-color: #2b2b2b;
+        color: #ffffff;
+        border: 2px solid #3d3d3d;
+        border-radius: 5px;
+        padding: 2px 8px;
+    }
+)";
 
 FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
 : Node(scene_, title, input_size, output_size){}
@@ -32,6 +41,35 @@ Node* FunctionNode::getPrevNode(const int idx) const {
     }
     return nullptr;
 }
+
+void FunctionNode::showContent() {
+    if (!content) {
+        widget = new WidgetNode(this);
+        auto textEdit = new TextEdit(QString::number(getValues()));
+        QFont font("Arial", 20, QFont::Normal);
+        textEdit->setFont(font);
+        textEdit->setMinimumWidth(120);
+        textEdit->setMinimumHeight(30);
+        textEdit->setAlignment(Qt::AlignCenter);
+
+        textEdit->setStyleSheet(
+            out_node_stylesheet.c_str()
+        );
+
+        textEdit->setReadOnly(true);
+        widget->addContent({textEdit});
+        setContent(widget);
+    }
+}
+
+void FunctionNode::hideContent() {
+    if (content) {
+        content->hide();
+        content = nullptr;
+    }
+}
+
+
 
 QJsonObject FunctionNode::serialize() {
     auto old_obj = Node::serialize();
@@ -116,10 +154,12 @@ void AddNode::execute() {
 QJsonObject AddNode::serialize() {
     auto old_obj = FunctionNode::serialize();
     old_obj["node_type"] = "AddNode";
+    old_obj["value"] = vals;
     return old_obj;
 }
 
 bool AddNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    vals = data["value"].toDouble();
     return FunctionNode::deserialize(data, hashmap);
 }
 
@@ -146,10 +186,12 @@ void SubNode::execute() {
 QJsonObject SubNode::serialize() {
     auto old_obj = FunctionNode::serialize();
     old_obj["node_type"] = "SubNode";
+    old_obj["value"] = vals;
     return old_obj;
 }
 
 bool SubNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    vals = data["value"].toDouble();
     return FunctionNode::deserialize(data, hashmap);
 }
 
@@ -175,10 +217,12 @@ void MulNode::execute() {
 QJsonObject MulNode::serialize() {
     auto old_obj = FunctionNode::serialize();
     old_obj["node_type"] = "MulNode";
+    old_obj["value"] = vals;
     return old_obj;
 }
 
 bool MulNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    vals = data["value"].toDouble();
     return FunctionNode::deserialize(data, hashmap);
 }
 
@@ -208,10 +252,12 @@ void DivNode::execute() {
 QJsonObject DivNode::serialize() {
     auto old_obj = FunctionNode::serialize();
     old_obj["node_type"] = "DivNode";
+    old_obj["value"] = vals;
     return old_obj;
 }
 
 bool DivNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    vals = data["value"].toDouble();
     return FunctionNode::deserialize(data, hashmap);
 }
 

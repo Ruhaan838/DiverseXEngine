@@ -22,6 +22,10 @@ public:
     double getNodeValue(Node* node);
     QJsonObject serialize() override;
     bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) override;
+
+    void showContent();
+    void hideContent();
+    WidgetNode* widget;
 };
 
 class AddNode : public FunctionNode {

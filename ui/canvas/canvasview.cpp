@@ -11,6 +11,7 @@
 #include <qevent.h>
 
 #include "canvasScene.h"
+#include "../../core/noderegistry/functionNode.h"
 #include "../graphics/socketGraphics.h"
 #include "../graphics/cutlineGraphics.h"
 #include "../../core/nodes/node.h"
@@ -246,10 +247,20 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
 
 //helper methods
 void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
-
     last_lmb_click_scene_pos = mapToScene(event->pos());
-
     auto item = getItemAtClick(event);
+
+    static FunctionNode* lastActiveNode = nullptr;
+
+    FunctionNode* clickedFn = nullptr;
+    if (auto n = dynamic_cast<NodeGraphics*>(item)) {
+        clickedFn = dynamic_cast<FunctionNode*>(n->node);
+    }
+
+    if (lastActiveNode && lastActiveNode != clickedFn) {
+        lastActiveNode->hideContent();
+        lastActiveNode = nullptr;
+    }
 
     if (auto sk = dynamic_cast<SocketGraphics*>(item)) {
         if (mode == MODE_NO_OP) {
@@ -257,6 +268,11 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
             edgeDragStart(sk);
             return;
         }
+    }
+
+    if (clickedFn) {
+        clickedFn->showContent();
+        lastActiveNode = clickedFn;
     }
 
     if (mode == MODE_EDGE_DRAG) {
@@ -280,6 +296,7 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
             QApplication::setOverrideCursor(Qt::CrossCursor);
             return;
         }
+
     }
 
     QGraphicsView::mousePressEvent(event);
@@ -290,9 +307,7 @@ void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
     auto item = getItemAtClick(event);
 
     if (mode == MODE_EDGE_DRAG) {
-        if (distanceBetween(event)) {
-            {}
-        } else {
+        if (!distanceBetween(event)) {
             if (edgeDragEnd(item)) {
                 return;
             }
@@ -406,7 +421,9 @@ bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
     if (DEBUG)
         qDebug() << "View::edgeDragEnd ~ End Dragging Edge";
 
-    dragEdge->remove();
+    if (dragEdge) {
+        dragEdge->remove();
+    }
     dragEdge = nullptr;
 
     if (DEBUG)
