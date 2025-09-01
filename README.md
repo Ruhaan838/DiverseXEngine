@@ -108,7 +108,6 @@ DataFlow for programming as below:
 graph TD
   subgraph Input_Nodes
     in1[InputNode]
-    in2[InputNode]
   end
 
   subgraph Connection_System
@@ -127,13 +126,20 @@ graph TD
 
   subgraph Output_Nodes
     out1[OutputNode]
-    out2[OutputNode]
   end
 
-  in1 --> sock1 --> edge1 --> add
-  in2 --> mul --> sub --> div --> out2
-  edge1 --> add
-  add --> sock2 --> edge2 --> out1
+in1-->sock1-->edge1
+edge1-->add-->sock2
+edge1-->sub-->sock2
+edge1-->mul-->sock2
+edge1-->div-->sock2
+
+sock2-->edge2-->out1
+
+
+
+
+  
 ```
 
 ### Current Features
