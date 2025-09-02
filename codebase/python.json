@@ -1,0 +1,30 @@
+{
+  "python.Input": {
+    "python.input.int": "{} = int(input('Enter a number: '))",
+    "type": "main"
+  },
+  "python.Output": {
+    "python.output.print": "print({})",
+    "type": "function"
+  },
+  "python.add": {
+    "def": "def add(a, b):\n  return a + b",
+    "call": "{} = add({}, {})",
+    "type": "function"
+  },
+  "python.sub": {
+    "def": "def sub(a, b):\n  return a - b",
+    "call": "{} = sub({}, {})",
+    "type": "function"
+  },
+  "python.mul": {
+    "def": "def mul(a, b):\n  return a * b",
+    "call": "{} = mul({}, {})",
+    "type": "function"
+  },
+  "python.div": {
+    "def": "def div(a, b):\n  return a / b",
+    "call": "{} = div({}, {})",
+    "type": "function"
+  }
+}

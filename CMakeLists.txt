@@ -15,6 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
         main.cpp
         main.ui
+        resources.qrc
         core/nodes/node.cpp
         core/nodes/node.h
         core/nodes/edge.cpp
@@ -40,8 +41,8 @@ set(PROJECT_SOURCES
         ui/canvas/canvasview.h
         ui/graphics/cutlineGraphics.cpp
         ui/graphics/cutlineGraphics.h
-        core/serialization/Serializator.cpp
-        core/serialization/Serializator.h
+        core/serialization/serializator.cpp
+        core/serialization/serializator.h
         core/noderegistry/noderegister.cpp
         core/noderegistry/noderegister.h
         core/noderegistry/functions.cpp
@@ -49,9 +50,11 @@ set(PROJECT_SOURCES
         core/noderegistry/functionNode.h
         core/noderegistry/inNode.cpp
         core/noderegistry/inoutNode.h
-        core/noderegistry/OutNode.cpp
+        core/noderegistry/outNode.cpp
         ui/canvas/editorWindow.cpp
         ui/canvas/editorWindow.h
+        core/codegeneration/codeTemplateManager.cpp
+        core/codegeneration/codeTemplateManager.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -7,6 +7,8 @@
 
 #include <qjsonobject.h>
 #include <vector>
+#include <unordered_map>
+#include <QString>
 
 #include "../serialization/serializator.h"
 
@@ -14,6 +16,7 @@ class CanvasScene;
 class Node;
 class EdgesNode;
 class Serializable;
+class EditorWindow;  // Add forward declaration for EditorWindow
 
 class Scene : public Serializable{
 public:
@@ -32,7 +35,8 @@ public:
     void saveToFile(const std::string &filename);
     void clear();
 
-
+    void setEditorWindow(EditorWindow* editorWindow);
+    void updateEditorCode();
 
     void loadFromFile(const std::string &filename);
 
@@ -41,9 +45,18 @@ public:
 
 
     CanvasScene *grScene{};
+    EditorWindow *editorWindow{nullptr};
 
     void initUI();
     void executeGraph();
+
+    QString getOrCreateVarName(Node* node);
+    void clearVarName(Node* node);
+private:
+    std::unordered_map<long long, QString> varNameMap;
+    int inCounter = 1;
+    int outCounter = 1;
+    int fnCounter = 1;
 };
 
 #endif //NODESCENE_H

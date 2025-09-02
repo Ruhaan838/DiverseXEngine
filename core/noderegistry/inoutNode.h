@@ -28,7 +28,7 @@ public:
     TextEdit* textEdit = nullptr;
     QJsonObject serialize() override;
     bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) override;
-
+    Node* getPrevNode(int inputIndex);
 };
 
 void registerInputNodeType();

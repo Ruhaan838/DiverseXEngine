@@ -10,6 +10,7 @@
 #include "../nodes/edge.h"
 #include "../nodes/node.h"
 #include <QString>
+#include <QDebug>
 
 inline const string out_node_stylesheet = R"(
     QTextEdit {
@@ -98,6 +99,21 @@ bool OutputNode::deserialize(const QJsonObject &data, unordered_map<string, uint
     }
 
     return true && old_obj;
+}
+
+Node* OutputNode::getPrevNode(int inputIndex) {
+
+    if (inputIndex < 0 || inputIndex >= inputs.size()) {
+        return nullptr;
+    }
+    if (!inputs[inputIndex]) {
+        return nullptr;
+    }
+    if (inputs[inputIndex]->hasEdge() && inputs[inputIndex]->edge && inputs[inputIndex]->edge->startSocket) {
+        Node* prevNode = inputs[inputIndex]->edge->startSocket->node;
+        return prevNode;
+    }
+    return nullptr;
 }
 
 void registerOutputNodeType() {

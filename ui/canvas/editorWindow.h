@@ -5,11 +5,34 @@
 #ifndef EDITORWINDOW_H
 #define EDITORWINDOW_H
 
-#include <QWidget>
+#include <QSplitter>
+#include <QTextEdit>
+
+class Scene;
 
 class EditorWindow : public QWidget {
+    Q_OBJECT
 public:
     EditorWindow(QWidget* parent);
+
+    void setImportsText(const QString& text);
+    void setFunctionsText(const QString& text);
+    void setMainText(const QString& text);
+
+    void setScene(Scene* scene) { this->scene = scene; }
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
+private:
+    QWidget* createSectionWithTitle(const QString& title);
+
+    QSplitter* splitter;
+    QTextEdit* importsEdit;
+    QTextEdit* functionsEdit;
+    QTextEdit* mainEdit;
+
+    Scene* scene = nullptr;
 };
 
 #endif //EDITORWINDOW_H

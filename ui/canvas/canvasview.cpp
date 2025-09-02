@@ -240,6 +240,11 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
         // Ctrl + "-"
         applyZoom(1 - zoomStep);
     }
+    else if (event->key() == Qt::Key_G) {
+        if (grScene && grScene->scene) {
+            grScene->scene->updateEditorCode();
+        }
+    }
     else {
         QGraphicsView::keyPressEvent(event);
     }

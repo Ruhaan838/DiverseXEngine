@@ -15,6 +15,7 @@
 #include "../canvas/editorWindow.h"
 #include "../../core/scene/nodescene.h"
 #include "../../core/noderegistry/noderegister.h"
+#include "../../core/codegeneration/codeTemplateManager.h"
 
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
     initUI();
@@ -37,6 +38,9 @@ void MainWindow::initUI() {
 
     editWin = new EditorWindow(this);
 
+    scene->setEditorWindow(editWin);
+    editWin->setScene(scene);
+
     auto* nodeList = new NodeRegistery(scene);
 
     splitter = new QSplitter(config.splitterOrientation, this);
@@ -47,6 +51,13 @@ void MainWindow::initUI() {
     layout->addWidget(splitter);
 
     setWindowTitle(config.windowTitle);
+
+    bool loaded = CodeTemplateManager::getInstance().loadTemplatesFromFile(":/codebase/python.json");
+    if (!loaded) {
+        qWarning() << "Failed to load Python templates from any location";
+    } else {
+        qDebug() << "Successfully loaded Python templates";
+    }
 }
 
 void MainWindow::centerOnScreen() {
