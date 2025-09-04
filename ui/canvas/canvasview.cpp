@@ -79,7 +79,7 @@ void CanvasView::middleMouseButtonPress(QMouseEvent *event) {
     auto releaseEvent = QMouseEvent(
         QEvent::MouseButtonRelease,
         event->pos(),
-        event->globalPos(),
+        event->globalPosition().toPoint(),
         Qt::LeftButton,
         Qt::NoButton,
         event->modifiers()
@@ -89,7 +89,7 @@ void CanvasView::middleMouseButtonPress(QMouseEvent *event) {
     auto fakeEvent = QMouseEvent(
         event->type(),
         event->pos(),
-        event->globalPos(),
+        event->globalPosition().toPoint(),
         Qt::LeftButton,
         event->buttons() | Qt::LeftButton,
         event->modifiers()
@@ -101,7 +101,7 @@ void CanvasView::middleMouseButtonRelease(QMouseEvent *event) {
     auto fakeEvent = QMouseEvent(
         event->type(),
         event->pos(),
-        event->globalPos(),
+        event->globalPosition().toPoint(),
         Qt::LeftButton,
         event->buttons() & Qt::LeftButton,
         event->modifiers()
@@ -292,7 +292,7 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
             auto fake = QMouseEvent(
                 QEvent::MouseButtonRelease,
                 event->pos(),
-                event->globalPos(),
+                event->globalPosition().toPoint(),
                 Qt::LeftButton,
                 Qt::NoButton,
                 event->modifiers()
