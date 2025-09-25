@@ -52,14 +52,10 @@ void EdgesNode::updatePos() const {
 
 
 void EdgesNode::remove_from_sockets() {
-    if (DEBUG) qDebug() << "we have this st socket and end socket" << startSocket << " " << endSocket;
     if (startSocket != nullptr) {
-        if (DEBUG) qDebug() << "\t \t Start Socket:" << startSocket;
-
         startSocket = nullptr;
     }
     if (endSocket != nullptr) {
-        if (DEBUG) qDebug() << "\t \t End Socket:" << endSocket;
         endSocket = nullptr;
     }
     endSocket = nullptr;
@@ -67,11 +63,8 @@ void EdgesNode::remove_from_sockets() {
 }
 
 void EdgesNode::remove() {
-    if (DEBUG) qDebug() << "NodeEdges:remove ~ " << this->str().c_str() << "\nwith (Sockets, Edges):";
-    if (DEBUG) qDebug() << "\t remove edge from all sockets";
     remove_from_sockets();
 
-    if (DEBUG) qDebug() << "\t removed the grEdge";
     if (grEdge && scene && scene->grScene && grEdge != nullptr) {
         scene->grScene->removeItem(grEdge);
         grEdge = nullptr;

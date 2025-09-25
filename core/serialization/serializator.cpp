@@ -10,3 +10,4 @@ Serializable::Serializable() {
     id = reinterpret_cast<uintptr_t>(this);
 }
 
+Serializable::~Serializable() = default;

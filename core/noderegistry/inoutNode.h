@@ -11,7 +11,7 @@
 
 class InputNode : public Node {
 public:
-    InputNode(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> output_size = {});
+    InputNode(Scene* scene_, const string &title = "Undefine Node", vector<QString> output_size = {});
     double vals = 0;
     long double getValues() {return vals;};
     QLineEdit *lineEdit;
@@ -22,7 +22,7 @@ public:
 
 class OutputNode : public Node {
 public:
-    OutputNode(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {});
+    OutputNode(Scene* scene_, const string &title = "Undefine Node", vector<QString> input_size = {});
     void execute();
     double vals = 0;
     TextEdit* textEdit = nullptr;

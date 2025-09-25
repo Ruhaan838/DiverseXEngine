@@ -35,7 +35,7 @@ public:
 
 class TextEdit: public QTextEdit {
 public:
-    TextEdit(const QString &text, QTextEdit* parent=nullptr) {
+    TextEdit(const QString &text, QWidget* parent=nullptr) : QTextEdit(parent) {
         setPlainText(text);
     }
     void keyPressEvent(QKeyEvent *event) override {

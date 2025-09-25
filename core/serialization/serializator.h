@@ -16,6 +16,7 @@ class Serializable {
 public:
 
     Serializable();
+    virtual ~Serializable();
     uintptr_t id;
 
     virtual QJsonObject serialize() = 0;

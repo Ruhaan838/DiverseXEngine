@@ -30,6 +30,7 @@ public:
     QTreeWidgetItem* functions;
     QTreeWidgetItem* inputs;
     QTreeWidgetItem* outputs;
+    QTreeWidgetItem* containers;
 
     Scene* scene;
 };

@@ -9,6 +9,7 @@
 #include "../../ui/canvas/canvasScene.h"
 #include "../noderegistry/inoutNode.h"
 #include "../noderegistry/functionNode.h"
+#include "../noderegistry/conditionNode.h"
 #include "../nodes/socket.h"
 #include "../../ui/canvas/editorWindow.h"
 #include "../codegeneration/codeTemplateManager.h"
@@ -236,6 +237,7 @@ void Scene::updateEditorCode() {
         if (dynamic_cast<SubNode*>(fn)) return "sub";
         if (dynamic_cast<MulNode*>(fn)) return "mul";
         if (dynamic_cast<DivNode*>(fn)) return "div";
+        if (dynamic_cast<ConditionNode*>(fn)) return "condition";
         return "";
     };
 
@@ -282,6 +284,14 @@ void Scene::updateEditorCode() {
             int idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,resultVar);
             idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,arg1);
             idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,arg2);
+            // If this is a condition node, replace the OP_INDEX placeholder with the node's operator index
+            if (fname == "condition") {
+                int opIndex = 0;
+                if (auto *cnode = dynamic_cast<ConditionNode*>(fn)) {
+                    if (cnode->bool_list) opIndex = cnode->bool_list->currentIndex();
+                }
+                callLine.replace("OP_INDEX", QString::number(opIndex));
+            }
         } else {
             callLine = resultVar + " = " + fname + "(" + arg1 + ", " + arg2 + ")";
         }

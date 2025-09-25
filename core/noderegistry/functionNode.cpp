@@ -18,7 +18,7 @@ inline const string out_node_stylesheet = R"(
     }
 )";
 
-FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
+FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
 : Node(scene_, title, input_size, output_size){}
 
 double FunctionNode::getNodeValue(Node* node) {
@@ -102,8 +102,8 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
     for (auto i : in) {
         auto new_i = i.toObject();
         const auto pos = getPosition(new_i.value("position").toInt());
-        const auto item = getSocketType(new_i.value("socket_type").toInt());
-        auto *sok = new SocketNode(this, new_i.value("index").toInt(), pos, item);
+        const QString socketType = new_i.value("socket_type").toString();
+        auto *sok = new SocketNode(this, new_i.value("index").toInt(), pos, socketType);
         sok->deserialize(new_i, hashmap);
         inputs.push_back(sok);
     }
@@ -114,8 +114,8 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
     for (auto o : out) {
         auto new_o = o.toObject();
         const auto pos = getPosition(new_o.value("position").toInt());
-        const auto item = getSocketType(new_o.value("socket_type").toInt());
-        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, item);
+        const QString socketType = new_o.value("socket_type").toString();
+        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, socketType);
         sok->deserialize(new_o, hashmap);
         outputs.push_back(sok);
     }
@@ -133,7 +133,7 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
 */
 
 // AddNode add the two numbers
-AddNode::AddNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
+AddNode::AddNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
 : FunctionNode(scene_, title, input_size, output_size) {
     vals = 0;
 }
@@ -165,7 +165,7 @@ bool AddNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr
 
 
 // SubNode subtracts the two numbers
-SubNode::SubNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
+SubNode::SubNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
     :FunctionNode(scene_, title, input_size, output_size){
     vals = 0;
 }
@@ -196,7 +196,7 @@ bool SubNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr
 }
 
 // MulNode multiplies the two numbers
-MulNode::MulNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
+MulNode::MulNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
     :FunctionNode(scene_, title, input_size, output_size){
     vals = 0;
 }
@@ -227,7 +227,7 @@ bool MulNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr
 }
 
 // DivNode divides the two numbers
-DivNode::DivNode(Scene *scene_, const string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size)
+DivNode::DivNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
     :FunctionNode(scene_, title, input_size, output_size) {
     vals = 0;
 }

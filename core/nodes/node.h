@@ -23,14 +23,15 @@ using namespace std;
 
 class Node : public Serializable{
 public:
-    Node(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {}, vector<SOCKETTYPES> output_size = {});
-    void initNode(string title, vector<SOCKETTYPES> in, vector<SOCKETTYPES> out);
+    Node(Scene* scene_, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
+    void initNode(string title, vector<QString> in, vector<QString> out);
     pair<int, int> getSocketPos(int index, POSITION position);
     void setPos(int x, int y);
     QPointF pos() const;
     void show();
 
     void updateConnectedEdges() const;
+    void refreshSocketsAndEdges();
 
     string str();
 
@@ -41,6 +42,7 @@ public:
     bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) override;
 
     void setHeightWidth(int h, int w);
+    void setContentHeight(int h);
     std::pair<int, int> getHeightAndWidth() const;
 
     vector<SocketNode*> inputs, outputs;
@@ -57,15 +59,16 @@ public:
 
     static void registerType(const QString& type, std::function<Node*(Scene*)> creator);
     static Node* createNode(const QString& type, Scene* scene);
-private:
-    static unordered_map<QString, function<Node*(Scene*)>>& registry();
 
-    vector<SOCKETTYPES> in_socket_type;
-    vector<SOCKETTYPES> out_socket_type;
+protected:
+    vector<QString> in_socket_type;
+    vector<QString> out_socket_type;
     string title;
     int pending_w = -1, pending_h = -1;
     POSITION in_pos = LEFT_BOTTOM, out_pos = RIGHT_TOP;
 
+private:
+    static unordered_map<QString, function<Node*(Scene*)>>& registry();
 };
 
 #endif //NODE_H

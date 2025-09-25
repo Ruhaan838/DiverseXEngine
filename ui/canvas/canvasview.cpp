@@ -224,9 +224,6 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
     else if (event->key() == Qt::Key_S && event->modifiers() && Qt::ControlModifier) {
         grScene->scene->saveToFile( "Graph.json");
     }
-    else if (event->key() == Qt::Key_L && event->modifiers() && Qt::ControlModifier) {
-        grScene->scene->loadFromFile("Graph.json");
-    }
     else if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && (event->modifiers() & Qt::ControlModifier)) {
         if (grScene && grScene->scene) {
             grScene->scene->executeGraph();

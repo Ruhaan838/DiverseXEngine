@@ -15,13 +15,14 @@
 #include "../../ui/canvas/canvasScene.h"
 #include "../../ui/canvas/canvasview.h"
 #include "../../ui/graphics/nodeGraphics.h"
+#include "../../ui/graphics/socketGraphics.h"
 
-Node::Node(Scene *scene_, const  string &title, vector<SOCKETTYPES> input_size, vector<SOCKETTYPES> output_size) : scene(
+Node::Node(Scene *scene_, const  string &title, vector<QString> input_size, vector<QString> output_size) : scene(
     scene_), Serializable(), in_socket_type(input_size), out_socket_type(output_size), title(title) {
     grNode = nullptr;
 }
 
-void Node::initNode(string title, vector<SOCKETTYPES> in, vector<SOCKETTYPES> out) {
+void Node::initNode(string title, vector<QString> in, vector<QString> out) {
     grNode = new NodeGraphics(this);
     grNode->setTitle(title);
 
@@ -95,6 +96,26 @@ void Node::updateConnectedEdges() const {
             outputs[i]->edge->updatePos();
         }
     }
+}
+
+void Node::refreshSocketsAndEdges() {
+    // Update socket positions first
+    for (size_t i = 0; i < inputs.size(); i++) {
+        if (inputs[i] && inputs[i]->grSocket) {
+            auto pos = getSocketPos(static_cast<int>(i), in_pos);
+            inputs[i]->grSocket->setPos(static_cast<qreal>(pos.first), static_cast<qreal>(pos.second));
+        }
+    }
+
+    for (size_t i = 0; i < outputs.size(); i++) {
+        if (outputs[i] && outputs[i]->grSocket) {
+            auto pos = getSocketPos(static_cast<int>(i), out_pos);
+            outputs[i]->grSocket->setPos(static_cast<qreal>(pos.first), static_cast<qreal>(pos.second));
+        }
+    }
+
+    // Update connected edges
+    updateConnectedEdges();
 }
 
 string Node::str() {
@@ -195,6 +216,13 @@ void Node::setHeightWidth(int h, int w) {
     pending_w = w;
     if (grNode) {
         grNode->setHeightWidth(h, w);
+    }
+}
+
+void Node::setContentHeight(int h) {
+    pending_h = h;
+    if (grNode) {
+        grNode->setHeightWidth(h, grNode->width);
     }
 }
 

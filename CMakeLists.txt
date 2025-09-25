@@ -37,6 +37,8 @@ set(PROJECT_SOURCES
         ui/graphics/edgeGraphics.h
         ui/graphics/socketGraphics.cpp
         ui/graphics/socketGraphics.h
+        ui/graphics/canvasNodeGraphis.cpp
+        ui/graphics/canvasNodeGraphis.h
         ui/canvas/canvasview.cpp
         ui/canvas/canvasview.h
         ui/graphics/cutlineGraphics.cpp
@@ -48,6 +50,8 @@ set(PROJECT_SOURCES
         core/noderegistry/functions.cpp
         core/noderegistry/functionNode.cpp
         core/noderegistry/functionNode.h
+        core/noderegistry/conditionNode.cpp
+        core/noderegistry/conditionNode.h
         core/noderegistry/inNode.cpp
         core/noderegistry/inoutNode.h
         core/noderegistry/outNode.cpp
@@ -55,6 +59,9 @@ set(PROJECT_SOURCES
         ui/canvas/editorWindow.h
         core/codegeneration/codeTemplateManager.cpp
         core/codegeneration/codeTemplateManager.h
+        ui/canvas/load_from.cpp
+        ui/canvas/open_from.cpp
+        ui/canvas/open_load.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

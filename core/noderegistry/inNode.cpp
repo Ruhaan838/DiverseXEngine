@@ -18,7 +18,7 @@ inline const string in_node_stylesheet = R"(
     QLineEdit {
         background-color: #2b2b2b;
         color: #ffffff;
-        border: 2px solid #3d3d3d;
+        border: 1px solid #3d3d3d;
         border-radius: 5px;
         padding: 2px 8px;
     }
@@ -28,7 +28,7 @@ inline const string in_node_stylesheet = R"(
 )";
 
 
-InputNode::InputNode(Scene *scene_, const string &title, vector<SOCKETTYPES> output_size)
+InputNode::InputNode(Scene *scene_, const string &title, vector<QString> output_size)
 : Node(scene_, title, {}, output_size){
     auto *widget = new WidgetNode(this);
     lineEdit = new QLineEdit(widget);
@@ -92,8 +92,8 @@ bool InputNode::deserialize(const QJsonObject &data, unordered_map<string, uintp
     for (auto o: out) {
         auto new_o = o.toObject();
         const auto pos = getPosition(new_o.value("position").toInt());
-        const auto item = getSocketType(new_o.value("socket_type").toInt());
-        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, item);
+        const QString socketType = new_o.value("socket_type").toString();
+        auto *sok = new SocketNode(this, new_o.value("index").toInt(), pos, socketType);
         sok->deserialize(new_o, hashmap);
         outputs.push_back(sok);
     }

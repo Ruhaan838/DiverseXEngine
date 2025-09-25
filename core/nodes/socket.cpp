@@ -11,16 +11,24 @@
 #include "../serialization/serializator.h"
 #include "../../ui/graphics/socketGraphics.h"
 
-SocketNode::SocketNode(Node* node_, int index, POSITION position, SOCKETTYPES item) : node(node_), index(index), position(position), Serializable() {
+SocketNode::SocketNode(Node* node_, int index, POSITION position, const QString& socketType) : node(node_), index(index), position(position), Serializable() {
 
-    grSocket = new SocketGraphics(this, node->grNode, item);
+    grSocket = new SocketGraphics(this, node->grNode, socketType);
 
     auto ans = node->getSocketPos(index, position);
     grSocket->setPos(ans.first, ans.second);
     edge = nullptr;
 
-    socket_type = item;
+    socket_type = socketType;
 
+}
+
+SocketNode::~SocketNode() {
+    // Delete graphics item; deleting a QGraphicsItem automatically removes it from the scene
+    if (grSocket) {
+        delete grSocket;
+        grSocket = nullptr;
+    }
 }
 
 std::pair<int, int> SocketNode::getSocketPos() const {
@@ -35,7 +43,7 @@ bool SocketNode::hasEdge() const {
     return edge != nullptr;
 }
 
-void SocketNode::setEdge(EdgesNode *edge_) {
+void SocketNode::setEdge(EdgesNode* edge_) {
     edge = edge_;
 }
 

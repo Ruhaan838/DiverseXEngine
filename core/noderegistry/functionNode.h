@@ -15,7 +15,7 @@ using namespace std;
 
 class FunctionNode : public Node {
 public:
-    FunctionNode(Scene* scene_ = nullptr, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {}, vector<SOCKETTYPES> output_size = {});
+    FunctionNode(Scene* scene_ = nullptr, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
     Node* getPrevNode(const int idx) const;
     virtual void execute() = 0;
     virtual double getValues() = 0;
@@ -23,14 +23,14 @@ public:
     QJsonObject serialize() override;
     bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) override;
 
-    void showContent();
-    void hideContent();
+    virtual void showContent();
+    virtual void hideContent();
     WidgetNode* widget;
 };
 
 class AddNode : public FunctionNode {
 public:
-    AddNode(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {}, vector<SOCKETTYPES> output_size = {});
+    AddNode(Scene* scene_, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
 
     double vals = 0;
     void execute() override;
@@ -42,7 +42,7 @@ public:
 
 class SubNode : public FunctionNode {
 public:
-    SubNode(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {}, vector<SOCKETTYPES> output_size = {});
+    SubNode(Scene* scene_, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
 
     double vals = 0;
     void execute() override;
@@ -54,7 +54,7 @@ public:
 
 class MulNode : public FunctionNode {
 public:
-    MulNode(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {}, vector<SOCKETTYPES> output_size = {});
+    MulNode(Scene* scene_, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
 
     double vals = 0;
     void execute() override;
@@ -66,7 +66,7 @@ public:
 
 class DivNode : public FunctionNode {
 public:
-    DivNode(Scene* scene_, const string &title = "Undefine Node", vector<SOCKETTYPES> input_size = {}, vector<SOCKETTYPES> output_size = {});
+    DivNode(Scene* scene_, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
 
     double vals = 0;
     void execute() override;
