@@ -159,3 +159,4 @@ sock2-->edge2-->out1
 - **JSON**: Graph serialization and deserialization.
 
 ##
+diagrams to be added..
