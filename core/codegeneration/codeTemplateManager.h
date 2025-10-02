@@ -6,13 +6,9 @@
 #define CODETEMPLATEMANAGER_H
 
 #include <QJsonObject>
-#include <QJsonDocument>
-#include <QFile>
 #include <QString>
-#include <QHash>
-#include <QDebug>
-#include <QDir>
-#include <QCoreApplication>
+
+class Node;
 
 class CodeTemplateManager {
 public:
@@ -29,6 +25,7 @@ public:
     QString getFunctionCallTemplate(const QString& functionName) const;
 
     QString getTemplateType(const QString& templatePath) const;
+    QString generateNodeWrapper(Node* node, const QString& implFunctionName) const;
 
 private:
     CodeTemplateManager() = default;
@@ -38,6 +35,9 @@ private:
     CodeTemplateManager& operator=(const CodeTemplateManager&) = delete;
 
     QJsonObject templatesJson;
+
+    QString makeSafeIdentifier(const QString& base, int idx) const;
+    QString defaultValueForSocketType(const QString& socketType) const;
 };
 
 #endif // CODETEMPLATEMANAGER_H
