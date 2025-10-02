@@ -15,7 +15,7 @@ using namespace std;
 
 class FunctionNode : public Node {
 public:
-    FunctionNode(Scene* scene_ = nullptr, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {});
+    FunctionNode(Scene* scene_ = nullptr, const string &title = "Undefine Node", vector<QString> input_size = {}, vector<QString> output_size = {}, bool allow_addsocket = true);
     Node* getPrevNode(const int idx) const;
     virtual void execute() = 0;
     virtual double getValues() = 0;
@@ -26,6 +26,7 @@ public:
     virtual void showContent();
     virtual void hideContent();
     WidgetNode* widget;
+    bool allow_addsocket = true;
 };
 
 class AddNode : public FunctionNode {

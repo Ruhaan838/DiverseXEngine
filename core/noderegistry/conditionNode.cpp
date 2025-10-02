@@ -7,7 +7,7 @@
 #include <cmath>
 
 ConditionNode::ConditionNode(Scene *scene_, const string &title)
-: FunctionNode(scene_, title, {"Number 1", "Number 2"}, {"Ans"}) {
+: FunctionNode(scene_, title, {"Number 1", "Number 2"}, {"Ans"}, false) {
     auto *widget = new WidgetNode(this);
     bool_list = new QComboBox();
     bool_list->addItem("A > B");

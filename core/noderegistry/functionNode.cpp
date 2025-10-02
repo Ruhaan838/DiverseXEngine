@@ -18,8 +18,21 @@ inline const string out_node_stylesheet = R"(
     }
 )";
 
-FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
-: Node(scene_, title, input_size, output_size){}
+static vector<QString> withAddSocket(vector<QString> v) {
+    if (v.empty()) {
+        v.emplace_back("Number 1");
+        v.emplace_back("Number 2");
+        v.emplace_back("addsocket");
+        return v;
+    }
+    bool exists = false;
+    for (auto &s : v) if (s == "addsocket") exists = true;
+    if (!exists) v.emplace_back("addsocket");
+    return v;
+}
+
+FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size, bool allow_addsocket)
+: Node(scene_, title, allow_addsocket ? withAddSocket(input_size) : input_size, output_size), allow_addsocket(allow_addsocket) {}
 
 double FunctionNode::getNodeValue(Node* node) {
     if (!node) return 0;
@@ -108,6 +121,22 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
         inputs.push_back(sok);
     }
 
+    if (allow_addsocket) {
+        bool hasAddSocket = false;
+        for (auto *s : inputs) {
+            if (s && s->socket_type == "addsocket") { hasAddSocket = true; break; }
+        }
+        if (!hasAddSocket) {
+            const auto pos = getPosition(static_cast<int>(this->in_pos));
+            auto *sok = new SocketNode(this, static_cast<int>(inputs.size()), pos, QString("addsocket"));
+            inputs.push_back(sok);
+        }
+    }
+
+    for (size_t idx = 0; idx < inputs.size(); ++idx) {
+        if (inputs[idx]) inputs[idx]->index = static_cast<int>(idx);
+    }
+
     QJsonArray out = data.value("outputs").toArray();
     for (auto s : outputs) { delete s; }
     outputs.clear();
@@ -139,15 +168,20 @@ AddNode::AddNode(Scene *scene_, const string &title, vector<QString> input_size,
 }
 
 void AddNode::execute() {
-    if (inputs.size() >= 2) {
-        auto *prev1 = getPrevNode(0);
-        auto *prev2 = getPrevNode(1);
-        if (prev1 == nullptr || prev2 == nullptr) {
-            return;
-        }
-        long double v1 = getNodeValue(prev1);
-        long double v2 = getNodeValue(prev2);
-        vals = v1 + v2;
+    long double sum = 0;
+    int connectedCount = 0;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        auto *s = inputs[i];
+        if (!s) continue;
+        if (s->socket_type == "addsocket") continue;
+        auto *prev = getPrevNode(static_cast<int>(i));
+        if (!prev) continue;
+        long double v = getNodeValue(prev);
+        sum += v;
+        connectedCount++;
+    }
+    if (connectedCount >= 2) {
+        vals = sum;
     }
 }
 
@@ -171,15 +205,26 @@ SubNode::SubNode(Scene *scene_, const string &title, vector<QString> input_size,
 }
 
 void SubNode::execute() {
-    if (inputs.size() >= 2) {
-        auto *prev1 = getPrevNode(0);
-        auto *prev2 = getPrevNode(1);
-        if (prev1 == nullptr || prev2 == nullptr) {
-            return;
+    long double result = 0;
+    bool firstFound = false;
+    int connectedCount = 0;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        auto *s = inputs[i];
+        if (!s) continue;
+        if (s->socket_type == "addsocket") continue;
+        auto *prev = getPrevNode(static_cast<int>(i));
+        if (!prev) continue;
+        long double v = getNodeValue(prev);
+        if (!firstFound) {
+            result = v;
+            firstFound = true;
+        } else {
+            result -= v;
         }
-        long double v1 = getNodeValue(prev1);
-        long double v2 = getNodeValue(prev2);
-        vals = v1 - v2;
+        connectedCount++;
+    }
+    if (connectedCount >= 2 && firstFound) {
+        vals = result;
     }
 }
 
@@ -202,15 +247,20 @@ MulNode::MulNode(Scene *scene_, const string &title, vector<QString> input_size,
 }
 
 void MulNode::execute() {
-    if (inputs.size() >= 2) {
-        auto *prev1 = getPrevNode(0);
-        auto *prev2 = getPrevNode(1);
-        if (prev1 == nullptr || prev2 == nullptr) {
-            return;
-        }
-        long double v1 = getNodeValue(prev1);
-        long double v2 = getNodeValue(prev2);
-        vals = v1 * v2;
+    long double prod = 1;
+    int connectedCount = 0;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        auto *s = inputs[i];
+        if (!s) continue;
+        if (s->socket_type == "addsocket") continue;
+        auto *prev = getPrevNode(static_cast<int>(i));
+        if (!prev) continue;
+        long double v = getNodeValue(prev);
+        prod *= v;
+        connectedCount++;
+    }
+    if (connectedCount >= 2) {
+        vals = prod;
     }
 }
 
@@ -233,19 +283,31 @@ DivNode::DivNode(Scene *scene_, const string &title, vector<QString> input_size,
 }
 
 void DivNode::execute() {
-    if (inputs.size() >= 2) {
-        auto *prev1 = getPrevNode(0);
-        auto *prev2 = getPrevNode(1);
-        if (prev1 == nullptr || prev2 == nullptr) {
-            return;
-        }
-        long double v1 = getNodeValue(prev1);
-        long double v2 = getNodeValue(prev2);
-        if (v2 != 0) {
-            vals = v1 / v2;
+    long double result = 0;
+    bool firstFound = false;
+    int connectedCount = 0;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        auto *s = inputs[i];
+        if (!s) continue;
+        if (s->socket_type == "addsocket") continue;
+        auto *prev = getPrevNode(static_cast<int>(i));
+        if (!prev) continue;
+        long double v = getNodeValue(prev);
+        if (!firstFound) {
+            result = v;
+            firstFound = true;
         } else {
-            vals = INFINITY;
+            if (v == 0) {
+                vals = INFINITY;
+
+                return;
+            }
+            result /= v;
         }
+        connectedCount++;
+    }
+    if (connectedCount >= 2 && firstFound) {
+        vals = result;
     }
 }
 
