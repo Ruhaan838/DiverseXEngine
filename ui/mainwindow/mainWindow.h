@@ -27,7 +27,7 @@ public:
 
     void setWindowDimensions(int width, int height);
     void setWindowTitle(const QString& title);
-    void setWindowTitleWithFilename(const QString& filename); // New method for filename title
+    void setWindowTitleWithFilename(const QString& filename);
 
     QGraphicsView* getView() const { return view; }
     Scene* getScene() const { return scene; }

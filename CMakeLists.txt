@@ -33,6 +33,8 @@ set(PROJECT_SOURCES
         core/widgets/widgets.h
         ui/graphics/nodeGraphics.cpp
         ui/graphics/nodeGraphics.h
+        ui/graphics/InfoButton.cpp
+        ui/graphics/InfoButton.h
         ui/graphics/edgeGraphics.cpp
         ui/graphics/edgeGraphics.h
         ui/graphics/socketGraphics.cpp
@@ -48,6 +50,8 @@ set(PROJECT_SOURCES
         core/noderegistry/noderegister.cpp
         core/noderegistry/noderegister.h
         core/noderegistry/functions.cpp
+        core/noderegistry/canvasNode.cpp
+        core/noderegistry/canvasNode.h
         core/noderegistry/functionNode.cpp
         core/noderegistry/functionNode.h
         core/noderegistry/conditionNode.cpp
@@ -57,6 +61,8 @@ set(PROJECT_SOURCES
         core/noderegistry/outNode.cpp
         ui/canvas/editorWindow.cpp
         ui/canvas/editorWindow.h
+        ui/canvas/syshighligh.cpp
+        ui/canvas/syshighligh.h
         core/codegeneration/codeTemplateManager.cpp
         core/codegeneration/codeTemplateManager.h
         ui/canvas/load_from.cpp

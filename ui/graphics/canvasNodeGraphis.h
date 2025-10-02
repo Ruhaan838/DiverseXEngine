@@ -19,17 +19,17 @@ public:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
 private:
-    void initResizeHandle();
     [[nodiscard]] QRectF getResizeHandleRect() const;
     [[nodiscard]] bool isMouseOnResizeHandle(const QPointF& pos) const;
 
     QGraphicsRectItem* resizeHandle;
     bool isResizing;
     QPointF lastMousePos;
+    QList<QGraphicsItem*> prev_selected_items;
 
-    // Resize handle properties
     static constexpr int RESIZE_HANDLE_SIZE = 10;
     QPen _resize_handle_pen;
     QBrush _resize_handle_brush;

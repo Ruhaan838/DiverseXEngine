@@ -11,13 +11,11 @@ class QWidget;
 class Scene;
 
 namespace FileIO {
-    // File dialog functions
     QString getSaveFilePath(QWidget* parent, const QString& suggestedName = QString());
     QString getOpenFilePath(QWidget* parent);
 
-    // Scene save/load functions
     bool saveScene(Scene* scene, QWidget* parent, bool forceDialog = false);
-    QString loadScene(Scene* scene, QWidget* parent); // Changed to return filename
+    QString loadScene(Scene* scene, QWidget* parent);
 }
 
 #endif // OPEN_LOAD_H

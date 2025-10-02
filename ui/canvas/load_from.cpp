@@ -44,8 +44,7 @@ namespace FileIO {
         scene->loadFromFile(path.toStdString());
         lastPath = path;
 
-        // Extract just the filename from the full path
         QFileInfo fileInfo(path);
-        return fileInfo.baseName(); // Returns filename without extension
+        return fileInfo.baseName();
     }
 }

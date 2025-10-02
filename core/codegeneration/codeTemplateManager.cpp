@@ -3,6 +3,10 @@
 //
 
 #include "codeTemplateManager.h"
+
+#include <QDir>
+#include <QFile>
+#include <QJsonDocument>
 #include <QStringList>
 #include <QRegularExpression>
 #include "../nodes/node.h"

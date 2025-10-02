@@ -13,6 +13,7 @@
 #include "../nodes/socket.h"
 #include "../../ui/canvas/editorWindow.h"
 #include "../codegeneration/codeTemplateManager.h"
+#include "../../ui/graphics/nodeGraphics.h"
 
 #include <QDebug>
 #include <QDir>
@@ -259,32 +260,34 @@ void Scene::updateEditorCode() {
 
         QString fname = functionNameForNode(fn);
         if (fname.isEmpty()) return;
-        QString arg1 = "0"; QString arg2 = "0";
-        if (fn->inputs.size() >= 1) {
-            auto *s = fn->inputs[0];
+
+        QStringList args;
+        for (size_t i = 0; i < fn->inputs.size(); ++i) {
+            auto *s = fn->inputs[i];
+            if (!s) continue;
+            if (s->socket_type == "addsocket") continue;
+
+            QString arg = "0";
             if (s && s->hasEdge() && s->edge && s->edge->startSocket) {
                 Node* nn = s->edge->startSocket->node;
-                if (auto *inN = dynamic_cast<InputNode*>(nn)) arg1 = getOrCreateVarName(inN);
-                else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) arg1 = getOrCreateVarName(fnN);
+                if (auto *inN = dynamic_cast<InputNode*>(nn)) arg = getOrCreateVarName(inN);
+                else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) arg = getOrCreateVarName(fnN);
             }
+            args << arg;
         }
-        if (fn->inputs.size() >= 2) {
-            auto *s = fn->inputs[1];
-            if (s && s->hasEdge() && s->edge && s->edge->startSocket) {
-                Node* nn = s->edge->startSocket->node;
-                if (auto *inN = dynamic_cast<InputNode*>(nn)) arg2 = getOrCreateVarName(inN);
-                else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) arg2 = getOrCreateVarName(fnN);
-            }
+
+        while (!args.isEmpty() && args.last() == "0") {
+            args.removeLast();
         }
+
         QString resultVar = getOrCreateVarName(fn);
         QString callTemplate = CodeTemplateManager::getInstance().getFunctionCallTemplate(fname);
-        QString callLine;
-        if (!callTemplate.isEmpty()) {
-            callLine = callTemplate;
+
+        if (!callTemplate.isEmpty() && args.size() <= 2) {
+            QString callLine = callTemplate;
             int idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,resultVar);
-            idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,arg1);
-            idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,arg2);
-            // If this is a condition node, replace the OP_INDEX placeholder with the node's operator index
+            idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args.size() > 0 ? args[0] : QString("0"));
+            idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args.size() > 1 ? args[1] : QString("0"));
             if (fname == "condition") {
                 int opIndex = 0;
                 if (auto *cnode = dynamic_cast<ConditionNode*>(fn)) {
@@ -292,10 +295,25 @@ void Scene::updateEditorCode() {
                 }
                 callLine.replace("OP_INDEX", QString::number(opIndex));
             }
+            functionCallLines.append(callLine);
         } else {
-            callLine = resultVar + " = " + fname + "(" + arg1 + ", " + arg2 + ")";
+
+            if (args.empty()) {
+                functionCallLines.append(resultVar + " = " + fname + "()");
+            } else if (args.size() == 1) {
+                functionCallLines.append(resultVar + " = " + fname + "(" + args[0] + ")");
+            } else if (args.size() == 2) {
+                functionCallLines.append(resultVar + " = " + fname + "(" + args[0] + ", " + args[1] + ")");
+            } else {
+                QString nested = args[0];
+                nested = QString("%1(%2, %3)").arg(fname, args[0], args[1]);
+                for (int i = 2; i < args.size(); ++i) {
+                    nested = QString("%1(%2, %3)").arg(fname, nested, args[i]);
+                }
+                functionCallLines.append(QString("%1 = %2").arg(resultVar, nested));
+            }
         }
-        functionCallLines.append(callLine);
+
         visitedFns.insert(fn);
     };
 
@@ -351,6 +369,16 @@ void Scene::updateEditorCode() {
     editorWindow->setImportsText(importsCode);
     editorWindow->setFunctionsText(functionsCode);
     editorWindow->setMainText(mainCode);
+
+    for (Node* node : nodes) {
+        if (!node) continue;
+        if (auto *inNode = dynamic_cast<InputNode*>(node)) {
+            QString v = getOrCreateVarName(inNode);
+            if (inNode->grNode) inNode->grNode->setTitle(QString("Input - %1").arg(v).toStdString());
+            inNode->var_code = QString("Input - %1").arg(v);
+        }
+    }
+
 }
 
 QString Scene::getOrCreateVarName(Node* node) {

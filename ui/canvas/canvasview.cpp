@@ -265,6 +265,20 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
     }
 
     if (auto sk = dynamic_cast<SocketGraphics*>(item)) {
+        // if this is the special addsocket, create a new input instead of starting an edge drag
+        if (sk->socket && sk->socket->socket_type == "addsocket") {
+            Node* node = sk->socket->node;
+            if (node) {
+                int addsockIndex = sk->socket->index;
+                int insertIndex = addsockIndex; // insert before addsocket
+                //QString label = "Number";
+                //node->addInputSocket(insertIndex, label);
+                // pass empty label so addInputSocket will auto-number (Number N)
+                node->addInputSocket(insertIndex, QString());
+             }
+             return;
+         }
+
         if (mode == MODE_NO_OP) {
             mode = MODE_EDGE_DRAG;
             edgeDragStart(sk);
@@ -329,28 +343,31 @@ void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
 }
 
 void CanvasView::rightMouseButtonPress(QMouseEvent *event) {
-    QGraphicsView::mousePressEvent(event);
 
     if (auto item = getItemAtClick(event)) {
-        if (DEBUG) {
-            if (auto sok = dynamic_cast<SocketGraphics*>(item)) {
-                qDebug() << "RightMouseButtonPress DEBUG";
-                qDebug() << "Socket:" << sok->socket << "\t Edge:" << sok->socket->edge->str().c_str();
+        if (auto sok = dynamic_cast<SocketGraphics*>(item)) {
+            if (sok->socket && sok->socket->socket_type == "addsocket") {
+                if (DEBUG) qDebug() << "CanvasView::rightMouseButtonPress - addsocket right-click, removing last input";
+                sok->socket->node->removeLastInputSocket();
+                return;
             }
         }
-    } else {
-            qDebug("Item is nullptr - printing debug info:");;
-            qDebug() << "Scene:"  << scene();
-            qDebug() << "Nodes:";
 
-            for (const auto n : grScene->scene->nodes) {
-                qDebug("%s", n->str().c_str());
-            }
-            qDebug() << "Edges:";
-            for (const auto n : grScene->scene->edges) {
-                qDebug("%s", n->str().c_str());
-            }
+    } else {
+        qDebug("Item is nullptr - printing debug info:");
+        qDebug() << "Scene:"  << scene();
+        qDebug() << "Nodes:";
+
+        for (const auto n : grScene->scene->nodes) {
+            qDebug("%s", n->str().c_str());
+        }
+        qDebug() << "Edges:";
+        for (const auto n : grScene->scene->edges) {
+            qDebug("%s", n->str().c_str());
+        }
     }
+
+    QGraphicsView::mousePressEvent(event);
 }
 
 void CanvasView::rightMouseButtonRelease(QMouseEvent *event) {
@@ -441,7 +458,6 @@ bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
     return false;
 }
 
-//measures if we are too far from the last LMB click scene position
 bool CanvasView::distanceBetween(QMouseEvent *event) {
     auto new_lmb_release_scene_pos = mapToScene(event->pos());
     auto dist_scene_pos = new_lmb_release_scene_pos - last_lmb_click_scene_pos;

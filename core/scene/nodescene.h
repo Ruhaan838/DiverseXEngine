@@ -16,7 +16,8 @@ class CanvasScene;
 class Node;
 class EdgesNode;
 class Serializable;
-class EditorWindow;  // Add forward declaration for EditorWindow
+class EditorWindow;
+
 
 class Scene : public Serializable{
 public:

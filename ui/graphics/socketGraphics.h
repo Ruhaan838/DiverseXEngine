@@ -37,6 +37,8 @@ public:
     QFont textFont;
     QColor textColor;
     float textOffset = 3.0f;
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 };
 
 #endif //SOCKETGRAPHICS_H
