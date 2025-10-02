@@ -6,6 +6,7 @@
 #define SOCKET_H
 
 #include <utility>
+#include <QString>
 
 #include "../../Common.h"
 #include "../serialization/serializator.h"
@@ -34,6 +35,9 @@ public:
     QString socket_type;
 
     EdgesNode* edge;
+
+    // var_name is assigned during code generation to show which variable this socket maps to
+    QString var_name;
 
 };
 

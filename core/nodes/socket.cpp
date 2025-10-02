@@ -6,25 +6,56 @@
 
 #include <QJsonObject>
 #include <sstream>
+#include <QDebug>
+#include <QGraphicsScene>
+#include <QTimer>
 
+#include "edge.h"
 #include "node.h"
 #include "../serialization/serializator.h"
 #include "../../ui/graphics/socketGraphics.h"
+#include "../../ui/graphics/nodeGraphics.h"
 
 SocketNode::SocketNode(Node* node_, int index, POSITION position, const QString& socketType) : node(node_), index(index), position(position), Serializable() {
 
-    grSocket = new SocketGraphics(this, node->grNode, socketType);
+    this->socket_type = socketType;
 
-    auto ans = node->getSocketPos(index, position);
-    grSocket->setPos(ans.first, ans.second);
-    edge = nullptr;
+    auto ans = node ? node->getSocketPos(index, position) : std::pair<int,int>{0,0};
+    if (node && node->grNode) {
+        grSocket = new SocketGraphics(this, node->grNode, socketType);
+        grSocket->setPos(static_cast<qreal>(ans.first), static_cast<qreal>(ans.second));
+        grSocket->setZValue(1);
+    } else {
+        grSocket = new SocketGraphics(this, nullptr, socketType);
+        grSocket->setPos(static_cast<qreal>(ans.first), static_cast<qreal>(ans.second));
+        grSocket->setZValue(1);
+        if (node) {
+            Node* n = node;
+            int idx = index;
+            POSITION pos = position;
+            SocketGraphics* sock = grSocket;
+            QTimer::singleShot(0, [n, idx, pos, sock]() {
+                if (!n || !sock) return;
+                if (n->grNode) {
 
-    socket_type = socketType;
+                    if (n->grNode->scene() && sock->scene() != n->grNode->scene()) n->grNode->scene()->addItem(sock);
+                    sock->setParentItem(n->grNode);
+                    auto a = n->getSocketPos(idx, pos);
+                    sock->setPos(static_cast<qreal>(a.first), static_cast<qreal>(a.second));
+                }
+            });
+        }
+    }
+
+    grSocket->setZValue(1);
+
+    if (node) {
+        node->refreshSocketsAndEdges();
+    }
 
 }
 
 SocketNode::~SocketNode() {
-    // Delete graphics item; deleting a QGraphicsItem automatically removes it from the scene
     if (grSocket) {
         delete grSocket;
         grSocket = nullptr;
@@ -45,6 +76,11 @@ bool SocketNode::hasEdge() const {
 
 void SocketNode::setEdge(EdgesNode* edge_) {
     edge = edge_;
+    if (edge_) {
+        QTimer::singleShot(0, [edge_]() {
+            if (edge_) edge_->updatePos();
+        });
+    }
 }
 
 string SocketNode::str() {

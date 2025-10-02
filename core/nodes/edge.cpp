@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <QDebug>
+#include <QTimer>
 
 #include "node.h"
 #include "socket.h"
@@ -14,6 +15,8 @@
 #include "../serialization/serializator.h"
 #include "../../ui/graphics/edgeGraphics.h"
 #include "../../ui/canvas/canvasScene.h"
+#include "../../ui/graphics/socketGraphics.h"
+#include "../../ui/graphics/nodeGraphics.h"
 
 inline bool DEBUG = false;
 
@@ -34,19 +37,39 @@ void EdgesNode::updatePos() const {
         return;
     }
 
-    auto xy = startSocket->getSocketPos();
-    xy.first += startSocket->node->pos().x();
-    xy.second += startSocket->node->pos().y();
-
-    grEdge->setSource(xy.first, xy.second);
-    if (endSocket != nullptr) {
-        xy = endSocket->getSocketPos();
-        xy.first += endSocket->node->pos().x();
-        xy.second += endSocket->node->pos().y();
-        grEdge->setDestination(xy.first, xy.second);
+    QPointF sourceScenePos;
+    if (startSocket->grSocket) {
+        sourceScenePos = startSocket->grSocket->mapToScene(QPointF(0,0));
     } else {
-        grEdge->setDestination(xy.first, xy.second);
+        auto xy = startSocket->getSocketPos();
+        QPointF localPos(static_cast<qreal>(xy.first), static_cast<qreal>(xy.second));
+        if (startSocket->node && startSocket->node->grNode) {
+            sourceScenePos = startSocket->node->grNode->mapToScene(localPos);
+        } else {
+            sourceScenePos = localPos;
+        }
     }
+
+    grEdge->setSource(static_cast<int>(sourceScenePos.x()), static_cast<int>(sourceScenePos.y()));
+
+    if (endSocket != nullptr) {
+        QPointF destScenePos;
+        if (endSocket->grSocket) {
+            destScenePos = endSocket->grSocket->mapToScene(QPointF(0,0));
+        } else {
+            auto xy = endSocket->getSocketPos();
+            QPointF localPos(static_cast<qreal>(xy.first), static_cast<qreal>(xy.second));
+            if (endSocket->node && endSocket->node->grNode) {
+                destScenePos = endSocket->node->grNode->mapToScene(localPos);
+            } else {
+                destScenePos = localPos;
+            }
+        }
+        grEdge->setDestination(static_cast<int>(destScenePos.x()), static_cast<int>(destScenePos.y()));
+    } else {
+        grEdge->setDestination(static_cast<int>(sourceScenePos.x()), static_cast<int>(sourceScenePos.y()));
+    }
+
     grEdge->update();
 }
 
@@ -75,6 +98,11 @@ void EdgesNode::remove() {
 }
 
 void EdgesNode::setStartSocket(SocketNode* socket) {
+    if (socket != nullptr && socket->socket_type == "addsocket") {
+        if (DEBUG) qDebug() << "EdgesNode::setStartSocket - attempt to connect to addsocket ignored";
+        return;
+    }
+
     startSocket = socket;
     if (startSocket != nullptr) {
         startSocket->setEdge(this);
@@ -86,6 +114,11 @@ SocketNode *EdgesNode::getStartSocket() const {
 }
 
 void EdgesNode::setEndSocket(SocketNode* socket) {
+    if (socket != nullptr && socket->socket_type == "addsocket") {
+        if (DEBUG) qDebug() << "EdgesNode::setEndSocket - attempt to connect to addsocket ignored";
+        return;
+    }
+
     endSocket = socket;
     if (endSocket != nullptr) {
         endSocket->setEdge(this);
@@ -114,7 +147,9 @@ void EdgesNode::setEdgeType(EDGETYPES type) {
     }
     scene->grScene->addItem(grEdge);
 
-    updatePos();
+    QTimer::singleShot(0, [this]() {
+        this->updatePos();
+    });
 
 }
 

@@ -10,6 +10,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <qgraphicsitem.h>
 #include <QString>
 #include "../../Common.h"
 #include "../serialization/serializator.h"
@@ -28,7 +29,7 @@ public:
     pair<int, int> getSocketPos(int index, POSITION position);
     void setPos(int x, int y);
     QPointF pos() const;
-    void show();
+    virtual void show();
 
     void updateConnectedEdges() const;
     void refreshSocketsAndEdges();
@@ -52,7 +53,7 @@ public:
 
     Scene* scene;
 
-    NodeGraphics* grNode = nullptr;
+    NodeGraphics *grNode = nullptr;
     WidgetNode *content = nullptr;
 
     int socket_spacing = 22;
@@ -60,12 +61,17 @@ public:
     static void registerType(const QString& type, std::function<Node*(Scene*)> creator);
     static Node* createNode(const QString& type, Scene* scene);
 
+    void addInputSocket(int insertIndex, const QString& label);
+    void removeLastInputSocket();
+    POSITION in_pos = LEFT_BOTTOM, out_pos = RIGHT_TOP;
+
+    QString var_code;
+
 protected:
     vector<QString> in_socket_type;
     vector<QString> out_socket_type;
     string title;
     int pending_w = -1, pending_h = -1;
-    POSITION in_pos = LEFT_BOTTOM, out_pos = RIGHT_TOP;
 
 private:
     static unordered_map<QString, function<Node*(Scene*)>>& registry();
