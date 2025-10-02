@@ -312,6 +312,11 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
             QApplication::setOverrideCursor(Qt::CrossCursor);
             return;
         }
+        else {
+            if (grScene && grScene->scene) {
+                grScene->scene->setPendingNodePos(last_lmb_click_scene_pos);
+            }
+        }
 
     }
 

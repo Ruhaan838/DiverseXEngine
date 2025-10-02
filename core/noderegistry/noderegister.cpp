@@ -7,8 +7,11 @@
 #include "../nodes/node.h"
 #include "../scene/nodescene.h"
 
-NodeRegistery::NodeRegistery(Scene* parent) : scene(parent), functions(nullptr), inputs(nullptr), outputs(nullptr), containers(nullptr) {
+void registerAllNodeTypes();
+
+NodeRegistery::NodeRegistery(Scene* parent) : scene(parent), functions(nullptr), arithmetic(nullptr), math(nullptr), permutation(nullptr), bitoperations(nullptr), inputs(nullptr), outputs(nullptr), containers(nullptr) {
     setHeaderHidden(true);
+    registerAllNodeTypes();
     buildUI();
     setupDoubleClickHandler();
 }
@@ -19,7 +22,7 @@ QHash<QString, NodeInfo>& NodeRegistery::getRegistry() {
 }
 
 void NodeRegistery::registerNode(const QString& name, NodeCategory category,
-                                std::function<Node*(Scene*)> creator,
+                                const std::function<Node*(Scene*)>& creator,
                                 int width, int height) {
     NodeInfo info;
     info.name = name;
@@ -54,11 +57,8 @@ Node* NodeRegistery::createNode(const QString& name, Scene* scene) {
                 case NodeCategory::INPUT:
                     node->setPosition(LEFT_TOP, RIGHT_TOP);
                     break;
-                case NodeCategory::OUTPUT:
-                    node->setPosition(LEFT_TOP, RIGHT_BOTTOM);
-                    break;
-                case NodeCategory::FUNCTION:
                 default:
+                    // FUNCTION, ARITHMETIC, MATH and OUTPUT all use default placement
                     node->setPosition(LEFT_TOP, RIGHT_BOTTOM);
                     break;
             }
@@ -73,14 +73,24 @@ void NodeRegistery::buildUI() {
     functions = new QTreeWidgetItem(this);
     functions->setText(0, "Functions");
 
+    arithmetic = new QTreeWidgetItem(this);
+    arithmetic->setText(0, "Arithmetic");
+
+    math = new QTreeWidgetItem(this);
+    math->setText(0, "Math");
+
+    permutation = new QTreeWidgetItem(this);
+    permutation->setText(0, "Permutation");
+
+    bitoperations = new QTreeWidgetItem(this);
+    bitoperations->setText(0, "Bit Operations");
+
     inputs = new QTreeWidgetItem(this);
     inputs->setText(0, "Inputs");
 
     outputs = new QTreeWidgetItem(this);
     outputs->setText(0, "Outputs");
 
-    containers = new QTreeWidgetItem(this);
-    containers->setText(0, "Containers");
 
     auto& registry = getRegistry();
     for (auto it = registry.begin(); it != registry.end(); ++it) {
@@ -90,6 +100,18 @@ void NodeRegistery::buildUI() {
         switch (info.category) {
             case NodeCategory::FUNCTION:
                 parent = functions;
+                break;
+            case NodeCategory::ARITHMETIC:
+                parent = arithmetic;
+                break;
+            case NodeCategory::MATH:
+                parent = math;
+                break;
+            case NodeCategory::PERMUTATION:
+                parent = permutation;
+                break;
+            case NodeCategory::BITOPERATIONS:
+                parent = bitoperations;
                 break;
             case NodeCategory::INPUT:
                 parent = inputs;
@@ -111,23 +133,35 @@ void NodeRegistery::setupDoubleClickHandler() {
         QString nodeName = item->text(0);
 
         if (nodeName == "Functions" || nodeName == "Inputs" ||
-            nodeName == "Outputs" || nodeName == "Containers") {
+            nodeName == "Outputs" || nodeName == "Arithmetic" || nodeName == "Math" ||
+            nodeName == "Permutation" || nodeName == "Bit Operations") {
             return;
         }
 
         Node* node = createNode(nodeName, scene);
         if (node) {
-            scene->addNode(node);
-            node->show();
-        }
-    });
+             scene->addNode(node);
+             node->show();
+            QPointF pending;
+            if (scene && scene->takePendingNodePos(pending)) {
+                node->setPos(static_cast<int>(pending.x()), static_cast<int>(pending.y()));
+            }
+         }
+     });
 }
 
 QHash<QString, Node*> NodeRegistery::getfunctionalNode() const {
     QHash<QString, Node*> nodes;
-    auto functionNodes = getNodesByCategory(NodeCategory::FUNCTION);
+    QList<NodeInfo> combined;
+    auto fn = getNodesByCategory(NodeCategory::FUNCTION);
+    auto ar = getNodesByCategory(NodeCategory::ARITHMETIC);
+    auto ma = getNodesByCategory(NodeCategory::MATH);
 
-    for (const NodeInfo& info : functionNodes) {
+    combined.append(fn);
+    combined.append(ar);
+    combined.append(ma);
+
+    for (const NodeInfo& info : combined) {
         Node* node = info.creator(scene);
         if (node) {
             node->setHeightWidth(info.height, info.width);

@@ -26,18 +26,29 @@ InfoButton::InfoButton(NodeGraphics* parent, int diameter)
     text->setPos(tx, ty);
 }
 
+void InfoButton::setHighlighted(bool highlighted) {
+    _highlighted = highlighted;
+    if (_highlighted) {
+        setBrush(QBrush(QColor("#FFB300")));
+    } else {
+        setBrush(QBrush(QColor(220, 220, 220)));
+    }
+}
+
 void InfoButton::mousePressEvent(QGraphicsSceneMouseEvent *event) {
     if (_parent) _parent->toggleInfoPopup();
     QGraphicsEllipseItem::mousePressEvent(event);
 }
 
 void InfoButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
-    setBrush(QBrush(QColor(255, 255, 255)));
+    // if highlighted, keep the highlighted color; otherwise make it white on hover
+    if (!_highlighted) setBrush(QBrush(QColor(255, 255, 255)));
     QGraphicsEllipseItem::hoverEnterEvent(event);
 }
 
 void InfoButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event) {
-    setBrush(QBrush(QColor(220, 220, 220)));
+    // restore highlighted or default color
+    if (_highlighted) setBrush(QBrush(QColor("#FFB300")));
+    else setBrush(QBrush(QColor(220, 220, 220)));
     QGraphicsEllipseItem::hoverLeaveEvent(event);
 }
-

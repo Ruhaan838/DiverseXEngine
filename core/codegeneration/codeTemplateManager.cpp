@@ -126,7 +126,6 @@ QString CodeTemplateManager::defaultValueForSocketType(const QString& socketType
     if (t.contains("number") || t.contains("int") || t.contains("float") || t.contains("double")) return QString("0");
     if (t.contains("str") || t.contains("text") || t.contains("string")) return QString("''");
     if (t.contains("bool")) return QString("False");
-    // fallback
     return QString("None");
 }
 
@@ -185,4 +184,15 @@ QString CodeTemplateManager::generateNodeWrapper(Node* node, const QString& impl
     out += "# --- auto-generated wrapper end ---\n";
 
     return out;
+}
+
+QString CodeTemplateManager::getFunctionImport(const QString& functionName) const {
+    QString functionKey = "python." + functionName.toLower();
+    if (templatesJson.contains(functionKey)) {
+        QJsonObject funcObj = templatesJson[functionKey].toObject();
+        if (funcObj.contains("import")) {
+            return funcObj["import"].toString();
+        }
+    }
+    return "";
 }

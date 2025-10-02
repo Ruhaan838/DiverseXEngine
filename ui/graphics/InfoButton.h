@@ -10,6 +10,8 @@ class InfoButton : public QGraphicsEllipseItem {
 public:
     InfoButton(NodeGraphics* parent, int diameter = 18);
 
+    void setHighlighted(bool highlighted);
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
@@ -18,7 +20,7 @@ protected:
 private:
     NodeGraphics* _parent;
     QGraphicsSimpleTextItem* text = nullptr;
+    bool _highlighted = false;
 };
 
 #endif // INFOBUTTON_H
-

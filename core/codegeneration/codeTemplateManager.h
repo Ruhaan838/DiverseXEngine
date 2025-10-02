@@ -24,6 +24,8 @@ public:
     QString getFunctionTemplate(const QString& functionName) const;
     QString getFunctionCallTemplate(const QString& functionName) const;
 
+    QString getFunctionImport(const QString& functionName) const;
+
     QString getTemplateType(const QString& templatePath) const;
     QString generateNodeWrapper(Node* node, const QString& implFunctionName) const;
 

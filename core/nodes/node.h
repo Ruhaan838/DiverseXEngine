@@ -50,6 +50,7 @@ public:
 
     void setContent(WidgetNode* content);
     void setPosition(POSITION in_pos, POSITION out_pos);
+    void setInfoText(const std::string &text);
 
     Scene* scene;
 

@@ -68,6 +68,12 @@ set(PROJECT_SOURCES
         ui/canvas/load_from.cpp
         ui/canvas/open_from.cpp
         ui/canvas/open_load.h
+        core/noderegistry/mathNode.cpp
+        core/noderegistry/mathNode.h
+        core/noderegistry/Permutation.cpp
+        core/noderegistry/Permutation.h
+        core/noderegistry/BitOp.cpp
+        core/noderegistry/BitOp.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

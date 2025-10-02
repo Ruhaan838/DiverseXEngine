@@ -24,6 +24,10 @@
 #include <QStandardPaths>
 #include <QSet>
 
+#include "../noderegistry/mathNode.h"
+#include "../noderegistry/Permutation.h"
+#include "../noderegistry/BitOp.h"
+
 
 Scene::Scene() : Serializable() {
 
@@ -33,6 +37,19 @@ Scene::Scene() : Serializable() {
 void Scene::initUI() {
     grScene = new CanvasScene(this);
     grScene->setScene(scene_width, scene_height);
+}
+
+void Scene::setPendingNodePos(const QPointF &pos) {
+    pending_node_pos = pos;
+    has_pending_node_pos = true;
+}
+
+bool Scene::takePendingNodePos(QPointF &out) {
+    if (!has_pending_node_pos) return false;
+    out = pending_node_pos;
+    has_pending_node_pos = false;
+    pending_node_pos = QPointF();
+    return true;
 }
 
 void Scene::addNode(Node* node) {
@@ -221,6 +238,7 @@ void Scene::updateEditorCode() {
     QString mainCode = "";
 
     QSet<QString> addedFunctionDefs;
+    QSet<QString> importSet;
 
     for (Node* node : nodes) {
         if (auto* inputNode = dynamic_cast<InputNode*>(node)) {
@@ -234,11 +252,32 @@ void Scene::updateEditorCode() {
     }
 
     auto functionNameForNode = [](FunctionNode* fn)->QString {
+        //arithmatic
         if (dynamic_cast<AddNode*>(fn)) return "add";
         if (dynamic_cast<SubNode*>(fn)) return "sub";
         if (dynamic_cast<MulNode*>(fn)) return "mul";
         if (dynamic_cast<DivNode*>(fn)) return "div";
-        if (dynamic_cast<ConditionNode*>(fn)) return "condition";
+
+        //math
+        if (dynamic_cast<PowNode*>(fn)) return  "pow";
+        if (dynamic_cast<ModNode*>(fn)) return "mod";
+        if (dynamic_cast<SqrtNode*>(fn)) return "sqrt";
+        if (dynamic_cast<SinNode*>(fn)) return "sin";
+        if (dynamic_cast<CosNode*>(fn)) return "cos";
+        if (dynamic_cast<TanNode*>(fn)) return "tan";
+
+        //permutations
+        if (dynamic_cast<GCDNode*>(fn)) return "gcd";
+        if (dynamic_cast<FactorialNode*>(fn)) return "factorial";
+
+        //bitops
+        if (dynamic_cast<AndNode*>(fn)) return "bit_and";
+        if (dynamic_cast<OrNode*>(fn)) return "bit_or";
+        if (dynamic_cast<NotNode*>(fn)) return "bit_not";
+        if (dynamic_cast<XorNode*>(fn)) return "bit_xor";
+
+        // if (dynamic_cast<*>(fn)) return "";
+
         return "";
     };
 
@@ -334,12 +373,26 @@ void Scene::updateEditorCode() {
     for (auto *fn : visitedFns) {
         QString fname = functionNameForNode(fn);
         if (!fname.isEmpty() && !addedFunctionDefs.contains(fname)) {
+            // gather optional import for this function
+            QString imp = CodeTemplateManager::getInstance().getFunctionImport(fname);
+            if (!imp.isEmpty()) importSet.insert(imp);
+
             QString defTemplate = CodeTemplateManager::getInstance().getFunctionTemplate(fname);
             if (!defTemplate.isEmpty()) {
                 functionsCode += defTemplate + "\n\n";
                 addedFunctionDefs.insert(fname);
             }
         }
+    }
+
+    // Build importsCode from unique imports (preserve insertion order via list)
+    if (!importSet.isEmpty()) {
+        QStringList importsList = QStringList::fromSet(importSet);
+        for (const QString &im : importsList) {
+            if (!importsCode.contains(im + "\n")) importsCode += im + "\n";
+        }
+        // Add a blank line after imports if any
+        importsCode += "\n";
     }
 
     for (Node* node : nodes) {

@@ -152,6 +152,20 @@ void NodeGraphics::setInfoText(const std::string &text) {
 
     infoPopupBg->setPos(popupX, by);
     infoPopup->setPos(infoPopupBg->pos().x() + pad, infoPopupBg->pos().y() + pad);
+
+    // new: highlight the info button when there is non-empty info text
+    if (infoButton) {
+        bool hasText = !QString::fromStdString(text).trimmed().isEmpty();
+        infoButton->setHighlighted(hasText);
+
+        if (hasText) {
+            NodeGraphics* self = this;
+            QTimer::singleShot(2000, [self]() {
+                if (!self) return;
+                if (self->infoButton) self->infoButton->setHighlighted(false);
+            });
+        }
+    }
 }
 
 void NodeGraphics::toggleInfoPopup() {
@@ -211,9 +225,11 @@ void NodeGraphics::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     auto path_content = QPainterPath();
     path_content.setFillRule(Qt::WindingFill);
     auto hw = getHeightAndWidth();
+
     path_content.addRoundedRect(0, title_height, hw.second, hw.first - title_height, edge_size, edge_size);
     path_content.addRect(0, title_height, edge_size, edge_size);
     path_content.addRect(hw.second - edge_size, title_height, edge_size, edge_size);
+
     painter->setPen(Qt::NoPen);
     painter->setBrush(_bg_brush);
     painter->drawPath(path_content.simplified());

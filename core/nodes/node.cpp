@@ -327,6 +327,7 @@ void Node::removeLastInputSocket() {
     }
 
     if (nonAddCount <= 2) {
+        setInfoText("Not removing socket: minimum 1 input required");
         qDebug() << "Not removing socket: minimum 1 input required";
         return;
     }
@@ -365,5 +366,11 @@ void Node::removeLastInputSocket() {
             setHeightWidth(neededHeight, newWidth);
         }
         refreshSocketsAndEdges();
+    }
+}
+
+void Node::setInfoText(const std::string &text) {
+    if (grNode) {
+        grNode->setInfoText(text);
     }
 }

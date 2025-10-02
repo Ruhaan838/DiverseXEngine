@@ -299,7 +299,7 @@ void DivNode::execute() {
         } else {
             if (v == 0) {
                 vals = INFINITY;
-
+                setInfoText("Number is not Divisible by 0");
                 return;
             }
             result /= v;

@@ -20,6 +20,10 @@ enum class NodeCategory {
     FUNCTION,
     INPUT,
     OUTPUT,
+    ARITHMETIC,
+    MATH,
+    PERMUTATION,
+    BITOPERATIONS,
 };
 
 struct NodeInfo {
@@ -35,7 +39,7 @@ public:
     NodeRegistery(Scene* parant = nullptr);
 
     static void registerNode(const QString& name, NodeCategory category,
-                           std::function<Node*(Scene*)> creator,
+                           const std::function<Node*(Scene*)>& creator,
                            int width = 180, int height = 90);
 
     static QList<NodeInfo> getNodesByCategory(NodeCategory category);
@@ -49,6 +53,10 @@ private:
     static QHash<QString, NodeInfo>& getRegistry();
 
     QTreeWidgetItem* functions;
+    QTreeWidgetItem* arithmetic;
+    QTreeWidgetItem* math;
+    QTreeWidgetItem* permutation;
+    QTreeWidgetItem* bitoperations;
     QTreeWidgetItem* inputs;
     QTreeWidgetItem* outputs;
     QTreeWidgetItem* containers;
