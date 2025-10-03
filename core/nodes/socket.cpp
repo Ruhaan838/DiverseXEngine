@@ -91,7 +91,7 @@ string SocketNode::str() {
 
 QJsonObject SocketNode::serialize() {
     auto arr = QJsonObject{
-        {"id", static_cast<int>(id)},
+        {"id", QString::fromStdString(std::to_string(id))},
         {"index", index},
         {"position", position},
         {"socket_type", socket_type}
@@ -100,10 +100,16 @@ QJsonObject SocketNode::serialize() {
 }
 
 bool SocketNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
-    auto i = data.value("id");
-    id = i.toInt();
-
-    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
+    auto v = data.value("id");
+    if (v.isString()) {
+        auto s = v.toString();
+        id = static_cast<uintptr_t>(s.toULongLong());
+        hashmap[s.toStdString()] = reinterpret_cast<uintptr_t>(this);
+    } else {
+        auto i = v.toInt();
+        id = static_cast<uintptr_t>(static_cast<unsigned int>(i));
+        hashmap[std::to_string(i)] = reinterpret_cast<uintptr_t>(this);
+    }
 
     return true;
 }

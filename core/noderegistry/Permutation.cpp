@@ -51,14 +51,14 @@ void FactorialNode::execute() {
 
 QJsonObject GCDNode::serialize() {
     auto old_obj = FunctionNode::serialize();
-    old_obj["node_type"] = "PowNode";
+    old_obj["node_type"] = "GCDNode";
     old_obj["value"] = vals;
     return old_obj;
 }
 
 QJsonObject FactorialNode::serialize() {
     auto old_obj = FunctionNode::serialize();
-    old_obj["node_type"] = "PowNode";
+    old_obj["node_type"] = "FactorialNode";
     old_obj["value"] = vals;
     return old_obj;
 }

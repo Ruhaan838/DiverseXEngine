@@ -124,7 +124,9 @@ bool Scene::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t
 
     int idx = 0;
     for (auto node_data : data.value("nodes").toArray()) {
-        temp_nodes[idx++]->deserialize(node_data.toObject(), hashmap);
+        auto *n = temp_nodes[idx++];
+        if (n) n->show();
+        temp_nodes[idx-1]->deserialize(node_data.toObject(), hashmap);
     }
 
     // create edges

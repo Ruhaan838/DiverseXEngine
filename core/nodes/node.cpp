@@ -152,7 +152,7 @@ void Node::setEditingFlag(bool flag) {
 
 QJsonObject Node::serialize() {
     QJsonObject arr{
-            {"id", static_cast<int>(id)},
+            {"id", QString::fromStdString(std::to_string(id))},
             {"title", QString::fromStdString(grNode ? grNode->getTitle() : title)},
             {"x", this->pos().x()},
             {"y", this->pos().y()}
@@ -161,10 +161,16 @@ QJsonObject Node::serialize() {
 }
 
 bool Node::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
-    auto i = data.value("id");
-    id = i.toInt();
-
-    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
+    auto v = data.value("id");
+    if (v.isString()) {
+        auto s = v.toString();
+        id = static_cast<uintptr_t>(s.toULongLong());
+        hashmap[s.toStdString()] = reinterpret_cast<uintptr_t>(this);
+    } else {
+        auto i = v.toInt();
+        id = static_cast<uintptr_t>(static_cast<unsigned int>(i));
+        hashmap[std::to_string(i)] = reinterpret_cast<uintptr_t>(this);
+    }
 
     int pos_x = data["x"].toInt();
     int pos_y = data["y"].toInt();

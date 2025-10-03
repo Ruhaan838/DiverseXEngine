@@ -142,5 +142,26 @@ void registerAllNodeTypes() {
         });
 
 
+    Node::registerType("AddNode", [](Scene* scene){ return new AddNode(scene); });
+    Node::registerType("SubNode", [](Scene* scene){ return new SubNode(scene); });
+    Node::registerType("MulNode", [](Scene* scene){ return new MulNode(scene); });
+    Node::registerType("DivNode", [](Scene* scene){ return new DivNode(scene); });
 
+    Node::registerType("PowNode", [](Scene* scene){ return new PowNode(scene); });
+    Node::registerType("ModNode", [](Scene* scene){ return new ModNode(scene); });
+    Node::registerType("SqrtNode", [](Scene* scene){ return new SqrtNode(scene); });
+    Node::registerType("SinNode", [](Scene* scene){ return new SinNode(scene); });
+    Node::registerType("CosNode", [](Scene* scene){ return new CosNode(scene); });
+    Node::registerType("TanNode", [](Scene* scene){ return new TanNode(scene); });
+
+    Node::registerType("InputNode", [](Scene* scene){ return new InputNode(scene); });
+    Node::registerType("OutputNode", [](Scene* scene){ return new OutputNode(scene); });
+    Node::registerType("ConditionNode", [](Scene* scene){ return new ConditionNode(scene); });
+    Node::registerType("GCDNode", [](Scene* scene){ return new GCDNode(scene); });
+    Node::registerType("FactorialNode", [](Scene* scene){ return new FactorialNode(scene); });
+
+    Node::registerType("AndNode", [](Scene* scene){ return new AndNode(scene); });
+    Node::registerType("OrNode", [](Scene* scene){ return new OrNode(scene); });
+    Node::registerType("NotNode", [](Scene* scene){ return new NotNode(scene); });
+    Node::registerType("XorNode", [](Scene* scene){ return new XorNode(scene); });
 }

@@ -107,6 +107,10 @@ void NodeGraphics::setTitle(const std::string& title) {
         title_item->setPos(_padding, titleY);
     }
     updateInfoButtonPos();
+    if (grContent && content) {
+        content->setGeometry(edge_size, title_height + edge_size,
+            width - 2 * edge_size, height - 2 * edge_size - title_height);
+    }
 }
 
 std::string NodeGraphics::getTitle() const {
@@ -340,6 +344,10 @@ void NodeGraphics::setHeightWidth(int h, int w) {
         title_item->setPos(_padding, titleY);
     }
     updateInfoButtonPos();
+    if (grContent && content) {
+        content->setGeometry(edge_size, title_height + edge_size,
+            width - 2 * edge_size, height - 2 * edge_size - title_height);
+    }
 }
 
 QVariant NodeGraphics::itemChange(GraphicsItemChange change, const QVariant &value) {

@@ -166,27 +166,53 @@ void EdgesNode::setDestination(int x, int y) const {
 
 QJsonObject EdgesNode::serialize() {
     auto arr = QJsonObject{
-        {"id", static_cast<int>(id)},
+        {"id", QString::fromStdString(std::to_string(id))},
         {"edge_type", edge_type},
-        {"start", static_cast<int>(startSocket->id)},
-        {"end", static_cast<int>(endSocket->id)}
+        {"start", QString::fromStdString(std::to_string(startSocket ? startSocket->id : 0))},
+        {"end", QString::fromStdString(std::to_string(endSocket ? endSocket->id : 0))}
     };
     return arr;
 }
 
 bool EdgesNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
-    auto i = data.value("id");
-    id = i.toInt();
-    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
-
-    int start_id = data.value("start").toInt();
-    int end_id = data.value("end").toInt();
-
-    if (hashmap.count(std::to_string(start_id))) {
-        setStartSocket(reinterpret_cast<SocketNode*>(hashmap[std::to_string(start_id)]));
+    auto v = data.value("id");
+    if (v.isString()) {
+        auto s = v.toString();
+        id = static_cast<uintptr_t>(s.toULongLong());
+        hashmap[s.toStdString()] = reinterpret_cast<uintptr_t>(this);
+    } else {
+        auto i = v.toInt();
+        id = static_cast<uintptr_t>(static_cast<unsigned int>(i));
+        hashmap[std::to_string(i)] = reinterpret_cast<uintptr_t>(this);
     }
-    if (hashmap.count(std::to_string(end_id))) {
-        setEndSocket(reinterpret_cast<SocketNode*>(hashmap[std::to_string(end_id)]));
+
+    auto sv = data.value("start");
+    auto ev = data.value("end");
+
+    if (sv.isString()) {
+        auto s = sv.toString().toStdString();
+        if (hashmap.count(s)) {
+            setStartSocket(reinterpret_cast<SocketNode*>(hashmap[s]));
+        }
+    } else {
+        int s = sv.toInt();
+        auto key = std::to_string(s);
+        if (hashmap.count(key)) {
+            setStartSocket(reinterpret_cast<SocketNode*>(hashmap[key]));
+        }
+    }
+
+    if (ev.isString()) {
+        auto s = ev.toString().toStdString();
+        if (hashmap.count(s)) {
+            setEndSocket(reinterpret_cast<SocketNode*>(hashmap[s]));
+        }
+    } else {
+        int e = ev.toInt();
+        auto key = std::to_string(e);
+        if (hashmap.count(key)) {
+            setEndSocket(reinterpret_cast<SocketNode*>(hashmap[key]));
+        }
     }
 
     setEdgeType(getEdgeEnum(data.value("edge_type").toInt()));

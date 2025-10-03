@@ -99,6 +99,7 @@ QJsonObject FunctionNode::serialize() {
     auto hw = this->getHeightAndWidth();
     old_obj["h"] = hw.first;
     old_obj["w"] = hw.second;
+    old_obj["multi_sockets"] = allow_addsocket;
     return old_obj;
 }
 
@@ -121,7 +122,8 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
         inputs.push_back(sok);
     }
 
-    if (allow_addsocket) {
+    bool multi_sockets = data.value("multi_sockets").toBool();
+    if (multi_sockets) {
         bool hasAddSocket = false;
         for (auto *s : inputs) {
             if (s && s->socket_type == "addsocket") { hasAddSocket = true; break; }
