@@ -1,0 +1,339 @@
+{
+    "edges": [
+        {
+            "edge_type": 2,
+            "end": "54268750304",
+            "id": "54286885312",
+            "start": "54268751104"
+        },
+        {
+            "edge_type": 2,
+            "end": "54268745184",
+            "id": "54286884864",
+            "start": "54268750864"
+        },
+        {
+            "edge_type": 2,
+            "end": "54268747984",
+            "id": "54286887488",
+            "start": "54274150544"
+        },
+        {
+            "edge_type": 2,
+            "end": "54274147264",
+            "id": "54299808000",
+            "start": "54268747664"
+        },
+        {
+            "edge_type": 2,
+            "end": "54274146944",
+            "id": "54299808192",
+            "start": "54268750384"
+        },
+        {
+            "edge_type": 2,
+            "end": "54274146624",
+            "id": "54286891072",
+            "start": "54268748224"
+        },
+        {
+            "edge_type": 2,
+            "end": "54268749664",
+            "id": "54286890176",
+            "start": "54274147424"
+        },
+        {
+            "edge_type": 2,
+            "end": "54274152384",
+            "id": "54289173696",
+            "start": "54274148384"
+        },
+        {
+            "edge_type": 2,
+            "end": "54274152784",
+            "id": "54289174208",
+            "start": "54268749424"
+        },
+        {
+            "edge_type": 2,
+            "end": "54268752784",
+            "id": "54299811392",
+            "start": "54274152944"
+        }
+    ],
+    "id": -1559455168,
+    "nodes": [
+        {
+            "h": 90,
+            "id": "54268794560",
+            "inputs": [
+                {
+                    "id": "54268745184",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "54268747984",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "ModNode",
+            "outputs": [
+                {
+                    "id": "54268748224",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Modulo",
+            "value": 5,
+            "w": 180,
+            "x": 89,
+            "y": -296
+        },
+        {
+            "h": 90,
+            "id": "54274117344",
+            "inputs": [
+                {
+                    "id": "54274146944",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Base"
+                },
+                {
+                    "id": "54274147264",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Exponent"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "PowNode",
+            "outputs": [
+                {
+                    "id": "54274147424",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Power",
+            "value": 10240000000000,
+            "w": 180,
+            "x": 61,
+            "y": 16
+        },
+        {
+            "h": 90,
+            "id": "54274117568",
+            "inputs": [
+                {
+                    "id": "54274146624",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "TanNode",
+            "outputs": [
+                {
+                    "id": "54274148384",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Tangent (Tan)",
+            "value": -3.380515006246585,
+            "w": 180,
+            "x": 143,
+            "y": -144
+        },
+        {
+            "h": 90,
+            "id": "54274118016",
+            "inputs": [
+                {
+                    "id": "54268749664",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "SinNode",
+            "outputs": [
+                {
+                    "id": "54268749424",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Sinusoidal (Sin)",
+            "value": 0.05173948612721808,
+            "w": 180,
+            "x": 268,
+            "y": 63
+        },
+        {
+            "h": 90,
+            "id": "54274118240",
+            "inputs": [
+                {
+                    "id": "54268750304",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "SqrtNode",
+            "outputs": [
+                {
+                    "id": "54268750864",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Square root",
+            "value": 5.477225575051661,
+            "w": 180,
+            "x": -195,
+            "y": -279
+        },
+        {
+            "h": 90,
+            "id": "54274118464",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "54268751104",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in1",
+            "value": 30,
+            "w": 180,
+            "x": -196,
+            "y": -380
+        },
+        {
+            "h": 90,
+            "id": "54274118688",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "54274150544",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in2",
+            "value": 10,
+            "w": 180,
+            "x": -194,
+            "y": -138
+        },
+        {
+            "h": 90,
+            "id": "54274118912",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "54268750384",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in3",
+            "value": 20,
+            "w": 180,
+            "x": -202,
+            "y": -7
+        },
+        {
+            "h": 90,
+            "id": "54274119136",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "54268747664",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in4",
+            "value": 10,
+            "w": 180,
+            "x": -188,
+            "y": 128
+        },
+        {
+            "h": 90,
+            "id": "54274119360",
+            "inputs": [
+                {
+                    "id": "54274152384",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "54274152784",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "ModNode",
+            "outputs": [
+                {
+                    "id": "54274152944",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Modulo",
+            "value": -3,
+            "w": 180,
+            "x": 398,
+            "y": -98
+        },
+        {
+            "h": 90,
+            "id": "54274119584",
+            "inputs": [
+                {
+                    "id": "54268752784",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": ""
+                }
+            ],
+            "node_type": "OutputNode",
+            "title": "Output",
+            "value": -3,
+            "w": 180,
+            "x": 526,
+            "y": 110
+        }
+    ],
+    "scene_height": 64000,
+    "scene_width": 64000
+}

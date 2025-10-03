@@ -1,0 +1,147 @@
+{
+    "edges": [
+        {
+            "edge_type": 2,
+            "end": "51516150864",
+            "id": "51536172288",
+            "start": "51516153984"
+        },
+        {
+            "edge_type": 2,
+            "end": "51516150944",
+            "id": "51536172224",
+            "start": "51516145824"
+        },
+        {
+            "edge_type": 2,
+            "end": "51522688880",
+            "id": "51536172416",
+            "start": "51516151184"
+        },
+        {
+            "edge_type": 2,
+            "end": "51516153904",
+            "id": "51536172480",
+            "start": "51522689120"
+        }
+    ],
+    "id": -15984064,
+    "nodes": [
+        {
+            "h": 90,
+            "id": "51514628224",
+            "inputs": [
+                {
+                    "id": "51516150864",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "51516150944",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "GCDNode",
+            "outputs": [
+                {
+                    "id": "51516151184",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Greatest Common Divisor (GCD)",
+            "value": 5,
+            "w": 180,
+            "x": -92,
+            "y": -167
+        },
+        {
+            "h": 90,
+            "id": "51517325536",
+            "inputs": [
+                {
+                    "id": "51522688880",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "FactorialNode",
+            "outputs": [
+                {
+                    "id": "51522689120",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Factorial",
+            "value": 120,
+            "w": 180,
+            "x": 151,
+            "y": -35
+        },
+        {
+            "h": 90,
+            "id": "51517327328",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "51516153984",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 5,
+            "w": 180,
+            "x": -315,
+            "y": -249
+        },
+        {
+            "h": 90,
+            "id": "51517327552",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "51516145824",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 20,
+            "w": 180,
+            "x": -314,
+            "y": -117
+        },
+        {
+            "h": 90,
+            "id": "51517327776",
+            "inputs": [
+                {
+                    "id": "51516153904",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": ""
+                }
+            ],
+            "node_type": "OutputNode",
+            "title": "Output",
+            "value": 120,
+            "w": 180,
+            "x": 262,
+            "y": 155
+        }
+    ],
+    "scene_height": 64000,
+    "scene_width": 64000
+}

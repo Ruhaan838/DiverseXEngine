@@ -36,10 +36,6 @@ TanNode::TanNode(Scene *scene_, const string &title, vector<QString> input_size,
 }
 
 void PowNode::execute() {
-    if (inputs.size() < 2) {
-        setInfoText("Requires at least 2 inputs");
-        return;
-    }
 
     auto *baseNode = getPrevNode(0);
     auto *exponentNode = getPrevNode(1);
@@ -53,10 +49,6 @@ void PowNode::execute() {
 }
 
 void ModNode::execute() {
-    if (inputs.size() < 2) {
-        setInfoText("Requires at least 2 inputs");
-        return;
-    }
 
     auto *baseNode = getPrevNode(0);
     auto *exponentNode = getPrevNode(1);
@@ -71,10 +63,6 @@ void ModNode::execute() {
 
 
 void SqrtNode::execute() {
-    if (inputs.size() < 1) {
-        setInfoText("Requires at least 1 inputs");
-        return;
-    }
 
     auto *baseNode = getPrevNode(0);
 
@@ -85,10 +73,6 @@ void SqrtNode::execute() {
 }
 
 void SinNode::execute() {
-    if (inputs.size() < 2) {
-        setInfoText("Requires at least 2 inputs");
-        return;
-    }
 
     auto *baseNode = getPrevNode(0);
 
@@ -99,10 +83,6 @@ void SinNode::execute() {
 }
 
 void CosNode::execute() {
-    if (inputs.size() < 1) {
-        setInfoText("Requires at least 1 inputs");
-        return;
-    }
 
     auto *baseNode = getPrevNode(0);
 
@@ -113,10 +93,6 @@ void CosNode::execute() {
 }
 
 void TanNode::execute() {
-    if (inputs.size() < 1) {
-        setInfoText("Requires at least 1 inputs");
-        return;
-    }
 
     auto *baseNode = getPrevNode(0);
 

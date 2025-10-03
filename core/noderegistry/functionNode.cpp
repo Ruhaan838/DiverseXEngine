@@ -122,6 +122,11 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
         inputs.push_back(sok);
     }
 
+
+    if (!inputs.empty() && inputs[0]) {
+        this->in_pos = inputs[0]->position;
+    }
+
     bool multi_sockets = data.value("multi_sockets").toBool();
     if (multi_sockets) {
         bool hasAddSocket = false;
@@ -150,6 +155,12 @@ bool FunctionNode::deserialize(const QJsonObject &data, unordered_map<string, ui
         sok->deserialize(new_o, hashmap);
         outputs.push_back(sok);
     }
+
+    if (!outputs.empty() && outputs[0]) {
+        this->out_pos = outputs[0]->position;
+    }
+
+    refreshSocketsAndEdges();
 
     return true && old_obj;
 }
