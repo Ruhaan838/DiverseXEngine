@@ -360,6 +360,7 @@ void Scene::updateEditorCode() {
         if (dynamic_cast<SubNode*>(fn)) return "sub";
         if (dynamic_cast<MulNode*>(fn)) return "mul";
         if (dynamic_cast<DivNode*>(fn)) return "div";
+        if (dynamic_cast<FloorDivNode*>(fn)) return "floor_div";
 
         //math
         if (dynamic_cast<PowNode*>(fn)) return  "pow";
