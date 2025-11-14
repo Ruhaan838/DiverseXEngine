@@ -52,13 +52,15 @@ set(PROJECT_SOURCES
         core/noderegistry/functions.cpp
         core/noderegistry/canvasNode.cpp
         core/noderegistry/canvasNode.h
-        core/noderegistry/functionNode.cpp
-        core/noderegistry/functionNode.h
-        core/noderegistry/conditionNode.cpp
-        core/noderegistry/conditionNode.h
-        core/noderegistry/inNode.cpp
-        core/noderegistry/inoutNode.h
-        core/noderegistry/outNode.cpp
+        core/noderegistry/function/functionNode.cpp
+        core/noderegistry/function/functionNode.h
+        core/noderegistry/function/conditionNode.cpp
+        core/noderegistry/function/conditionNode.h
+        core/noderegistry/function/ifElseNode.cpp
+        core/noderegistry/function/ifElseNode.h
+        core/noderegistry/inout/inNode.cpp
+        core/noderegistry/inout/inoutNode.h
+        core/noderegistry/inout/outNode.cpp
         ui/canvas/editorWindow.cpp
         ui/canvas/editorWindow.h
         ui/canvas/syshighligh.cpp
@@ -68,12 +70,16 @@ set(PROJECT_SOURCES
         ui/canvas/load_from.cpp
         ui/canvas/open_from.cpp
         ui/canvas/open_load.h
-        core/noderegistry/mathNode.cpp
-        core/noderegistry/mathNode.h
-        core/noderegistry/Permutation.cpp
-        core/noderegistry/Permutation.h
-        core/noderegistry/BitOp.cpp
-        core/noderegistry/BitOp.h
+        core/noderegistry/arithmetic/mathNode.cpp
+        core/noderegistry/arithmetic/mathNode.h
+        core/noderegistry/permutation/Permutation.cpp
+        core/noderegistry/permutation/Permutation.h
+        core/noderegistry/bitOps/BitOp.cpp
+        core/noderegistry/bitOps/BitOp.h
+        core/noderegistry/inout/printNode.cpp
+        core/noderegistry/inout/printNode.h
+        core/noderegistry/matrix/matrixNode.cpp
+        core/noderegistry/matrix/matrixNode.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

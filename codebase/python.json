@@ -92,5 +92,10 @@
       "def": "def bit_not(a):\n  return ~a",
       "call": "{} = bit_not({})",
       "type": "function"
+  },
+  "python.print_if": {
+    "def": "def print_if(cond, msg):\n  if cond:\n    print(msg)\n  return 1 if cond else 0",
+    "call": "{} = print_if({}, MESSAGE_LITERAL)",
+    "type": "function"
   }
 }

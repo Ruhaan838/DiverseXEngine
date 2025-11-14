@@ -4,7 +4,7 @@
 
 #ifndef PERMUTATION_H
 #define PERMUTATION_H
-#include "functionNode.h"
+#include "../function/functionNode.h"
 
 class GCDNode : public FunctionNode {
 public:

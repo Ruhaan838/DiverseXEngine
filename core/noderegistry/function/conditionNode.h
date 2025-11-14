@@ -8,8 +8,8 @@
 
 #include <QComboBox>
 
-#include "../nodes/node.h"
-#include "../widgets/widgets.h"
+#include "../../nodes/node.h"
+#include "../../widgets/widgets.h"
 #include "functionNode.h"
 
 class InputNode;
@@ -23,6 +23,8 @@ public:
     void execute() override;
 
     double getValues() override;
+    // Return value based on which output socket is queried: True -> 1 if condition true else 0; False -> opposite
+    double getValuesForOutput(SocketNode* startSocket) override;
     void showContent() override;
     void hideContent() override;
 

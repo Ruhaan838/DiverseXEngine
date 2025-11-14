@@ -4,7 +4,7 @@
 
 #ifndef MATHNODE_H
 #define MATHNODE_H
-#include "functionNode.h"
+#include "../function/functionNode.h"
 
 class PowNode : public FunctionNode {
 public:

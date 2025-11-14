@@ -4,9 +4,11 @@
 
 #include "functionNode.h"
 
-#include "inoutNode.h"
-#include "../nodes/edge.h"
-#include "../nodes/socket.h"
+#include "../inout/inoutNode.h"
+#include "../../nodes/edge.h"
+#include "../../nodes/socket.h"
+#include "../canvasNode.h"
+#include "../../scene/nodescene.h"
 
 inline const string out_node_stylesheet = R"(
     QTextEdit {
@@ -34,9 +36,63 @@ static vector<QString> withAddSocket(vector<QString> v) {
 FunctionNode::FunctionNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size, bool allow_addsocket)
 : Node(scene_, title, allow_addsocket ? withAddSocket(input_size) : input_size, output_size), allow_addsocket(allow_addsocket) {}
 
+// Provide context-aware value fetching using the upstream start socket when available
+static thread_local bool __dvx_inCanvasCheck = false;
+
+double FunctionNode::getNodeValue(Node* node, SocketNode* startSocket) {
+    if (!node) return 0;
+    if (auto* fn = dynamic_cast<FunctionNode*>(node)) {
+        // Gate by Canvas: if this function node is inside any disabled Canvas, don’t execute
+        if (!__dvx_inCanvasCheck) {
+            __dvx_inCanvasCheck = true;
+            Scene* sc = fn->scene;
+            if (sc) {
+                for (Node* n : sc->nodes) {
+                    auto *canvas = dynamic_cast<CanvasNode*>(n);
+                    if (!canvas) continue;
+                    // Avoid nested recursion: if calling isEnabled would re-enter getNodeValue, skip gating for now
+                    if (!canvas->isEnabled()) {
+                        if (std::find(canvas->inner_nodes.begin(), canvas->inner_nodes.end(), fn) != canvas->inner_nodes.end()) {
+                            __dvx_inCanvasCheck = false;
+                            return 0.0; // blocked
+                        }
+                    }
+                }
+            }
+            __dvx_inCanvasCheck = false;
+        }
+        fn->execute();
+        // If a startSocket is provided, allow the node to return a value specific to that output
+        if (startSocket) return fn->getValuesForOutput(startSocket);
+        return fn->getValues();
+    }
+    if (auto* in = dynamic_cast<InputNode*>(node)) {
+        return in->vals;
+    }
+    return 0;
+}
+
 double FunctionNode::getNodeValue(Node* node) {
     if (!node) return 0;
     if (auto* fn = dynamic_cast<FunctionNode*>(node)) {
+        // Gate by Canvas: if this function node is inside any disabled Canvas, don’t execute
+        if (!__dvx_inCanvasCheck) {
+            __dvx_inCanvasCheck = true;
+            Scene* sc = fn->scene;
+            if (sc) {
+                for (Node* n : sc->nodes) {
+                    auto *canvas = dynamic_cast<CanvasNode*>(n);
+                    if (!canvas) continue;
+                    if (!canvas->isEnabled()) {
+                        if (std::find(canvas->inner_nodes.begin(), canvas->inner_nodes.end(), fn) != canvas->inner_nodes.end()) {
+                            __dvx_inCanvasCheck = false;
+                            return 0.0; // blocked
+                        }
+                    }
+                }
+            }
+            __dvx_inCanvasCheck = false;
+        }
         fn->execute();
         return fn->getValues();
     }
@@ -49,8 +105,8 @@ double FunctionNode::getNodeValue(Node* node) {
 Node* FunctionNode::getPrevNode(const int idx) const {
     if (idx < 0 || idx >= static_cast<int>(this->inputs.size())) return nullptr;
     auto *input = this->inputs[idx];
-    if (input && input->hasEdge() && input->edge && input->edge->startSocket) {
-        return input->edge->startSocket->node;
+    if (input && input->hasEdge() && input->getFirstEdge() && input->getFirstEdge()->startSocket) {
+        return input->getFirstEdge()->startSocket->node;
     }
     return nullptr;
 }
@@ -189,7 +245,8 @@ void AddNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        long double v = getNodeValue(prev);
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        long double v = getNodeValue(prev, startSock);
         sum += v;
         connectedCount++;
     }
@@ -227,7 +284,8 @@ void SubNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        long double v = getNodeValue(prev);
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        long double v = getNodeValue(prev, startSock);
         if (!firstFound) {
             result = v;
             firstFound = true;
@@ -268,7 +326,8 @@ void MulNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        long double v = getNodeValue(prev);
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        long double v = getNodeValue(prev, startSock);
         prod *= v;
         connectedCount++;
     }
@@ -305,7 +364,8 @@ void DivNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        long double v = getNodeValue(prev);
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        long double v = getNodeValue(prev, startSock);
         if (!firstFound) {
             result = v;
             firstFound = true;

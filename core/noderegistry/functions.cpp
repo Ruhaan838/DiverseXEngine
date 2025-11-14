@@ -2,15 +2,18 @@
 // Created by Ruhaan on 18/08/25.
 //
 
-#include "BitOp.h"
+#include "bitOps/BitOp.h"
 #include "noderegister.h"
 #include "../nodes/node.h"
-#include "inoutNode.h"
-#include "functionNode.h"
-#include "conditionNode.h"
+#include "inout/inoutNode.h"
+#include "function/functionNode.h"
+#include "function/conditionNode.h"
+#include "function/ifElseNode.h"
 #include "canvasNode.h"
-#include "mathNode.h"
-#include "Permutation.h"
+#include "arithmetic/mathNode.h"
+#include "permutation/Permutation.h"
+#include "inout/printNode.h"
+#include "matrix/matrixNode.h"
 
 void registerAllNodeTypes() {
     // Arithmetic nodes
@@ -85,6 +88,36 @@ void registerAllNodeTypes() {
                 std::vector<QString>{"Output"});
         });
 
+    // Matrix nodes
+    NodeRegistery::registerNode("Input Matrix", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* {
+            return new MatrixInputNode(scene, "Input Matrix",
+                std::vector<QString>{}, std::vector<QString>{QString("Output")});
+        },
+        260, 280);
+
+    NodeRegistery::registerNode("Matrix Determinant 2x2", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* {
+            return new Determinant2x2Node(scene, "Matrix Determinant 2x2",
+                std::vector<QString>{"Matrix"},
+                std::vector<QString>{"Output"});
+        });
+
+    NodeRegistery::registerNode("Matrix Index", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* {
+            return new MatrixIndexNode(scene, "Matrix Index",
+                std::vector<QString>{"Matrix"},
+                std::vector<QString>{"Value"});
+        });
+
+    // Containers
+    NodeRegistery::registerNode("Canvas", NodeCategory::CONTAINER,
+        [](Scene* scene) -> Node* {
+            return new CanvasNode(scene, "Canvas",
+                std::vector<QString>{"Input (bool)"});
+        },
+        300, 200);
+
     NodeRegistery::registerNode("Greatest Common Divisor (GCD)", NodeCategory::PERMUTATION,
         [](Scene* scene) -> Node* {
             return new GCDNode(scene, "Greatest Common Divisor (GCD)",
@@ -131,6 +164,22 @@ void registerAllNodeTypes() {
         [](Scene* scene) -> Node* { return new ConditionNode(scene, "Condition"); },
         200, 150);
 
+    // If/Else node with nested else-if support
+    NodeRegistery::registerNode("If / Else", NodeCategory::FUNCTION,
+        [](Scene* scene) -> Node* {
+            return new IfElseNode(scene, "If / Else");
+        },
+        260, 160);
+
+    // Register Print If node under Function category
+    NodeRegistery::registerNode("Print If", NodeCategory::FUNCTION,
+        [](Scene* scene) -> Node* {
+            return new PrintIfNode(scene, "Print If",
+                std::vector<QString>{"Condition (Bool)"},
+                std::vector<QString>{});
+        },
+        240, 120);
+
     NodeRegistery::registerNode("Input", NodeCategory::INPUT,
         [](Scene* scene) -> Node* {
             return new InputNode(scene, "Input", std::vector<QString>{""});
@@ -139,6 +188,11 @@ void registerAllNodeTypes() {
     NodeRegistery::registerNode("Output", NodeCategory::OUTPUT,
         [](Scene* scene) -> Node* {
             return new OutputNode(scene, "Output", std::vector<QString>{""});
+        });
+
+    NodeRegistery::registerNode("Bool Output", NodeCategory::OUTPUT,
+        [](Scene* scene) -> Node* {
+            return new BoolOutputNode(scene, "Bool Output", std::vector<QString>{""});
         });
 
 
@@ -154,9 +208,18 @@ void registerAllNodeTypes() {
     Node::registerType("CosNode", [](Scene* scene){ return new CosNode(scene); });
     Node::registerType("TanNode", [](Scene* scene){ return new TanNode(scene); });
 
+    // Matrix types for deserialization
+    Node::registerType("Determinant2x2Node", [](Scene* scene){ return new Determinant2x2Node(scene); });
+    Node::registerType("MatrixInputNode", [](Scene* scene){ return new MatrixInputNode(scene); });
+    Node::registerType("MatrixIndexNode", [](Scene* scene){ return new MatrixIndexNode(scene); });
+    Node::registerType("CanvasNode", [](Scene* scene){ return new CanvasNode(scene); });
+
     Node::registerType("InputNode", [](Scene* scene){ return new InputNode(scene); });
     Node::registerType("OutputNode", [](Scene* scene){ return new OutputNode(scene); });
+    Node::registerType("BoolOutputNode", [](Scene* scene){ return new BoolOutputNode(scene); });
     Node::registerType("ConditionNode", [](Scene* scene){ return new ConditionNode(scene); });
+    // Register PrintIfNode type for deserialization
+    Node::registerType("PrintIfNode", [](Scene* scene){ return new PrintIfNode(scene); });
     Node::registerType("GCDNode", [](Scene* scene){ return new GCDNode(scene); });
     Node::registerType("FactorialNode", [](Scene* scene){ return new FactorialNode(scene); });
 
@@ -164,4 +227,6 @@ void registerAllNodeTypes() {
     Node::registerType("OrNode", [](Scene* scene){ return new OrNode(scene); });
     Node::registerType("NotNode", [](Scene* scene){ return new NotNode(scene); });
     Node::registerType("XorNode", [](Scene* scene){ return new XorNode(scene); });
+    // IfElse node type for deserialization
+    Node::registerType("IfElseNode", [](Scene* scene){ return new IfElseNode(scene); });
 }

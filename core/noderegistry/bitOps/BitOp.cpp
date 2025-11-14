@@ -3,7 +3,8 @@
 //
 
 #include "BitOp.h"
-#include "../nodes/socket.h"
+#include "../../nodes/socket.h"
+#include "../../nodes/edge.h"
 
 AndNode::AndNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
 : FunctionNode(scene_, title, input_size, output_size, true) {
@@ -35,7 +36,8 @@ void AndNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        int v = static_cast<int>(getNodeValue(prev));
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        int v = static_cast<int>(getNodeValue(prev, startSock));
         if (first) {
             ans = v;
             first = false;
@@ -59,7 +61,8 @@ void OrNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        int v = static_cast<int>(getNodeValue(prev));
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        int v = static_cast<int>(getNodeValue(prev, startSock));
         if (first) {
             ans = v;
             first = false;
@@ -79,7 +82,8 @@ void NotNode::execute() {
     if (s->socket_type == "addsocket") return;
     auto *prev = getPrevNode(0);
     if (!prev) return;
-    int v = static_cast<int>(getNodeValue(prev));
+    auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+    int v = static_cast<int>(getNodeValue(prev, startSock));
     vals = static_cast<int>(~v);
 }
 void XorNode::execute() {
@@ -92,7 +96,8 @@ void XorNode::execute() {
         if (s->socket_type == "addsocket") continue;
         auto *prev = getPrevNode(static_cast<int>(i));
         if (!prev) continue;
-        int v = static_cast<int>(getNodeValue(prev));
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        int v = static_cast<int>(getNodeValue(prev, startSock));
         if (first) {
             ans = v;
             first = false;

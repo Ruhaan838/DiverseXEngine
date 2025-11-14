@@ -58,6 +58,8 @@ public:
     void setPendingNodePos(const QPointF &pos);
     bool takePendingNodePos(QPointF &out);
 
+    // Reset runtime/input values (Ctrl/Cmd+R shortcut)
+    void resetNodes();
 private:
     std::unordered_map<long long, QString> varNameMap;
     int inCounter = 1;

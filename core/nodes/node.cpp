@@ -89,11 +89,11 @@ void Node::updateConnectedEdges() const {
 
     for (size_t i = 0; i < max_size; i++) {
         if (i < inputs.size() && inputs[i]->hasEdge()) {
-            inputs[i]->edge->updatePos();
+            for (auto *e : inputs[i]->edges) if (e) e->updatePos();
         }
 
         if (i < outputs.size() && outputs[i]->hasEdge()) {
-            outputs[i]->edge->updatePos();
+            for (auto *e : outputs[i]->edges) if (e) e->updatePos();
         }
     }
 }
@@ -187,16 +187,22 @@ bool Node::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>
 void Node::remove() {
 
     for (auto s: inputs) {
+        if (!s) continue;
         if (s->hasEdge()) {
-            s->edge->remove();
+            auto edgesCopy = s->edges; // copy to avoid mutation during iteration
+            for (auto *e : edgesCopy) if (e) e->remove();
             s->edge = nullptr;
+            s->edges.clear();
         }
     }
 
     for (auto s: outputs) {
+        if (!s) continue;
         if (s->hasEdge()) {
-            s->edge->remove();
+            auto edgesCopy = s->edges;
+            for (auto *e : edgesCopy) if (e) e->remove();
             s->edge = nullptr;
+            s->edges.clear();
         }
     }
 
@@ -343,9 +349,11 @@ void Node::removeLastInputSocket() {
     auto *s = inputs[lastIdx];
     if (!s) return;
 
-    if (s->hasEdge() && s->edge) {
-        s->edge->remove();
+    if (s->hasEdge()) {
+        auto edgesCopy = s->edges;
+        for (auto *e : edgesCopy) if (e) e->remove();
         s->edge = nullptr;
+        s->edges.clear();
     }
 
     delete s;

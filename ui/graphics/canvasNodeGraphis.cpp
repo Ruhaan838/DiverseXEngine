@@ -30,7 +30,6 @@ CanvasNodeGraphics::CanvasNodeGraphics(Node *node, QGraphicsItem *parent)
              QGraphicsItem::ItemSendsScenePositionChanges);
 
     _bg_brush = QBrush(QColor(0,0,0,0));
-
 }
 
 
@@ -160,7 +159,7 @@ QVariant CanvasNodeGraphics::itemChange(GraphicsItemChange change, const QVarian
                     auto p = n->getSocketPos(s->index, s->position);
                     s->grSocket->setPos(static_cast<qreal>(p.first), static_cast<qreal>(p.second));
                     s->grSocket->setZValue(1);
-                    if (s->hasEdge() && s->edge) s->edge->updatePos();
+                    if (s->hasEdge() && !s->edges.empty()) { for (auto *e : s->edges) if (e) e->updatePos(); }
                 }
 
                 for (auto *s : n->outputs) {
@@ -169,27 +168,27 @@ QVariant CanvasNodeGraphics::itemChange(GraphicsItemChange change, const QVarian
                     auto p = n->getSocketPos(s->index, s->position);
                     s->grSocket->setPos(static_cast<qreal>(p.first), static_cast<qreal>(p.second));
                     s->grSocket->setZValue(1);
-                    if (s->hasEdge() && s->edge) s->edge->updatePos();
+                    if (s->hasEdge() && !s->edges.empty()) { for (auto *e : s->edges) if (e) e->updatePos(); }
                 }
 
                 QTimer::singleShot(0, [n]() { if (n) n->refreshSocketsAndEdges(); });
 
                 QTimer::singleShot(0, [n]() {
                     if (!n) return;
-                    for (auto *s : n->inputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
-                    for (auto *s : n->outputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
+                    for (auto *s : n->inputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
+                    for (auto *s : n->outputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
                 });
 
                 QTimer::singleShot(20, [n]() {
                     if (!n) return;
-                    for (auto *s : n->inputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
-                    for (auto *s : n->outputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
+                    for (auto *s : n->inputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
+                    for (auto *s : n->outputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
                 });
 
                 QTimer::singleShot(60, [n]() {
                     if (!n) return;
-                    for (auto *s : n->inputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
-                    for (auto *s : n->outputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
+                    for (auto *s : n->inputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
+                    for (auto *s : n->outputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
                 });
 
                 QTimer::singleShot(5, [n]() {
@@ -207,8 +206,8 @@ QVariant CanvasNodeGraphics::itemChange(GraphicsItemChange change, const QVarian
             for (auto *n : canvas->inner_nodes) {
                 if (!n) continue;
                 n->refreshSocketsAndEdges();
-                for (auto *s : n->inputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
-                for (auto *s : n->outputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
+                for (auto *s : n->inputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
+                for (auto *s : n->outputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
             }
             Scene* scImmediate = canvas->scene;
             if (scImmediate) {

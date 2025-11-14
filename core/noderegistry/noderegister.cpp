@@ -9,7 +9,7 @@
 
 void registerAllNodeTypes();
 
-NodeRegistery::NodeRegistery(Scene* parent) : scene(parent), functions(nullptr), arithmetic(nullptr), math(nullptr), permutation(nullptr), bitoperations(nullptr), inputs(nullptr), outputs(nullptr), containers(nullptr) {
+NodeRegistery::NodeRegistery(Scene* parent) : scene(parent), functions(nullptr), arithmetic(nullptr), math(nullptr), permutation(nullptr), bitoperations(nullptr), inputs(nullptr), outputs(nullptr), containers(nullptr), matrix(nullptr) {
     setHeaderHidden(true);
     registerAllNodeTypes();
     buildUI();
@@ -53,14 +53,21 @@ Node* NodeRegistery::createNode(const QString& name, Scene* scene) {
         Node* node = info.creator(scene);
         if (node) {
             node->setHeightWidth(info.height, info.width);
-            switch (info.category) {
-                case NodeCategory::INPUT:
-                    node->setPosition(LEFT_TOP, RIGHT_TOP);
-                    break;
-                default:
-                    // FUNCTION, ARITHMETIC, MATH and OUTPUT all use default placement
-                    node->setPosition(LEFT_TOP, RIGHT_BOTTOM);
-                    break;
+            // Special-case placement for Input Matrix
+            if (name == "Input Matrix") {
+                node->setPosition(LEFT_BOTTOM, RIGHT_TOP);
+            } else {
+                switch (info.category) {
+                    case NodeCategory::INPUT:
+                        node->setPosition(LEFT_TOP, RIGHT_TOP);
+                        break;
+                    case NodeCategory::CONTAINER:
+                        node->setPosition(LEFT_TOP, RIGHT_TOP);
+                        break;
+                    default:
+                        node->setPosition(LEFT_TOP, RIGHT_BOTTOM);
+                        break;
+                }
             }
         }
         return node;
@@ -91,6 +98,12 @@ void NodeRegistery::buildUI() {
     outputs = new QTreeWidgetItem(this);
     outputs->setText(0, "Outputs");
 
+    containers = new QTreeWidgetItem(this);
+    containers->setText(0, "Containers");
+
+    matrix = new QTreeWidgetItem(this);
+    matrix->setText(0, "Matrix");
+
 
     auto& registry = getRegistry();
     for (auto it = registry.begin(); it != registry.end(); ++it) {
@@ -119,6 +132,12 @@ void NodeRegistery::buildUI() {
             case NodeCategory::OUTPUT:
                 parent = outputs;
                 break;
+            case NodeCategory::MATRIX:
+                parent = matrix;
+                break;
+            case NodeCategory::CONTAINER:
+                parent = containers;
+                break;
         }
 
         if (parent) {
@@ -134,7 +153,7 @@ void NodeRegistery::setupDoubleClickHandler() {
 
         if (nodeName == "Functions" || nodeName == "Inputs" ||
             nodeName == "Outputs" || nodeName == "Arithmetic" || nodeName == "Math" ||
-            nodeName == "Permutation" || nodeName == "Bit Operations") {
+            nodeName == "Permutation" || nodeName == "Bit Operations" || nodeName == "Matrix" || nodeName == "Containers") {
             return;
         }
 

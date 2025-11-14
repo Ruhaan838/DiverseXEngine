@@ -7,10 +7,11 @@
 
 class Scene;
 class InputNode;
+class SocketNode;
 
 #include <vector>
-#include "../../Common.h"
-#include "../nodes/node.h"
+#include "../../../Common.h"
+#include "../../nodes/node.h"
 using namespace std;
 
 class FunctionNode : public Node {
@@ -19,6 +20,10 @@ public:
     Node* getPrevNode(const int idx) const;
     virtual void execute() = 0;
     virtual double getValues() = 0;
+    // Per-output value query; default returns getValues()
+    virtual double getValuesForOutput(SocketNode* /*startSocket*/) { return getValues(); }
+    // Overload to pass upstream output socket for context-aware nodes
+    double getNodeValue(Node* node, SocketNode* startSocket);
     double getNodeValue(Node* node);
     QJsonObject serialize() override;
     bool deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) override;

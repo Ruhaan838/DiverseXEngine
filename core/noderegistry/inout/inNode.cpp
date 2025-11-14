@@ -3,11 +3,11 @@
 //
 
 #include "inoutNode.h"
-#include "functionNode.h"
-#include "../scene/nodescene.h"
-#include "../widgets/widgets.h"
-#include "../nodes/socket.h"
-#include "../nodes/node.h"
+#include "../function/functionNode.h"
+#include "../../scene/nodescene.h"
+#include "../../widgets/widgets.h"
+#include "../../nodes/socket.h"
+#include "../../nodes/node.h"
 
 #include <QLineEdit>
 #include <QDoubleValidator>

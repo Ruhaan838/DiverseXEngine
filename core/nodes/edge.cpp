@@ -76,13 +76,15 @@ void EdgesNode::updatePos() const {
 
 void EdgesNode::remove_from_sockets() {
     if (startSocket != nullptr) {
+        // Detach from start socket's edge list
+        startSocket->removeEdge(this);
         startSocket = nullptr;
     }
     if (endSocket != nullptr) {
+        // Detach from end socket's edge list
+        endSocket->removeEdge(this);
         endSocket = nullptr;
     }
-    endSocket = nullptr;
-    startSocket = nullptr;
 }
 
 void EdgesNode::remove() {

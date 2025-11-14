@@ -358,14 +358,14 @@ QVariant NodeGraphics::itemChange(GraphicsItemChange change, const QVariant &val
             QTimer::singleShot(0, [n]() {
                 if (!n) return;
                 n->refreshSocketsAndEdges();
-                for (auto *s : n->inputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
-                for (auto *s : n->outputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
+                for (auto *s : n->inputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
+                for (auto *s : n->outputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
             });
             QTimer::singleShot(30, [n]() {
                 if (!n) return;
                 n->refreshSocketsAndEdges();
-                for (auto *s : n->inputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
-                for (auto *s : n->outputs) if (s && s->hasEdge() && s->edge) s->edge->updatePos();
+                for (auto *s : n->inputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
+                for (auto *s : n->outputs) if (s && s->hasEdge()) { for (auto *e : s->edges) if (e) e->updatePos(); }
             });
         }
     }

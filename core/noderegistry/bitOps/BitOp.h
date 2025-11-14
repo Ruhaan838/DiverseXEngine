@@ -4,7 +4,7 @@
 
 #ifndef BITOP_H
 #define BITOP_H
-#include "functionNode.h"
+#include "../function/functionNode.h"
 
 class AndNode : public FunctionNode {
 public:

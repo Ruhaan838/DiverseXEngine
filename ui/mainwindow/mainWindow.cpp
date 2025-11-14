@@ -110,7 +110,7 @@ void MainWindow::setupMenuBar() {
     fileMenu->addAction(saveAction);
 
     saveAsAction = new QAction("Save As...", this);
-    saveAsAction->setShortcut(QKeySequence::SaveAs);
+    saveAsAction->setShortcut(QKeySequence());
     fileMenu->addAction(saveAsAction);
 }
 

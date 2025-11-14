@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QTimer>
+#include <algorithm>
 
 #include "edge.h"
 #include "node.h"
@@ -67,20 +68,72 @@ std::pair<int, int> SocketNode::getSocketPos() const {
 }
 
 void SocketNode::setConnectedEdge(EdgesNode *edge) {
-    this->edge = edge;
+    this->setEdge(edge);
 }
 
 bool SocketNode::hasEdge() const {
-    return edge != nullptr;
+    return edge != nullptr || !edges.empty();
 }
 
 void SocketNode::setEdge(EdgesNode* edge_) {
-    edge = edge_;
+    // Fan-out only on output sockets (RIGHT_*). Inputs (LEFT_*) keep single-edge.
+    if (!edge_) return;
+
+    bool isOutput = (position == RIGHT_TOP || position == RIGHT_BOTTOM);
+
+    if (isOutput) {
+        // Avoid duplicates
+        for (auto *e : edges) if (e == edge_) return;
+        edges.push_back(edge_);
+        if (!edge) edge = edge_;
+    } else {
+        // Input: replace existing connection
+        if (edge && edge != edge_) {
+            // Let the old edge detach itself safely; call remove which will call remove_from_sockets
+            auto *old = edge;
+            edge = nullptr; // prevent recursion mishaps
+            // Defer removal to event loop to avoid potential re-entrancy
+            QTimer::singleShot(0, [old]() { if (old) old->remove(); });
+        }
+        edge = edge_;
+        // keep edges vector in sync for inputs as size 1
+        edges.clear();
+        edges.push_back(edge_);
+    }
+
     if (edge_) {
         QTimer::singleShot(0, [edge_]() {
             if (edge_) edge_->updatePos();
         });
     }
+}
+
+void SocketNode::addEdge(EdgesNode *e) {
+    if (!e) return;
+    bool isOutput = (position == RIGHT_TOP || position == RIGHT_BOTTOM);
+    if (isOutput) {
+        for (auto *x : edges) if (x == e) return;
+        edges.push_back(e);
+        if (!edge) edge = e;
+    } else {
+        setEdge(e);
+    }
+}
+
+void SocketNode::removeEdge(EdgesNode *e) {
+    if (!e) return;
+    // Remove from vector
+    if (!edges.empty()) {
+        edges.erase(std::remove(edges.begin(), edges.end(), e), edges.end());
+    }
+    // Clear legacy pointer if it pointed to this
+    if (edge == e) edge = edges.empty() ? nullptr : edges.front();
+}
+
+EdgesNode* SocketNode::getFirstEdge() const {
+    if (edge) return edge;
+    if (!edges.empty()) return edges.front();
+    return nullptr;
 }
 
 string SocketNode::str() {
