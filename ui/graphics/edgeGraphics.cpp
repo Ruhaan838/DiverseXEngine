@@ -82,24 +82,26 @@ QPainterPath EdgeGraphicsBezier::calPath() {
     auto cpy_s = 0;
     auto cpy_d = 0;
 
-    auto sspos = edge->startSocket->position;
-    if ((s[0] > d[0] && (sspos == RIGHT_TOP || sspos == RIGHT_BOTTOM)) || (s[0] < d[0] && (sspos == LEFT_BOTTOM || sspos == LEFT_TOP))) {
-        cpx_d *= -1;
-        cpx_s *= -1;
+    if (edge && edge->startSocket) {
+        auto sspos = edge->startSocket->position;
+        if ((s[0] > d[0] && (sspos == RIGHT_TOP || sspos == RIGHT_BOTTOM)) || (s[0] < d[0] && (sspos == LEFT_BOTTOM || sspos == LEFT_TOP))) {
+            cpx_d *= -1;
+            cpx_s *= -1;
 
-        auto diff = s[1] - d[1];
-        auto div_term = 0.00001;
-        if (diff != 0) {
-            div_term = fabs(diff);
-        }
-        cpy_d = (diff / div_term) * EDGE_CP_ROUNDNESS;
+            auto diff = s[1] - d[1];
+            auto div_term = 0.00001;
+            if (diff != 0) {
+                div_term = fabs(diff);
+            }
+            cpy_d = (diff / div_term) * EDGE_CP_ROUNDNESS;
 
-        diff = d[1] - s[1];
-        div_term = 0.00001;
-        if (diff != 0) {
-            div_term = fabs(diff);
+            diff = d[1] - s[1];
+            div_term = 0.00001;
+            if (diff != 0) {
+                div_term = fabs(diff);
+            }
+            cpy_s = (diff / div_term) * EDGE_CP_ROUNDNESS;
         }
-        cpy_s = (diff / div_term) * EDGE_CP_ROUNDNESS;
     }
 
 
@@ -111,4 +113,3 @@ QPainterPath EdgeGraphicsBezier::calPath() {
 
     return path;
 }
-

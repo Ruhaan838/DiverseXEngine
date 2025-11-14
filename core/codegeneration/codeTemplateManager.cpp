@@ -4,6 +4,14 @@
 
 #include "codeTemplateManager.h"
 
+#include <QDir>
+#include <QFile>
+#include <QJsonDocument>
+#include <QStringList>
+#include <QRegularExpression>
+#include "../nodes/node.h"
+#include "../nodes/socket.h"
+
 bool CodeTemplateManager::loadTemplatesFromFile(const QString& filePath) {
     QFile file(filePath);
 
@@ -46,14 +54,10 @@ QString CodeTemplateManager::getOutputTemplate() const {
         }
     }
 
-    qDebug() << "Output template not found. Available keys:";
     for (const QString& key : templatesJson.keys()) {
-        qDebug() << " - " << key;
         if (templatesJson[key].isObject()) {
             QJsonObject obj = templatesJson[key].toObject();
-            for (const QString& subKey : obj.keys()) {
-                qDebug() << "   - " << subKey << ": " << obj[subKey].toString();
-            }
+            for (const QString& subKey : obj.keys()) {}
         }
     }
     return "";
@@ -90,7 +94,6 @@ QString CodeTemplateManager::getFunctionCallTemplate(const QString& functionName
             return funcObj[callTemplateKey].toString();
         }
     }
-    qDebug() << "Function call template not found for:" << functionName;
     return "";
 }
 
@@ -102,6 +105,93 @@ QString CodeTemplateManager::getTemplateType(const QString& templatePath) const 
         QJsonObject categoryObj = templatesJson["python." + category].toObject();
         if (categoryObj.contains("type")) {
             return categoryObj["type"].toString();
+        }
+    }
+    return "";
+}
+
+QString CodeTemplateManager::makeSafeIdentifier(const QString& base, int idx) const {
+    QString s = base;
+    s = s.trimmed();
+    if (s.isEmpty()) s = QString("in");
+    s = s.toLower();
+    s.replace(QRegularExpression("[^a-z0-9_]+"), "_");
+    if (!s.isEmpty() && s[0].isDigit()) s.prepend("_");
+    s = s + "_" + QString::number(idx);
+    return s;
+}
+
+QString CodeTemplateManager::defaultValueForSocketType(const QString& socketType) const {
+    QString t = socketType.toLower();
+    if (t.contains("number") || t.contains("int") || t.contains("float") || t.contains("double")) return QString("0");
+    if (t.contains("str") || t.contains("text") || t.contains("string")) return QString("''");
+    if (t.contains("bool")) return QString("False");
+    return QString("None");
+}
+
+QString CodeTemplateManager::generateNodeWrapper(Node* node, const QString& implFunctionName) const {
+    if (!node) return QString();
+
+    QStringList decls;
+    QStringList pops;
+    QStringList params;
+
+    int seq = 1;
+    for (size_t i = 0; i < node->inputs.size(); ++i) {
+        auto *s = node->inputs[i];
+        if (!s) continue;
+        QString sockType = s->socket_type;
+        if (sockType == "addsocket") continue;
+
+        QString ident = QString("in%1").arg(seq);
+        seq++;
+
+        QString defVal = defaultValueForSocketType(sockType);
+        decls << QString("%1 = %2").arg(ident, defVal);
+
+        QString pop = QString("v = get_connection_value(node_id, %1)")
+                      .arg(static_cast<int>(i));
+        pop += "\n";
+        pop += QString("if v is not None:\n    %1 = v").arg(ident);
+        pops << pop;
+
+        params << ident;
+    }
+
+    QString out;
+    out += "# --- auto-generated wrapper start ---\n";
+    out += "# Declarations\n";
+    for (const QString &d : decls) out += d + "\n";
+    out += "\n# Populate from connections (runtime helper: get_connection_value)\n";
+    out += "# node_id must be provided by the caller\n";
+    for (const QString &p : pops) out += p + "\n";
+    out += "\n# Call implementation\n";
+
+    if (params.empty()) {
+        out += QString("result = %1()\n").arg(implFunctionName);
+    } else if (params.size() == 1) {
+        out += QString("result = %1(%2)\n").arg(implFunctionName, params[0]);
+    } else if (params.size() == 2) {
+        out += QString("result = %1(%2, %3)\n").arg(implFunctionName, params[0], params[1]);
+    } else {
+
+        out += QString("acc = %1(%2, %3)\n").arg(implFunctionName, params[0], params[1]);
+        for (int i = 2; i < params.size(); ++i) {
+            out += QString("acc = %1(acc, %2)\n").arg(implFunctionName, params[i]);
+        }
+        out += "result = acc\n";
+    }
+    out += "# --- auto-generated wrapper end ---\n";
+
+    return out;
+}
+
+QString CodeTemplateManager::getFunctionImport(const QString& functionName) const {
+    QString functionKey = "python." + functionName.toLower();
+    if (templatesJson.contains(functionKey)) {
+        QJsonObject funcObj = templatesJson[functionKey].toObject();
+        if (funcObj.contains("import")) {
+            return funcObj["import"].toString();
         }
     }
     return "";

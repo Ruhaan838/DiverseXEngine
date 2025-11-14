@@ -13,6 +13,7 @@
 #include "../canvas/canvasview.h"
 #include "../canvas/canvasScene.h"
 #include "../canvas/editorWindow.h"
+#include "../canvas/open_load.h"
 #include "../../core/scene/nodescene.h"
 #include "../../core/noderegistry/noderegister.h"
 #include "../../core/codegeneration/codeTemplateManager.h"
@@ -50,6 +51,9 @@ void MainWindow::initUI() {
 
     layout->addWidget(splitter);
 
+    setupMenuBar();
+    setupFileActions();
+
     setWindowTitle(config.windowTitle);
 
     bool loaded = CodeTemplateManager::getInstance().loadTemplatesFromFile(":/codebase/python.json");
@@ -79,4 +83,54 @@ void MainWindow::setWindowDimensions(int width, int height) {
 void MainWindow::setWindowTitle(const QString& title) {
     config.windowTitle = title;
     QWidget::setWindowTitle(title);
+}
+
+void MainWindow::setWindowTitleWithFilename(const QString& filename) {
+    QString newTitle;
+    if (filename.isEmpty()) {
+        newTitle = "DiverseXEngine";
+    } else {
+        newTitle = QString("DiverseXEngine - %1").arg(filename);
+    }
+    setWindowTitle(newTitle);
+}
+
+void MainWindow::setupMenuBar() {
+    menuBar = new QMenuBar(this);
+    layout->insertWidget(0, menuBar);
+
+    QMenu* fileMenu = menuBar->addMenu("File");
+
+    openAction = new QAction("Open", this);
+    openAction->setShortcut(QKeySequence::Open);
+    fileMenu->addAction(openAction);
+
+    saveAction = new QAction("Save", this);
+    saveAction->setShortcut(QKeySequence::Save);
+    fileMenu->addAction(saveAction);
+
+    saveAsAction = new QAction("Save As...", this);
+    saveAsAction->setShortcut(QKeySequence());
+    fileMenu->addAction(saveAsAction);
+}
+
+void MainWindow::setupFileActions() {
+    connect(openAction, &QAction::triggered, this, &MainWindow::onFileOpen);
+    connect(saveAction, &QAction::triggered, this, &MainWindow::onFileSave);
+    connect(saveAsAction, &QAction::triggered, this, &MainWindow::onFileSaveAs);
+}
+
+void MainWindow::onFileOpen() {
+    QString filename = FileIO::loadScene(scene, this);
+    if (!filename.isEmpty()) {
+        setWindowTitleWithFilename(filename);
+    }
+}
+
+void MainWindow::onFileSave() {
+    FileIO::saveScene(scene, this, false);
+}
+
+void MainWindow::onFileSaveAs() {
+    FileIO::saveScene(scene, this, true);
 }

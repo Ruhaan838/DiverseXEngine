@@ -9,6 +9,7 @@
 #include <QColor>
 #include <QPen>
 #include <QBrush>
+#include <QFont>
 
 #include "../../Common.h"
 
@@ -17,7 +18,7 @@ class SocketNode;
 
 class SocketGraphics : public QGraphicsItem{
 public:
-    SocketGraphics(SocketNode *socket, NodeGraphics* parent = nullptr, SOCKETTYPES item = COLOR_1);
+    SocketGraphics(SocketNode *socket, NodeGraphics* parent = nullptr, const QString& socketType = "");
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
@@ -26,14 +27,18 @@ public:
     float radius = 6.0;
     float outline_width = 1.0;
     QColor _color_background;
-    QColor _color_outline = QColor("#FF000000");
+    QColor _color_outline = QColor(0, 0, 0, 255);
 
     QPen _pen;
     QBrush _brush;
     SocketNode *socket;
 
+    QString socketTypeText;
+    QFont textFont;
+    QColor textColor;
+    float textOffset = 3.0f;
 
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 };
 
 #endif //SOCKETGRAPHICS_H
-

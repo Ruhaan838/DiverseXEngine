@@ -1,0 +1,321 @@
+{
+    "edges": [
+        {
+            "edge_type": 2,
+            "end": "50390636720",
+            "id": "50410974400",
+            "start": "50407219888"
+        },
+        {
+            "edge_type": 2,
+            "end": "50390638160",
+            "id": "50410974656",
+            "start": "50407212128"
+        },
+        {
+            "edge_type": 2,
+            "end": "50390641200",
+            "id": "50410974272",
+            "start": "50407220848"
+        },
+        {
+            "edge_type": 2,
+            "end": "50390641760",
+            "id": "50410974464",
+            "start": "50390636480"
+        },
+        {
+            "edge_type": 2,
+            "end": "50390643920",
+            "id": "50410974720",
+            "start": "50407220528"
+        },
+        {
+            "edge_type": 2,
+            "end": "50396219504",
+            "id": "50410975040",
+            "start": "50390637680"
+        },
+        {
+            "edge_type": 2,
+            "end": "50407221648",
+            "id": "50410975104",
+            "start": "50390642240"
+        },
+        {
+            "edge_type": 2,
+            "end": "50407215008",
+            "id": "50410974784",
+            "start": "50390638400"
+        },
+        {
+            "edge_type": 2,
+            "end": "50407214688",
+            "id": "50410975936",
+            "start": "50407215488"
+        }
+    ],
+    "id": -1157587072,
+    "nodes": [
+        {
+            "h": 90,
+            "id": "50375770560",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "50407219888",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 32,
+            "w": 180,
+            "x": -290,
+            "y": -303
+        },
+        {
+            "h": 90,
+            "id": "50376146688",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "50407212128",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 40,
+            "w": 180,
+            "x": -289,
+            "y": -158
+        },
+        {
+            "h": 90,
+            "id": "50376409088",
+            "inputs": [
+                {
+                    "id": "50390636720",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "50390638160",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "50390637120",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "AndNode",
+            "outputs": [
+                {
+                    "id": "50390638400",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Bitwise-AND",
+            "value": 32,
+            "w": 180,
+            "x": -17,
+            "y": -216
+        },
+        {
+            "h": 90,
+            "id": "50376412672",
+            "inputs": [
+                {
+                    "id": "50390641200",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "50390641760",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "50390642400",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "XorNode",
+            "outputs": [
+                {
+                    "id": "50390642240",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Bitwise-XOR",
+            "value": 52,
+            "w": 180,
+            "x": -21,
+            "y": -16
+        },
+        {
+            "h": 140,
+            "id": "50376412896",
+            "inputs": [
+                {
+                    "id": "50407215008",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "50407221648",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "50396219504",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "Number 3"
+                },
+                {
+                    "id": "50407221888",
+                    "index": 3,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "OrNode",
+            "outputs": [
+                {
+                    "id": "50407215488",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Bitwise-OR",
+            "value": -11,
+            "w": 180,
+            "x": 258,
+            "y": -102
+        },
+        {
+            "h": 90,
+            "id": "50376413120",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "50407220848",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 32,
+            "w": 180,
+            "x": -285,
+            "y": -24
+        },
+        {
+            "h": 90,
+            "id": "50376413344",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "50390636480",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 20,
+            "w": 180,
+            "x": -283,
+            "y": 103
+        },
+        {
+            "h": 90,
+            "id": "50376413568",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "50407220528",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input",
+            "value": 10,
+            "w": 180,
+            "x": -277,
+            "y": 233
+        },
+        {
+            "h": 90,
+            "id": "50376413792",
+            "inputs": [
+                {
+                    "id": "50390643920",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number"
+                }
+            ],
+            "multi_sockets": false,
+            "node_type": "NotNode",
+            "outputs": [
+                {
+                    "id": "50390637680",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Bitwise-NOT",
+            "value": -11,
+            "w": 180,
+            "x": -22,
+            "y": 155
+        },
+        {
+            "h": 90,
+            "id": "50376415360",
+            "inputs": [
+                {
+                    "id": "50407214688",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": ""
+                }
+            ],
+            "node_type": "OutputNode",
+            "title": "Output",
+            "value": -11,
+            "w": 180,
+            "x": 324,
+            "y": 179
+        }
+    ],
+    "scene_height": 64000,
+    "scene_width": 64000
+}

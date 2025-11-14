@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <QDebug>
+#include <QTimer>
 
 #include "node.h"
 #include "socket.h"
@@ -14,6 +15,8 @@
 #include "../serialization/serializator.h"
 #include "../../ui/graphics/edgeGraphics.h"
 #include "../../ui/canvas/canvasScene.h"
+#include "../../ui/graphics/socketGraphics.h"
+#include "../../ui/graphics/nodeGraphics.h"
 
 inline bool DEBUG = false;
 
@@ -34,44 +37,59 @@ void EdgesNode::updatePos() const {
         return;
     }
 
-    auto xy = startSocket->getSocketPos();
-    xy.first += startSocket->node->pos().x();
-    xy.second += startSocket->node->pos().y();
-
-    grEdge->setSource(xy.first, xy.second);
-    if (endSocket != nullptr) {
-        xy = endSocket->getSocketPos();
-        xy.first += endSocket->node->pos().x();
-        xy.second += endSocket->node->pos().y();
-        grEdge->setDestination(xy.first, xy.second);
+    QPointF sourceScenePos;
+    if (startSocket->grSocket) {
+        sourceScenePos = startSocket->grSocket->mapToScene(QPointF(0,0));
     } else {
-        grEdge->setDestination(xy.first, xy.second);
+        auto xy = startSocket->getSocketPos();
+        QPointF localPos(static_cast<qreal>(xy.first), static_cast<qreal>(xy.second));
+        if (startSocket->node && startSocket->node->grNode) {
+            sourceScenePos = startSocket->node->grNode->mapToScene(localPos);
+        } else {
+            sourceScenePos = localPos;
+        }
     }
+
+    grEdge->setSource(static_cast<int>(sourceScenePos.x()), static_cast<int>(sourceScenePos.y()));
+
+    if (endSocket != nullptr) {
+        QPointF destScenePos;
+        if (endSocket->grSocket) {
+            destScenePos = endSocket->grSocket->mapToScene(QPointF(0,0));
+        } else {
+            auto xy = endSocket->getSocketPos();
+            QPointF localPos(static_cast<qreal>(xy.first), static_cast<qreal>(xy.second));
+            if (endSocket->node && endSocket->node->grNode) {
+                destScenePos = endSocket->node->grNode->mapToScene(localPos);
+            } else {
+                destScenePos = localPos;
+            }
+        }
+        grEdge->setDestination(static_cast<int>(destScenePos.x()), static_cast<int>(destScenePos.y()));
+    } else {
+        grEdge->setDestination(static_cast<int>(sourceScenePos.x()), static_cast<int>(sourceScenePos.y()));
+    }
+
     grEdge->update();
 }
 
 
 void EdgesNode::remove_from_sockets() {
-    if (DEBUG) qDebug() << "we have this st socket and end socket" << startSocket << " " << endSocket;
     if (startSocket != nullptr) {
-        if (DEBUG) qDebug() << "\t \t Start Socket:" << startSocket;
-
+        // Detach from start socket's edge list
+        startSocket->removeEdge(this);
         startSocket = nullptr;
     }
     if (endSocket != nullptr) {
-        if (DEBUG) qDebug() << "\t \t End Socket:" << endSocket;
+        // Detach from end socket's edge list
+        endSocket->removeEdge(this);
         endSocket = nullptr;
     }
-    endSocket = nullptr;
-    startSocket = nullptr;
 }
 
 void EdgesNode::remove() {
-    if (DEBUG) qDebug() << "NodeEdges:remove ~ " << this->str().c_str() << "\nwith (Sockets, Edges):";
-    if (DEBUG) qDebug() << "\t remove edge from all sockets";
     remove_from_sockets();
 
-    if (DEBUG) qDebug() << "\t removed the grEdge";
     if (grEdge && scene && scene->grScene && grEdge != nullptr) {
         scene->grScene->removeItem(grEdge);
         grEdge = nullptr;
@@ -82,6 +100,11 @@ void EdgesNode::remove() {
 }
 
 void EdgesNode::setStartSocket(SocketNode* socket) {
+    if (socket != nullptr && socket->socket_type == "addsocket") {
+        if (DEBUG) qDebug() << "EdgesNode::setStartSocket - attempt to connect to addsocket ignored";
+        return;
+    }
+
     startSocket = socket;
     if (startSocket != nullptr) {
         startSocket->setEdge(this);
@@ -93,6 +116,11 @@ SocketNode *EdgesNode::getStartSocket() const {
 }
 
 void EdgesNode::setEndSocket(SocketNode* socket) {
+    if (socket != nullptr && socket->socket_type == "addsocket") {
+        if (DEBUG) qDebug() << "EdgesNode::setEndSocket - attempt to connect to addsocket ignored";
+        return;
+    }
+
     endSocket = socket;
     if (endSocket != nullptr) {
         endSocket->setEdge(this);
@@ -121,7 +149,9 @@ void EdgesNode::setEdgeType(EDGETYPES type) {
     }
     scene->grScene->addItem(grEdge);
 
-    updatePos();
+    QTimer::singleShot(0, [this]() {
+        this->updatePos();
+    });
 
 }
 
@@ -138,27 +168,53 @@ void EdgesNode::setDestination(int x, int y) const {
 
 QJsonObject EdgesNode::serialize() {
     auto arr = QJsonObject{
-        {"id", static_cast<int>(id)},
+        {"id", QString::fromStdString(std::to_string(id))},
         {"edge_type", edge_type},
-        {"start", static_cast<int>(startSocket->id)},
-        {"end", static_cast<int>(endSocket->id)}
+        {"start", QString::fromStdString(std::to_string(startSocket ? startSocket->id : 0))},
+        {"end", QString::fromStdString(std::to_string(endSocket ? endSocket->id : 0))}
     };
     return arr;
 }
 
 bool EdgesNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t>& hashmap) {
-    auto i = data.value("id");
-    id = i.toInt();
-    hashmap[std::to_string(i.toInt())] = reinterpret_cast<uintptr_t>(this);
-
-    int start_id = data.value("start").toInt();
-    int end_id = data.value("end").toInt();
-
-    if (hashmap.count(std::to_string(start_id))) {
-        setStartSocket(reinterpret_cast<SocketNode*>(hashmap[std::to_string(start_id)]));
+    auto v = data.value("id");
+    if (v.isString()) {
+        auto s = v.toString();
+        id = static_cast<uintptr_t>(s.toULongLong());
+        hashmap[s.toStdString()] = reinterpret_cast<uintptr_t>(this);
+    } else {
+        auto i = v.toInt();
+        id = static_cast<uintptr_t>(static_cast<unsigned int>(i));
+        hashmap[std::to_string(i)] = reinterpret_cast<uintptr_t>(this);
     }
-    if (hashmap.count(std::to_string(end_id))) {
-        setEndSocket(reinterpret_cast<SocketNode*>(hashmap[std::to_string(end_id)]));
+
+    auto sv = data.value("start");
+    auto ev = data.value("end");
+
+    if (sv.isString()) {
+        auto s = sv.toString().toStdString();
+        if (hashmap.count(s)) {
+            setStartSocket(reinterpret_cast<SocketNode*>(hashmap[s]));
+        }
+    } else {
+        int s = sv.toInt();
+        auto key = std::to_string(s);
+        if (hashmap.count(key)) {
+            setStartSocket(reinterpret_cast<SocketNode*>(hashmap[key]));
+        }
+    }
+
+    if (ev.isString()) {
+        auto s = ev.toString().toStdString();
+        if (hashmap.count(s)) {
+            setEndSocket(reinterpret_cast<SocketNode*>(hashmap[s]));
+        }
+    } else {
+        int e = ev.toInt();
+        auto key = std::to_string(e);
+        if (hashmap.count(key)) {
+            setEndSocket(reinterpret_cast<SocketNode*>(hashmap[key]));
+        }
     }
 
     setEdgeType(getEdgeEnum(data.value("edge_type").toInt()));

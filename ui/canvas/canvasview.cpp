@@ -11,7 +11,7 @@
 #include <qevent.h>
 
 #include "canvasScene.h"
-#include "../../core/noderegistry/functionNode.h"
+#include "../../core/noderegistry/function/functionNode.h"
 #include "../graphics/socketGraphics.h"
 #include "../graphics/cutlineGraphics.h"
 #include "../../core/nodes/node.h"
@@ -19,6 +19,8 @@
 #include "../../core/nodes/socket.h"
 #include "../../core/scene/nodescene.h"
 #include "../graphics/nodeGraphics.h"
+#include "../graphics/canvasNodeGraphis.h"
+#include "../../core/noderegistry/canvasNode.h"
 
 inline bool DEBUG = false;
 
@@ -215,17 +217,28 @@ void CanvasView::wheelEvent(QWheelEvent *event) {
 }
 
 void CanvasView::keyPressEvent(QKeyEvent *event) {
+    if ((event->key() == Qt::Key_R) && ((event->modifiers() & Qt::ControlModifier) || (event->modifiers() & Qt::MetaModifier))) {
+        // Ctrl/Cmd + R: reset all node input/display values
+        if (grScene && grScene->scene) {
+            grScene->scene->resetNodes();
+            return; // consume shortcut
+        }
+    }
     if (event->key() == Qt::Key_Delete) {
         if (!editingFlag)
             this->deleteSelected();
         else
             QGraphicsView::keyPressEvent(event);
     }
-    else if (event->key() == Qt::Key_S && event->modifiers() && Qt::ControlModifier) {
-        grScene->scene->saveToFile( "Graph.json");
-    }
-    else if (event->key() == Qt::Key_L && event->modifiers() && Qt::ControlModifier) {
-        grScene->scene->loadFromFile("Graph.json");
+    else if (event->key() == Qt::Key_S) {
+        const auto mods = event->modifiers();
+        const bool cmdOrCtrl = (mods & Qt::ControlModifier) || (mods & Qt::MetaModifier);
+        const bool hasShift = (mods & Qt::ShiftModifier);
+        if (cmdOrCtrl && !hasShift) {
+            grScene->scene->saveToFile("Graph.json");
+            return;
+        }
+        QGraphicsView::keyPressEvent(event);
     }
     else if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && (event->modifiers() & Qt::ControlModifier)) {
         if (grScene && grScene->scene) {
@@ -243,6 +256,30 @@ void CanvasView::keyPressEvent(QKeyEvent *event) {
     else if (event->key() == Qt::Key_G) {
         if (grScene && grScene->scene) {
             grScene->scene->updateEditorCode();
+        }
+    }
+    else if (event->key() == Qt::Key_R) {
+        // Detach selected nodes from their Canvas parent (unchanged behavior for plain R)
+        bool anyDetached = false;
+        auto items = scene() ? scene()->selectedItems() : QList<QGraphicsItem*>();
+        for (auto *it : items) {
+            auto *ng = dynamic_cast<NodeGraphics*>(it);
+            if (!ng || !ng->node) continue;
+            QGraphicsItem* parent = ng->parentItem();
+            while (parent) {
+                if (auto *cng = dynamic_cast<CanvasNodeGraphics*>(parent)) {
+                    auto *canvas = dynamic_cast<CanvasNode*>(cng->node);
+                    if (canvas) {
+                        canvas->removeNode(ng->node);
+                        anyDetached = true;
+                    }
+                    break;
+                }
+                parent = parent->parentItem();
+            }
+        }
+        if (!anyDetached) {
+            QGraphicsView::keyPressEvent(event);
         }
     }
     else {
@@ -268,6 +305,20 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
     }
 
     if (auto sk = dynamic_cast<SocketGraphics*>(item)) {
+        // if this is the special addsocket, create a new input instead of starting an edge drag
+        if (sk->socket && sk->socket->socket_type == "addsocket") {
+            Node* node = sk->socket->node;
+            if (node) {
+                int addsockIndex = sk->socket->index;
+                int insertIndex = addsockIndex; // insert before addsocket
+                //QString label = "Number";
+                //node->addInputSocket(insertIndex, label);
+                // pass empty label so addInputSocket will auto-number (Number N)
+                node->addInputSocket(insertIndex, QString());
+             }
+             return;
+         }
+
         if (mode == MODE_NO_OP) {
             mode = MODE_EDGE_DRAG;
             edgeDragStart(sk);
@@ -301,6 +352,11 @@ void CanvasView::leftMouseButtonPress(QMouseEvent *event) {
             QApplication::setOverrideCursor(Qt::CrossCursor);
             return;
         }
+        else {
+            if (grScene && grScene->scene) {
+                grScene->scene->setPendingNodePos(last_lmb_click_scene_pos);
+            }
+        }
 
     }
 
@@ -332,28 +388,31 @@ void CanvasView::leftMouseButtonRelease(QMouseEvent *event) {
 }
 
 void CanvasView::rightMouseButtonPress(QMouseEvent *event) {
-    QGraphicsView::mousePressEvent(event);
 
     if (auto item = getItemAtClick(event)) {
-        if (DEBUG) {
-            if (auto sok = dynamic_cast<SocketGraphics*>(item)) {
-                qDebug() << "RightMouseButtonPress DEBUG";
-                qDebug() << "Socket:" << sok->socket << "\t Edge:" << sok->socket->edge->str().c_str();
+        if (auto sok = dynamic_cast<SocketGraphics*>(item)) {
+            if (sok->socket && sok->socket->socket_type == "addsocket") {
+                if (DEBUG) qDebug() << "CanvasView::rightMouseButtonPress - addsocket right-click, removing last input";
+                sok->socket->node->removeLastInputSocket();
+                return;
             }
         }
-    } else {
-            qDebug("Item is nullptr - printing debug info:");;
-            qDebug() << "Scene:"  << scene();
-            qDebug() << "Nodes:";
 
-            for (const auto n : grScene->scene->nodes) {
-                qDebug("%s", n->str().c_str());
-            }
-            qDebug() << "Edges:";
-            for (const auto n : grScene->scene->edges) {
-                qDebug("%s", n->str().c_str());
-            }
+    } else {
+        qDebug("Item is nullptr - printing debug info:");
+        qDebug() << "Scene:"  << scene();
+        qDebug() << "Nodes:";
+
+        for (const auto n : grScene->scene->nodes) {
+            qDebug("%s", n->str().c_str());
+        }
+        qDebug() << "Edges:";
+        for (const auto n : grScene->scene->edges) {
+            qDebug("%s", n->str().c_str());
+        }
     }
+
+    QGraphicsView::mousePressEvent(event);
 }
 
 void CanvasView::rightMouseButtonRelease(QMouseEvent *event) {
@@ -385,7 +444,7 @@ bool CanvasView::edgeDragStart(SocketGraphics *item) {
         qDebug() << "View::edgeDragStart ~ Start Dragging Edge";
         qDebug() << "View::edgeDragStart ~ assign Start Socket" << item->socket;
     }
-    prevEdge = item->socket->edge;
+    prevEdge = nullptr; // no longer track previous for deletion
     lastStartSocket = item->socket;
 
     dragEdge = new EdgesNode(grScene->scene, item->socket, nullptr, EDGE_TYPE_BEZIER);
@@ -404,19 +463,13 @@ bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
         if (sok->socket != lastStartSocket){
             if (DEBUG)
                 qDebug() << "View::edgeDragEnd ~ assign end Socket" << sok->socket;
-            if (sok->socket->hasEdge()) {
-                sok->socket->edge->remove();
-            }
-            if (prevEdge != nullptr)
-                prevEdge->remove();
-            if (DEBUG)
-                qDebug() << "View::edgeDragEnd ~ predEdge removed";
+            // Do not remove existing edges; SocketNode::setEdge will enforce single-edge for inputs
             dragEdge->startSocket = lastStartSocket;
             dragEdge->endSocket = sok->socket;
             dragEdge->startSocket->setConnectedEdge(dragEdge);
             dragEdge->endSocket->setConnectedEdge(dragEdge);
             if (DEBUG)
-                qDebug() << "View::edgeDragEnd ~ assignd st and end to drag edge";
+                qDebug() << "View::edgeDragEnd ~ assigned start and end to drag edge";
 
             dragEdge->updatePos();
             return true;
@@ -431,12 +484,6 @@ bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
     }
     dragEdge = nullptr;
 
-    if (DEBUG)
-        qDebug() << "View: edgeDragEnd ~ set to previous edge:" << prevEdge;
-
-    if (prevEdge != nullptr) {
-        prevEdge->startSocket->edge = prevEdge;
-    }
 
     if (DEBUG)
         qDebug() << "View: edgeDragEnd ~ everything done.";
@@ -444,7 +491,6 @@ bool CanvasView::edgeDragEnd(QGraphicsItem *item) {
     return false;
 }
 
-//measures if we are too far from the last LMB click scene position
 bool CanvasView::distanceBetween(QMouseEvent *event) {
     auto new_lmb_release_scene_pos = mapToScene(event->pos());
     auto dist_scene_pos = new_lmb_release_scene_pos - last_lmb_click_scene_pos;

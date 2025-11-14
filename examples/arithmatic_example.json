@@ -1,0 +1,357 @@
+{
+    "edges": [
+        {
+            "edge_type": 2,
+            "end": "31807606448",
+            "id": "31835456256",
+            "start": "31807609008"
+        },
+        {
+            "edge_type": 2,
+            "end": "31807604048",
+            "id": "31834784192",
+            "start": "31807609088"
+        },
+        {
+            "edge_type": 2,
+            "end": "31807606208",
+            "id": "31835456448",
+            "start": "31807609728"
+        },
+        {
+            "edge_type": 2,
+            "end": "31807607648",
+            "id": "31835456512",
+            "start": "31807608688"
+        },
+        {
+            "edge_type": 2,
+            "end": "31809602576",
+            "id": "31835456576",
+            "start": "31809606656"
+        },
+        {
+            "edge_type": 2,
+            "end": "31809602656",
+            "id": "31835456704",
+            "start": "31807610368"
+        },
+        {
+            "edge_type": 2,
+            "end": "31807608448",
+            "id": "31835456768",
+            "start": "31809602176"
+        },
+        {
+            "edge_type": 2,
+            "end": "31809603296",
+            "id": "31835456832",
+            "start": "31807607728"
+        },
+        {
+            "edge_type": 2,
+            "end": "31809603456",
+            "id": "31835456896",
+            "start": "31807605248"
+        },
+        {
+            "edge_type": 2,
+            "end": "31807610528",
+            "id": "31835457472",
+            "start": "31809603856"
+        }
+    ],
+    "id": 1762564864,
+    "nodes": [
+        {
+            "h": 90,
+            "id": "31812459744",
+            "inputs": [
+                {
+                    "id": "31807606448",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "31807604048",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "31807604688",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "AddNode",
+            "outputs": [
+                {
+                    "id": "31807605248",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Addition",
+            "value": 30,
+            "w": 180,
+            "x": -23,
+            "y": -241
+        },
+        {
+            "h": 90,
+            "id": "31812355616",
+            "inputs": [
+                {
+                    "id": "31807606208",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "31807607648",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "31807604208",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "DivNode",
+            "outputs": [
+                {
+                    "id": "31807607728",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Divide",
+            "value": 3,
+            "w": 180,
+            "x": -25,
+            "y": -73
+        },
+        {
+            "h": 90,
+            "id": "31812355840",
+            "inputs": [
+                {
+                    "id": "31809602576",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "31809602656",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "31809601616",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "MulNode",
+            "outputs": [
+                {
+                    "id": "31809602176",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Multiply",
+            "value": 8,
+            "w": 180,
+            "x": -25,
+            "y": 113
+        },
+        {
+            "h": 140,
+            "id": "31812356288",
+            "inputs": [
+                {
+                    "id": "31809603456",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": "Number 1"
+                },
+                {
+                    "id": "31809603296",
+                    "index": 1,
+                    "position": 1,
+                    "socket_type": "Number 2"
+                },
+                {
+                    "id": "31807608448",
+                    "index": 2,
+                    "position": 1,
+                    "socket_type": "Number 3"
+                },
+                {
+                    "id": "31809603696",
+                    "index": 3,
+                    "position": 1,
+                    "socket_type": "addsocket"
+                }
+            ],
+            "multi_sockets": true,
+            "node_type": "SubNode",
+            "outputs": [
+                {
+                    "id": "31809603856",
+                    "index": 0,
+                    "position": 4,
+                    "socket_type": "Output"
+                }
+            ],
+            "title": "Subtract",
+            "value": 19,
+            "w": 180,
+            "x": 259,
+            "y": -55
+        },
+        {
+            "h": 90,
+            "id": "31812356512",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "31807609008",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in1",
+            "value": 10,
+            "w": 180,
+            "x": -263,
+            "y": -348
+        },
+        {
+            "h": 90,
+            "id": "31812357408",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "31807609088",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in2",
+            "value": 20,
+            "w": 180,
+            "x": -256,
+            "y": -227
+        },
+        {
+            "h": 90,
+            "id": "31812357632",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "31807609728",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in3",
+            "value": 30,
+            "w": 180,
+            "x": -260,
+            "y": -98
+        },
+        {
+            "h": 90,
+            "id": "31812358080",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "31807608688",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in4",
+            "value": 10,
+            "w": 180,
+            "x": -253,
+            "y": 14
+        },
+        {
+            "h": 90,
+            "id": "31812358528",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "31809606656",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in5",
+            "value": 4,
+            "w": 180,
+            "x": -259,
+            "y": 128
+        },
+        {
+            "h": 90,
+            "id": "31812358976",
+            "node_type": "InputNode",
+            "outputs": [
+                {
+                    "id": "31807610368",
+                    "index": 0,
+                    "position": 3,
+                    "socket_type": ""
+                }
+            ],
+            "title": "Input - in6",
+            "value": 2,
+            "w": 180,
+            "x": -244,
+            "y": 247
+        },
+        {
+            "h": 90,
+            "id": "31812359424",
+            "inputs": [
+                {
+                    "id": "31807610528",
+                    "index": 0,
+                    "position": 1,
+                    "socket_type": ""
+                }
+            ],
+            "node_type": "OutputNode",
+            "title": "Output",
+            "value": 19,
+            "w": 180,
+            "x": 269,
+            "y": 222
+        }
+    ],
+    "scene_height": 64000,
+    "scene_width": 64000
+}

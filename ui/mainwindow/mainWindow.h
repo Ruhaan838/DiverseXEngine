@@ -10,6 +10,9 @@
 #include <QGraphicsView>
 #include <QSplitter>
 #include <QWidget>
+#include <QMenuBar>
+#include <QAction>
+#include <QKeySequence>
 
 class EditorWindow;
 class CanvasScene;
@@ -24,13 +27,21 @@ public:
 
     void setWindowDimensions(int width, int height);
     void setWindowTitle(const QString& title);
+    void setWindowTitleWithFilename(const QString& filename);
 
     QGraphicsView* getView() const { return view; }
     Scene* getScene() const { return scene; }
     CanvasScene* getGraphicsScene() const { return grScene; }
 
+private slots:
+    void onFileOpen();
+    void onFileSave();
+    void onFileSaveAs();
+
 private:
     void centerOnScreen();
+    void setupMenuBar();
+    void setupFileActions();
 
     QGraphicsView* view{};
     QVBoxLayout* layout{};
@@ -38,6 +49,11 @@ private:
     Scene* scene{};
     QSplitter* splitter{};
     EditorWindow* editWin{};
+
+    QMenuBar* menuBar{};
+    QAction* openAction{};
+    QAction* saveAction{};
+    QAction* saveAsAction{};
 
     struct Config {
         int windowWidth = 1200;

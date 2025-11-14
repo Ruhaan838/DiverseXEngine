@@ -9,6 +9,7 @@
 #include <vector>
 #include <unordered_map>
 #include <QString>
+#include <QPointF>
 
 #include "../serialization/serializator.h"
 
@@ -16,7 +17,8 @@ class CanvasScene;
 class Node;
 class EdgesNode;
 class Serializable;
-class EditorWindow;  // Add forward declaration for EditorWindow
+class EditorWindow;
+
 
 class Scene : public Serializable{
 public:
@@ -52,11 +54,19 @@ public:
 
     QString getOrCreateVarName(Node* node);
     void clearVarName(Node* node);
+
+    void setPendingNodePos(const QPointF &pos);
+    bool takePendingNodePos(QPointF &out);
+
+    // Reset runtime/input values (Ctrl/Cmd+R shortcut)
+    void resetNodes();
 private:
     std::unordered_map<long long, QString> varNameMap;
     int inCounter = 1;
     int outCounter = 1;
     int fnCounter = 1;
+    QPointF pending_node_pos{};
+    bool has_pending_node_pos = false;
 };
 
 #endif //NODESCENE_H

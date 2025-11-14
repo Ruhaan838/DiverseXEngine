@@ -20,9 +20,9 @@ class CanvasView : public QGraphicsView {
 public:
     explicit CanvasView(CanvasScene *scene_, QWidget *parent = nullptr);
     CanvasScene *grScene;
-    float zoomInFactor = 0.9f;  // optional, if you want multiplicative zoom
-    float zoom = 1.0f;           // start at 100%
-    float zoomStep = 0.05f;       // 10% per scroll
+    float zoomInFactor = 0.9f;
+    float zoom = 1.0f;
+    float zoomStep = 0.05f;
     bool zoomClamp = true;
     std::vector<float> zoomRange = {0.0f, 0.2f};
 

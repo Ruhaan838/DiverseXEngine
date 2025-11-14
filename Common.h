@@ -5,6 +5,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <QColor>
+#include <QString>
+#include <QRandomGenerator>
 
 inline int EDGE_CP_ROUNDNESS = 100;
 
@@ -38,37 +40,43 @@ inline EDGETYPES getEdgeEnum(int pos) {
     }
 }
 
-enum SOCKETTYPES {
-    COLOR_1 = 1,
-    COLOR_2 = 2,
-    COLOR_3 = 3,
-    COLOR_4 = 4,
-    COLOR_5 = 5,
-    COLOR_6 = 6,
-};
-
-inline SOCKETTYPES getSocketType(int pos) {
-    switch (pos) {
-        case 1: return COLOR_1;
-        case 2: return COLOR_2;
-        case 3: return COLOR_3;
-        case 4: return COLOR_4;
-        case 5: return COLOR_5;
-        case 6: return COLOR_6;
-        default: return COLOR_1;
-    }
+// Socket type names as strings
+inline QStringList getSocketTypeNames() {
+    return {"Input", "Output", "Data", "Control", "Signal", "Event", "Trigger", "Parameter"};
 }
 
-inline QColor getSocketColor(SOCKETTYPES type) {
-    switch (type) {
-        case COLOR_1: return QColor("#FFFF7700");
-        case COLOR_2: return QColor("#FF52e220");
-        case COLOR_3: return QColor("#FF0056a6");
-        case COLOR_4: return QColor("#FFa86db1");
-        case COLOR_5: return QColor("#FF40E0D0");
-        case COLOR_6: return QColor("#FFdbe220");
-        default: return QColor("#FFFF7700");
+inline QString getSocketType(int pos) {
+    QStringList types = getSocketTypeNames();
+    if (pos >= 1 && pos <= types.size()) {
+        return types[pos - 1];
     }
+    return types[0]; // Default to first type
+}
+
+// Generate random color for sockets
+inline QColor getSocketColor(const QString& socketType = "") {
+    // Generate random RGB values
+    int r = QRandomGenerator::global()->bounded(50, 255);   // Avoid too dark colors
+    int g = QRandomGenerator::global()->bounded(50, 255);
+    int b = QRandomGenerator::global()->bounded(50, 255);
+
+    return {r, g, b, 255}; // Full opacity
+}
+
+// Alternative: Get consistent color based on socket type string
+inline QColor getSocketColorByType(const QString& socketType) {
+    // Use hash of string to generate consistent color for same type
+    uint hash = qHash(socketType);
+    int r = static_cast<int>((hash & 0xFF0000) >> 16);
+    int g = static_cast<int>((hash & 0x00FF00) >> 8);
+    int b = static_cast<int>(hash & 0x0000FF);
+
+    // Ensure colors are not too dark
+    r = qMax(r, 50);
+    g = qMax(g, 50);
+    b = qMax(b, 50);
+
+    return {r, g, b, 255};
 }
 
 enum EDGEDRAGMODS {
@@ -90,4 +98,4 @@ inline EDGEDRAGMODS getEdgeDragMode(int pos) {
 }
 
 
-#endif //COMMAN_H
+#endif //COMMON_H

@@ -10,6 +10,9 @@
 #include <QFrame>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QFont>
+
+#include "syshighligh.h"
 
 EditorWindow::EditorWindow(QWidget* parent) : QWidget(parent) {
     setFixedWidth(420);
@@ -36,7 +39,6 @@ EditorWindow::EditorWindow(QWidget* parent) : QWidget(parent) {
     mainLayout->addWidget(splitter);
     setLayout(mainLayout);
 
-    // Install event filter on all text edits
     if (importsEdit) importsEdit->installEventFilter(this);
     if (functionsEdit) functionsEdit->installEventFilter(this);
     if (mainEdit) mainEdit->installEventFilter(this);
@@ -51,6 +53,7 @@ QWidget* EditorWindow::createSectionWithTitle(const QString& title) {
     QLabel* titleLabel = new QLabel(title, container);
     QFont titleFont = titleLabel->font();
     titleFont.setBold(true);
+    titleFont.setPointSize(titleFont.pointSize() + 2);
     titleLabel->setFont(titleFont);
     titleLabel->setStyleSheet("color: #e0e0e0;");
 
@@ -59,6 +62,11 @@ QWidget* EditorWindow::createSectionWithTitle(const QString& title) {
     textEdit->setReadOnly(true);
     textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    QFont codeFont("Courier New");
+    codeFont.setStyleHint(QFont::Monospace);
+    codeFont.setPointSize(12);
+    textEdit->setFont(codeFont);
 
     textEdit->setStyleSheet(
         "QTextEdit {"
@@ -76,6 +84,8 @@ QWidget* EditorWindow::createSectionWithTitle(const QString& title) {
         "  border-radius: 4px;"
         "}"
     );
+
+    new SysHighliter(textEdit->document());
 
     if (title == "Imports") {
         importsEdit = textEdit;
