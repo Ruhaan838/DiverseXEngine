@@ -50,9 +50,8 @@ void MainWindow::initUI() {
     editWin->setScene(scene);
 
     nodeList = new NodeRegistery(scene);
-    // remove default frame to avoid bright border line
-    nodeList->setFrameShape(QFrame::NoFrame);
-    nodeList->setStyleSheet("QTreeWidget{border:0px;}");
+    // keep NodeRegistery styling; don't override here
+    // nodeList->setStyleSheet("");
 
     splitter = new QSplitter(config.splitterOrientation, this);
     splitter->addWidget(nodeList);

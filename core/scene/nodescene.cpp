@@ -415,12 +415,22 @@ void Scene::updateEditorCode() {
         // Inline print_if
         if (fname == "print_if") {
             QString condArg = "0";
+            bool invertCond = false;
             if (!fn->inputs.empty()) {
                 auto *s0 = fn->inputs[0];
                 if (s0 && s0->hasEdge() && s0->getFirstEdge() && s0->getFirstEdge()->startSocket) {
-                    Node* nn = s0->getFirstEdge()->startSocket->node;
+                    SocketNode* startSock = s0->getFirstEdge()->startSocket;
+                    Node* nn = startSock->node;
                     if (auto *inN = dynamic_cast<InputNode*>(nn)) condArg = getOrCreateVarName(inN);
-                    else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) condArg = getOrCreateVarName(fnN);
+                    else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) {
+                        condArg = getOrCreateVarName(fnN);
+                        // If upstream is a Condition node and the output used is False, invert
+                        if (dynamic_cast<ConditionNode*>(fnN)) {
+                            if (startSock && (startSock->socket_type == "False" || startSock->index == 1)) {
+                                invertCond = true;
+                            }
+                        }
+                    }
                     else if (auto *cN = dynamic_cast<ConstantNode*>(nn)) condArg = getOrCreateVarName(cN);
                 }
             }
@@ -431,7 +441,8 @@ void Scene::updateEditorCode() {
                 msg.replace("\"", "\\\"");
                 msg.replace("\n", "\\n");
             }
-            dest.append(QString("if bool(%1): print(\"%2\")").arg(condArg, msg));
+            if (invertCond) dest.append(QString("if not bool(%1): print(\"%2\")").arg(condArg, msg));
+            else dest.append(QString("if bool(%1): print(\"%2\")").arg(condArg, msg));
             visited.insert(fn);
             return;
         }
@@ -491,25 +502,13 @@ void Scene::updateEditorCode() {
         visited.insert(fn);
     };
 
-    // Populate functionCallLines from outputs that are NOT inside any Canvas
+    // Populate functionCallLines from all function nodes not inside any Canvas (includes side-effects)
     {
-        QSet<FunctionNode*> visitedGlobalFns;
+        QSet<FunctionNode*> visitedAllFns;
         for (Node* node : nodes) {
-            if (auto *out = dynamic_cast<OutputNode*>(node)) {
-                if (isInsideAnyCanvas(out)) continue; // handled under Canvas blocks
-                if (auto *prev = out->getPrevNode(0)) {
-                    if (auto *fnPrev = dynamic_cast<FunctionNode*>(prev)) {
-                        genFnInto(fnPrev, functionCallLines, visitedGlobalFns);
-                    }
-                }
-            }
-            if (auto *bout = dynamic_cast<BoolOutputNode*>(node)) {
-                if (isInsideAnyCanvas(bout)) continue; // handled under Canvas blocks
-                if (auto *prev = bout->getPrevNode(0)) {
-                    if (auto *fnPrev = dynamic_cast<FunctionNode*>(prev)) {
-                        genFnInto(fnPrev, functionCallLines, visitedGlobalFns);
-                    }
-                }
+            if (auto *fn = dynamic_cast<FunctionNode*>(node)) {
+                if (isInsideAnyCanvas(fn)) continue;
+                genFnInto(fn, functionCallLines, visitedAllFns);
             }
         }
     }
@@ -575,18 +574,10 @@ void Scene::updateEditorCode() {
         }
         {
             QSet<FunctionNode*> visitedInner;
-            for (auto *out : innerOutputs) {
-                if (auto *prev = out->getPrevNode(0)) {
-                    if (auto *fnPrev = dynamic_cast<FunctionNode*>(prev)) {
-                        genFnInto(fnPrev, innerFnLines, visitedInner);
-                    }
-                }
-            }
-            for (auto *bout : innerBoolOutputs) {
-                if (auto *prev = bout->getPrevNode(0)) {
-                    if (auto *fnPrev = dynamic_cast<FunctionNode*>(prev)) {
-                        genFnInto(fnPrev, innerFnLines, visitedInner);
-                    }
+            // Generate all inner function nodes (not just those feeding outputs) to include side-effects
+            for (Node* inner : canvas->inner_nodes) {
+                if (auto *fnInner = dynamic_cast<FunctionNode*>(inner)) {
+                    genFnInto(fnInner, innerFnLines, visitedInner);
                 }
             }
         }

@@ -4,7 +4,6 @@
 
 #ifndef NODEREGISTER_H
 #define NODEREGISTER_H
-#include <QListWidget>
 #include <QTreeWidget>
 #include <QHash>
 #include <QString>
@@ -15,6 +14,9 @@ using namespace std;
 
 class Scene;
 class Node;
+
+// Custom MIME type used for drag-and-drop of nodes from the palette
+static const char* const kNodeMimeType = "application/x-diversex-node";
 
 enum class NodeCategory {
     FUNCTION,
@@ -38,7 +40,7 @@ struct NodeInfo {
 
 class NodeRegistery : public QTreeWidget {
 public:
-    NodeRegistery(Scene* parant = nullptr);
+    explicit NodeRegistery(Scene* parant = nullptr);
 
     static void registerNode(const QString& name, NodeCategory category,
                            const std::function<Node*(Scene*)>& creator,
@@ -47,6 +49,10 @@ public:
     static QList<NodeInfo> getNodesByCategory(NodeCategory category);
 
     static Node* createNode(const QString& name, Scene* scene);
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     void buildUI();
@@ -65,6 +71,9 @@ private:
     QTreeWidgetItem* matrix; // new Matrix group
 
     Scene* scene;
+
+    // drag support
+    QPoint dragStartPos;
 
     QHash<QString, Node*> getfunctionalNode() const;
     vector<Node*> getInputNode() const;

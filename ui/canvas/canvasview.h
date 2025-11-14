@@ -68,8 +68,14 @@ public:
 protected:
     bool event(QEvent *ev) override;
 
+    // DnD from node palette
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+
 private:
     void applyZoom(float zoomFactor);
 };
 
 #endif //CANVASVIEW_H
+

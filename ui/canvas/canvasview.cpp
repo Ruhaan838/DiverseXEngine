@@ -9,6 +9,9 @@
 #include <QScrollBar>
 #include <QDebug>
 #include <qevent.h>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 
 #include "canvasScene.h"
 #include "../../core/noderegistry/function/functionNode.h"
@@ -21,6 +24,7 @@
 #include "../graphics/nodeGraphics.h"
 #include "../graphics/canvasNodeGraphis.h"
 #include "../../core/noderegistry/canvasNode.h"
+#include "../../core/noderegistry/noderegister.h"
 
 inline bool DEBUG = false;
 
@@ -45,7 +49,8 @@ void CanvasView::initUI() {
 
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
-
+    // accept drags from node palette
+    setAcceptDrops(true);
 }
 
 void CanvasView::mousePressEvent(QMouseEvent *event) {
@@ -162,6 +167,55 @@ bool CanvasView::event(QEvent *ev) {
         }
     }
     return QGraphicsView::event(ev);
+}
+
+void CanvasView::dragEnterEvent(QDragEnterEvent *event) {
+    if (event->mimeData() && event->mimeData()->hasFormat(kNodeMimeType)) {
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
+}
+
+void CanvasView::dragMoveEvent(QDragMoveEvent *event) {
+    if (event->mimeData() && event->mimeData()->hasFormat(kNodeMimeType)) {
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
+}
+
+void CanvasView::dropEvent(QDropEvent *event) {
+    if (!(event->mimeData() && event->mimeData()->hasFormat(kNodeMimeType))) {
+        event->ignore();
+        return;
+    }
+
+    QString nodeName = QString::fromUtf8(event->mimeData()->data(kNodeMimeType));
+    if (nodeName.isEmpty() || !grScene || !grScene->scene) {
+        event->ignore();
+        return;
+    }
+
+    // map drop point to scene coordinates
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QPointF viewPt = event->position();
+#else
+    QPointF viewPt = event->pos();
+#endif
+    QPointF scenePt = mapToScene(viewPt.toPoint());
+
+    Node* node = NodeRegistery::createNode(nodeName, grScene->scene);
+    if (!node) {
+        event->ignore();
+        return;
+    }
+
+    grScene->scene->addNode(node);
+    node->show();
+    node->setPos(static_cast<int>(scenePt.x()), static_cast<int>(scenePt.y()));
+
+    event->acceptProposedAction();
 }
 
 void CanvasView::wheelEvent(QWheelEvent *event) {
