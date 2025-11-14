@@ -46,6 +46,13 @@ void registerAllNodeTypes() {
                 std::vector<QString>{"Output"});
         });
 
+    NodeRegistery::registerNode("Floor Division", NodeCategory::ARITHMETIC,
+        [](Scene* scene) -> Node* {
+            return new FloorDivNode(scene, "Floor Division",
+                std::vector<QString>{"Number 1", "Number 2"},
+                std::vector<QString>{"Output"});
+        });
+
     // Math nodes
     NodeRegistery::registerNode("Power", NodeCategory::MATH,
         [](Scene* scene) -> Node* {
@@ -207,6 +214,7 @@ void registerAllNodeTypes() {
     Node::registerType("SubNode", [](Scene* scene){ return new SubNode(scene); });
     Node::registerType("MulNode", [](Scene* scene){ return new MulNode(scene); });
     Node::registerType("DivNode", [](Scene* scene){ return new DivNode(scene); });
+    Node::registerType("FloorDivNode", [](Scene* scene){ return new FloorDivNode(scene); });
 
     Node::registerType("PowNode", [](Scene* scene){ return new PowNode(scene); });
     Node::registerType("ModNode", [](Scene* scene){ return new ModNode(scene); });
