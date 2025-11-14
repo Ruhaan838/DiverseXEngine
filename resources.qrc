@@ -3,4 +3,13 @@
     <qresource>
         <file>codebase/python.json</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="run.svg">icons/run.svg</file>
+        <file alias="code.svg">icons/code.svg</file>
+        <file alias="nodes.svg">icons/nodes.svg</file>
+        <file alias="open.svg">icons/open.svg</file>
+        <file alias="save.svg">icons/save.svg</file>
+        <file alias="save_as.svg">icons/save_as.svg</file>
+        <file alias="refresh.svg">icons/refresh.svg</file>
+    </qresource>
 </RCC>

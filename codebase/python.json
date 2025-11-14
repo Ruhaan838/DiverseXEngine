@@ -1,6 +1,6 @@
 {
   "python.Input": {
-    "python.input.int": "{} = int(input('Enter a number: '))",
+    "python.input.int": "{} = int(input())",
     "type": "main"
   },
   "python.Output": {
