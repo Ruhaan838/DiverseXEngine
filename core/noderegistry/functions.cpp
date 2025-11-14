@@ -14,6 +14,7 @@
 #include "permutation/Permutation.h"
 #include "inout/printNode.h"
 #include "matrix/matrixNode.h"
+#include "inout/constantNode.h"
 
 void registerAllNodeTypes() {
     // Arithmetic nodes
@@ -185,6 +186,12 @@ void registerAllNodeTypes() {
             return new InputNode(scene, "Input", std::vector<QString>{""});
         });
 
+    // Register Constant input node with a single output. No runtime input; used for fixed literals in codegen.
+    NodeRegistery::registerNode("Constant", NodeCategory::INPUT,
+        [](Scene* scene) -> Node* {
+            return new ConstantNode(scene, "Constant", std::vector<QString>{""});
+        });
+
     NodeRegistery::registerNode("Output", NodeCategory::OUTPUT,
         [](Scene* scene) -> Node* {
             return new OutputNode(scene, "Output", std::vector<QString>{""});
@@ -215,6 +222,7 @@ void registerAllNodeTypes() {
     Node::registerType("CanvasNode", [](Scene* scene){ return new CanvasNode(scene); });
 
     Node::registerType("InputNode", [](Scene* scene){ return new InputNode(scene); });
+    Node::registerType("ConstantNode", [](Scene* scene){ return new ConstantNode(scene); });
     Node::registerType("OutputNode", [](Scene* scene){ return new OutputNode(scene); });
     Node::registerType("BoolOutputNode", [](Scene* scene){ return new BoolOutputNode(scene); });
     Node::registerType("ConditionNode", [](Scene* scene){ return new ConditionNode(scene); });

@@ -61,6 +61,9 @@ set(PROJECT_SOURCES
         core/noderegistry/inout/inNode.cpp
         core/noderegistry/inout/inoutNode.h
         core/noderegistry/inout/outNode.cpp
+        core/noderegistry/inout/constantNode.cpp
+        # header is included automatically by AUTOUIC/AUTOMOC, but list it for clarity
+        core/noderegistry/inout/constantNode.h
         ui/canvas/editorWindow.cpp
         ui/canvas/editorWindow.h
         ui/canvas/syshighligh.cpp
