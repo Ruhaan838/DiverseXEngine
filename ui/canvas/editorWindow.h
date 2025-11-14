@@ -19,6 +19,10 @@ public:
     void setFunctionsText(const QString& text);
     void setMainText(const QString& text);
 
+    QString getImportsText() const { return importsEdit ? importsEdit->toPlainText() : QString(); }
+    QString getFunctionsText() const { return functionsEdit ? functionsEdit->toPlainText() : QString(); }
+    QString getMainText() const { return mainEdit ? mainEdit->toPlainText() : QString(); }
+
     void setScene(Scene* scene) { this->scene = scene; }
 
 protected:
