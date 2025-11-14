@@ -46,9 +46,9 @@ void registerAllNodeTypes() {
                 std::vector<QString>{"Output"});
         });
 
-    NodeRegistery::registerNode("Floor Division", NodeCategory::ARITHMETIC,
+    NodeRegistery::registerNode("Floor Divide", NodeCategory::ARITHMETIC,
         [](Scene* scene) -> Node* {
-            return new FloorDivNode(scene, "Floor Division",
+            return new FloorDivNode(scene, "Floor Divide",
                 std::vector<QString>{"Number 1", "Number 2"},
                 std::vector<QString>{"Output"});
         });

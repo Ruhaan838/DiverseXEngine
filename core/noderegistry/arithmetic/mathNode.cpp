@@ -35,11 +35,6 @@ TanNode::TanNode(Scene *scene_, const string &title, vector<QString> input_size,
     vals = 0;
 }
 
-FloorDivNode::FloorDivNode(Scene* scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
-    : FunctionNode(scene_, title, input_size, output_size, false) {
-    vals = 0;
-}
-
 void PowNode::execute() {
 
     auto *baseNode = getPrevNode(0);
@@ -107,16 +102,6 @@ void TanNode::execute() {
     vals = tan(num1);
 }
 
-void FloorDivNode::execute() {
-    auto *num1Node = getPrevNode(0);
-    auto *num2Node = getPrevNode(1);
-    if (!num1Node || !num2Node) return;
-    double num1 = getNodeValue(num1Node);
-    double num2 = getNodeValue(num2Node);
-    if (num2 == 0) { vals = 0; return; } // Avoid div by zero
-    vals = (int)floor(num1 / num2);
-}
-
 QJsonObject PowNode::serialize() {
     auto old_obj = FunctionNode::serialize();
     old_obj["node_type"] = "PowNode";
@@ -159,13 +144,6 @@ QJsonObject TanNode::serialize() {
     return old_obj;
 }
 
-QJsonObject FloorDivNode::serialize() {
-    auto old_obj = FunctionNode::serialize();
-    old_obj["node_type"] = "FloorDivNode";
-    old_obj["value"] = vals;
-    return old_obj;
-}
-
 bool PowNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
     vals = data["value"].toDouble();
     return FunctionNode::deserialize(data, hashmap);
@@ -195,10 +173,3 @@ bool TanNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr
     vals = data["value"].toDouble();
     return FunctionNode::deserialize(data, hashmap);
 }
-
-bool FloorDivNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
-    vals = data["value"].toDouble();
-    return FunctionNode::deserialize(data, hashmap);
-}
-
-

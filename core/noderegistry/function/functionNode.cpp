@@ -10,6 +10,7 @@
 #include "../canvasNode.h"
 #include "../../scene/nodescene.h"
 #include "../inout/constantNode.h"
+#include <cmath>
 
 inline const string out_node_stylesheet = R"(
     QTextEdit {
@@ -403,9 +404,59 @@ bool DivNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr
     return FunctionNode::deserialize(data, hashmap);
 }
 
+// FloorDivNode performs floor(a/b) similar to Python's floor division
+FloorDivNode::FloorDivNode(Scene *scene_, const string &title, vector<QString> input_size, vector<QString> output_size)
+    : FunctionNode(scene_, title, input_size, output_size) {
+    vals = 0;
+}
+
+void FloorDivNode::execute() {
+    long double result = 0;
+    bool firstFound = false;
+    int connectedCount = 0;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        auto *s = inputs[i];
+        if (!s) continue;
+        if (s->socket_type == "addsocket") continue;
+        auto *prev = getPrevNode(static_cast<int>(i));
+        if (!prev) continue;
+        auto *startSock = (s && s->getFirstEdge()) ? s->getFirstEdge()->startSocket : nullptr;
+        long double v = getNodeValue(prev, startSock);
+        if (!firstFound) {
+            result = v;
+            firstFound = true;
+        } else {
+            if (v == 0) {
+                vals = INFINITY;
+                setInfoText("Number is not Divisible by 0");
+                return;
+            }
+            result /= v;
+        }
+        connectedCount++;
+    }
+    if (connectedCount >= 2 && firstFound) {
+        // Apply floor at the end to mirror math.floor(a/b)
+        vals = std::floor(static_cast<double>(result));
+    }
+}
+
+QJsonObject FloorDivNode::serialize() {
+    auto old_obj = FunctionNode::serialize();
+    old_obj["node_type"] = "FloorDivNode";
+    old_obj["value"] = vals;
+    return old_obj;
+}
+
+bool FloorDivNode::deserialize(const QJsonObject &data, unordered_map<string, uintptr_t> &hashmap) {
+    vals = data["value"].toDouble();
+    return FunctionNode::deserialize(data, hashmap);
+}
+
 void registerFunctionNodeType() {
     Node::registerType("AddNode", [](Scene* scene) { return new AddNode(scene); });
     Node::registerType("SubNode", [](Scene* scene) { return new SubNode(scene); });
     Node::registerType("MulNode", [](Scene* scene) { return new MulNode(scene); });
     Node::registerType("DivNode", [](Scene* scene) { return new DivNode(scene); });
+    Node::registerType("FloorDivNode", [](Scene* scene) { return new FloorDivNode(scene); });
 }
