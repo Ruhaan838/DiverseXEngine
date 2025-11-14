@@ -9,6 +9,7 @@
 #include "../../nodes/socket.h"
 #include "../canvasNode.h"
 #include "../../scene/nodescene.h"
+#include "../inout/constantNode.h"
 
 inline const string out_node_stylesheet = R"(
     QTextEdit {
@@ -69,6 +70,9 @@ double FunctionNode::getNodeValue(Node* node, SocketNode* startSocket) {
     if (auto* in = dynamic_cast<InputNode*>(node)) {
         return in->vals;
     }
+    if (auto* cst = dynamic_cast<ConstantNode*>(node)) {
+        return static_cast<double>(cst->vals);
+    }
     return 0;
 }
 
@@ -98,6 +102,9 @@ double FunctionNode::getNodeValue(Node* node) {
     }
     if (auto* in = dynamic_cast<InputNode*>(node)) {
         return in->vals;
+    }
+    if (auto* cst = dynamic_cast<ConstantNode*>(node)) {
+        return static_cast<double>(cst->vals);
     }
     return 0;
 }

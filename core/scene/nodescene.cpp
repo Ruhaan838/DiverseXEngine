@@ -31,6 +31,7 @@
 #include "../noderegistry/permutation/Permutation.h"
 #include "../noderegistry/bitOps/BitOp.h"
 #include "../noderegistry/inout/printNode.h"
+#include "../noderegistry/inout/constantNode.h"
 
 
 Scene::Scene() : Serializable() {
@@ -344,6 +345,15 @@ void Scene::updateEditorCode() {
         }
     }
 
+    // Emit constant assignments (e.g., n1 = 10)
+    for (Node* node : nodes) {
+        if (auto* cst = dynamic_cast<ConstantNode*>(node)) {
+            QString varName = getOrCreateVarName(cst);
+            QString valueStr = QString::number(static_cast<double>(cst->vals), 'g', 16);
+            mainCode += QString("%1 = %2\n").arg(varName, valueStr);
+        }
+    }
+
     auto functionNameForNode = [](FunctionNode* fn)->QString {
         //arithmatic
         if (dynamic_cast<AddNode*>(fn)) return "add";
@@ -411,6 +421,7 @@ void Scene::updateEditorCode() {
                     Node* nn = s0->getFirstEdge()->startSocket->node;
                     if (auto *inN = dynamic_cast<InputNode*>(nn)) condArg = getOrCreateVarName(inN);
                     else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) condArg = getOrCreateVarName(fnN);
+                    else if (auto *cN = dynamic_cast<ConstantNode*>(nn)) condArg = getOrCreateVarName(cN);
                 }
             }
             QString msg;
@@ -435,6 +446,7 @@ void Scene::updateEditorCode() {
                 Node* nn = s->getFirstEdge()->startSocket->node;
                 if (auto *inN = dynamic_cast<InputNode*>(nn)) arg = getOrCreateVarName(inN);
                 else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) arg = getOrCreateVarName(fnN);
+                else if (auto *cN = dynamic_cast<ConstantNode*>(nn)) arg = getOrCreateVarName(cN);
             }
             args << arg;
         }
@@ -543,6 +555,9 @@ void Scene::updateEditorCode() {
                         }
                     }
                 }
+                else if (auto *cPrev = dynamic_cast<ConstantNode*>(prev)) {
+                    condVar = getOrCreateVarName(cPrev);
+                }
             }
         }
         if (condVar.isEmpty()) {
@@ -591,6 +606,7 @@ void Scene::updateEditorCode() {
                     QString targetVar;
                     if (auto *fnPrev = dynamic_cast<FunctionNode*>(prevNode)) targetVar = getOrCreateVarName(fnPrev);
                     else if (auto *inPrev = dynamic_cast<InputNode*>(prevNode)) targetVar = getOrCreateVarName(inPrev);
+                    else if (auto *cPrev = dynamic_cast<ConstantNode*>(prevNode)) targetVar = getOrCreateVarName(cPrev);
                     if (!targetVar.isEmpty()) {
                         QString outLine = outputTemplate;
                         int idx = outLine.indexOf("{}"); if (idx>=0) outLine.replace(idx,2,targetVar);
@@ -603,6 +619,7 @@ void Scene::updateEditorCode() {
                     QString targetVar;
                     if (auto *fnPrev = dynamic_cast<FunctionNode*>(prevNode)) targetVar = getOrCreateVarName(fnPrev);
                     else if (auto *inPrev = dynamic_cast<InputNode*>(prevNode)) targetVar = getOrCreateVarName(inPrev);
+                    else if (auto *cPrev = dynamic_cast<ConstantNode*>(prevNode)) targetVar = getOrCreateVarName(cPrev);
                     if (!targetVar.isEmpty()) {
                         QString outLine = outputTemplate;
                         int idx = outLine.indexOf("{}"); if (idx>=0) outLine.replace(idx,2,QString("bool(%1)").arg(targetVar));
@@ -624,6 +641,7 @@ void Scene::updateEditorCode() {
                 QString targetVar;
                 if (auto *fnPrev = dynamic_cast<FunctionNode*>(prevNode)) targetVar = getOrCreateVarName(fnPrev);
                 else if (auto *inPrev = dynamic_cast<InputNode*>(prevNode)) targetVar = getOrCreateVarName(inPrev);
+                else if (auto *cPrev = dynamic_cast<ConstantNode*>(prevNode)) targetVar = getOrCreateVarName(cPrev);
                 if (!targetVar.isEmpty()) {
                     QString outLine = outputTemplate;
                     int idx = outLine.indexOf("{}"); if (idx>=0) outLine.replace(idx,2,targetVar);
@@ -631,14 +649,15 @@ void Scene::updateEditorCode() {
                 }
             }
         }
-        if (auto* boolOut = dynamic_cast<BoolOutputNode*>(node)) {
+        if (auto *boolOut = dynamic_cast<BoolOutputNode*>(node)) {
             if (isInsideAnyCanvas(boolOut)) continue;
-            if (auto* prevNode = boolOut->getPrevNode(0)) {
+            if (auto *prevNode = boolOut->getPrevNode(0)) {
                 QString outputTemplate = CodeTemplateManager::getInstance().getOutputTemplate();
                 if (outputTemplate.isEmpty()) continue;
                 QString targetVar;
                 if (auto *fnPrev = dynamic_cast<FunctionNode*>(prevNode)) targetVar = getOrCreateVarName(fnPrev);
                 else if (auto *inPrev = dynamic_cast<InputNode*>(prevNode)) targetVar = getOrCreateVarName(inPrev);
+                else if (auto *cPrev = dynamic_cast<ConstantNode*>(prevNode)) targetVar = getOrCreateVarName(cPrev);
                 if (!targetVar.isEmpty()) {
                     QString outLine = outputTemplate;
                     int idx = outLine.indexOf("{}"); if (idx>=0) outLine.replace(idx,2,QString("bool(%1)").arg(targetVar));
@@ -684,7 +703,7 @@ QString Scene::getOrCreateVarName(Node* node) {
 
     if (dynamic_cast<InputNode*>(node)) name = "in" + QString::number(inCounter++);
     else if (dynamic_cast<OutputNode*>(node)) name = "out" + QString::number(outCounter++);
-    else if (dynamic_cast<FunctionNode*>(node)) name = "n" + QString::number(fnCounter++);
+    else if (dynamic_cast<FunctionNode*>(node) || dynamic_cast<ConstantNode*>(node)) name = "n" + QString::number(fnCounter++);
     else name = "v" + QString::number(varNameMap.size()+1);
 
     varNameMap[key] = name;

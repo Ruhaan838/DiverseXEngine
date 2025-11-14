@@ -11,6 +11,7 @@
 #include "../../nodes/node.h"
 #include <QString>
 #include <cmath>
+#include "constantNode.h"
 
 inline const string out_node_stylesheet = R"(
     QTextEdit {
@@ -50,6 +51,8 @@ void OutputNode::execute() {
             vals = n->getNodeValue(n, startSock);
         } else if (auto in = dynamic_cast<InputNode*>(inputNode)) {
             vals = in->vals;
+        } else if (auto cst = dynamic_cast<ConstantNode*>(inputNode)) {
+            vals = static_cast<double>(cst->vals);
         } else {
             vals = 0;
         }
@@ -151,6 +154,9 @@ static long double extractValue(Node* n, SocketNode* startSock) {
     }
     if (auto bout = dynamic_cast<BoolOutputNode*>(n)) {
         return bout->bval ? 1.0L : 0.0L;
+    }
+    if (auto cst = dynamic_cast<ConstantNode*>(n)) {
+        return static_cast<long double>(cst->vals);
     }
     return 0.0L;
 }
