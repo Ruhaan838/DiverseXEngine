@@ -27,7 +27,7 @@ public:
         setCursor(Qt::PointingHandCursor);
         setFocusPolicy(Qt::NoFocus);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        // compact, bordered style
+        // compact, bordered style (original)
         setStyleSheet(
             "QPushButton{ background:#3a3f44; color:#ddd; border:1px solid #555;"
             "padding:4px 8px; border-radius:6px; font-size:12px; }"
@@ -63,7 +63,7 @@ private:
     QPoint startPos;
 };
 
-NodeRegistery::NodeRegistery(Scene* parent) : QTreeWidget(), functions(nullptr), arithmetic(nullptr), math(nullptr), permutation(nullptr), bitoperations(nullptr), inputs(nullptr), outputs(nullptr), containers(nullptr), matrix(nullptr), scene(parent) {
+NodeRegistery::NodeRegistery(Scene* parent) : QTreeWidget(), functions(nullptr), arithmetic(nullptr), math(nullptr), permutation(nullptr), bitoperations(nullptr), inputs(nullptr), outputs(nullptr), containers(nullptr), matrix(nullptr), lists(nullptr), scene(parent) {
     setHeaderHidden(true);
     setIndentation(14);
     setRootIsDecorated(true);
@@ -71,11 +71,12 @@ NodeRegistery::NodeRegistery(Scene* parent) : QTreeWidget(), functions(nullptr),
     setItemsExpandable(true);
     setExpandsOnDoubleClick(true);
     setSelectionMode(QAbstractItemView::NoSelection);
+    // removed forced minimum width
     setStyleSheet(
         "QTreeWidget{ border:0; background:#2f3235; }"
         "QTreeView::branch:closed:has-children{ image:url(:/qt-project.org/styles/commonstyle/images/branch-closed-16.png); }"
         "QTreeView::branch:open:has-children{ image:url(:/qt-project.org/styles/commonstyle/images/branch-open-16.png); }"
-        "QTreeWidget::item{ height:28px; }" // slightly taller base row
+        "QTreeWidget::item{ height:28px; background: transparent; }"
     );
 
     registerAllNodeTypes();
@@ -134,6 +135,7 @@ Node* NodeRegistery::createNode(const QString& name, Scene* scene) {
             } else {
                 switch (info.category) {
                     case NodeCategory::INPUT:
+                    case NodeCategory::LISTS:
                         node->setPosition(LEFT_TOP, RIGHT_TOP);
                         break;
                     case NodeCategory::CONTAINER:
@@ -159,7 +161,6 @@ static QTreeWidgetItem* makeCategory(QTreeWidget* tree, const QString& title) {
 
 void NodeRegistery::buildUI() {
     clear();
-
     functions = makeCategory(this, "Functions");
     arithmetic = makeCategory(this, "Arithmetic");
     math = makeCategory(this, "Math");
@@ -169,18 +170,19 @@ void NodeRegistery::buildUI() {
     outputs = makeCategory(this, "Outputs");
     containers = makeCategory(this, "Containers");
     matrix = makeCategory(this, "Matrix");
+    lists = makeCategory(this, "Lists");
 
     auto addLeaf = [&](QTreeWidgetItem* parent, const QString& nodeName){
         auto* child = new QTreeWidgetItem(parent);
-        // store name in data; clear display text to avoid background text bleeding behind the button
         child->setData(0, Qt::UserRole + 1, nodeName);
         child->setText(0, "");
-        // Make room for external padding via an item widget wrapper
         child->setSizeHint(0, QSize(10, 36));
 
         auto* wrapper = new QWidget();
+        wrapper->setStyleSheet("background: transparent;");
+        wrapper->setAttribute(Qt::WA_TranslucentBackground, true);
         auto* lay = new QVBoxLayout(wrapper);
-        lay->setContentsMargins(8, 4, 8, 6); // side + vertical padding
+        lay->setContentsMargins(8, 4, 8, 6);
         lay->setSpacing(0);
 
         auto* btn = new DraggableButton(nodeName, nodeName);
@@ -225,6 +227,7 @@ void NodeRegistery::buildUI() {
             case NodeCategory::OUTPUT: parent = outputs; break;
             case NodeCategory::MATRIX: parent = matrix; break;
             case NodeCategory::CONTAINER: parent = containers; break;
+            case NodeCategory::LISTS: parent = lists; break;
         }
         if (parent) addLeaf(parent, info.name);
     }
@@ -236,8 +239,7 @@ void NodeRegistery::setupDoubleClickHandler() {
         if (!item) return;
         QString nodeName = item->data(0, Qt::UserRole + 1).toString();
         if (nodeName.isEmpty()) nodeName = item->text(0);
-        // ignore categories
-        static const QSet<QString> cats = {"Functions","Arithmetic","Math","Permutation","Bit Operations","Inputs","Outputs","Matrix","Containers"};
+        static const QSet<QString> cats = {"Functions","Arithmetic","Math","Permutation","Bit Operations","Inputs","Outputs","Matrix","Containers","Lists"};
         if (cats.contains(nodeName)) return;
         Node* node = createNode(nodeName, scene);
         if (!node) return;
@@ -263,7 +265,7 @@ void NodeRegistery::mouseMoveEvent(QMouseEvent *event) {
     if (!item) return QTreeWidget::mouseMoveEvent(event);
     QString nodeName = item->data(0, Qt::UserRole + 1).toString();
     if (nodeName.isEmpty()) nodeName = item->text(0);
-    static const QSet<QString> cats = {"Functions","Arithmetic","Math","Permutation","Bit Operations","Inputs","Outputs","Matrix","Containers"};
+    static const QSet<QString> cats = {"Functions","Arithmetic","Math","Permutation","Bit Operations","Inputs","Outputs","Matrix","Containers","Lists"};
     if (cats.contains(nodeName)) return QTreeWidget::mouseMoveEvent(event);
 
     auto* drag = new QDrag(this);

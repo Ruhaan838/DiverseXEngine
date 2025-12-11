@@ -15,6 +15,10 @@
 #include "inout/printNode.h"
 #include "matrix/matrixNode.h"
 #include "inout/constantNode.h"
+#include "list/listNode.h"
+#include "inout/printListMatrixNode.h"
+#include "matrix/printMatrixNode.h"
+#include "matrix/matrixOpsNode.h"
 
 void registerAllNodeTypes() {
     // Arithmetic nodes
@@ -97,7 +101,7 @@ void registerAllNodeTypes() {
         });
 
     // Matrix nodes
-    NodeRegistery::registerNode("Input Matrix", NodeCategory::MATRIX,
+    NodeRegistery::registerNode("Input Matrix", NodeCategory::INPUT,
         [](Scene* scene) -> Node* {
             return new MatrixInputNode(scene, "Input Matrix",
                 std::vector<QString>{}, std::vector<QString>{QString("Output")});
@@ -111,12 +115,29 @@ void registerAllNodeTypes() {
                 std::vector<QString>{"Output"});
         });
 
+    NodeRegistery::registerNode("Matrix Determinant (NxN)", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* {
+            return new MatrixDeterminantNode(scene, "Matrix Determinant (NxN)",
+                std::vector<QString>{"Matrix"},
+                std::vector<QString>{"Output"});
+        });
+
     NodeRegistery::registerNode("Matrix Index", NodeCategory::MATRIX,
         [](Scene* scene) -> Node* {
             return new MatrixIndexNode(scene, "Matrix Index",
                 std::vector<QString>{"Matrix"},
                 std::vector<QString>{"Value"});
         });
+
+    // Matrix pointwise ops
+    NodeRegistery::registerNode("Matrix Add (Pointwise)", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* { return new MatrixAddPointwiseNode(scene); }, 280, 160);
+    NodeRegistery::registerNode("Matrix Subtract (Pointwise)", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* { return new MatrixSubPointwiseNode(scene); }, 280, 160);
+    NodeRegistery::registerNode("Matrix Multiply (Pointwise)", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* { return new MatrixMulPointwiseNode(scene); }, 300, 160);
+    NodeRegistery::registerNode("Matrix Divide (Pointwise)", NodeCategory::MATRIX,
+        [](Scene* scene) -> Node* { return new MatrixDivPointwiseNode(scene); }, 280, 160);
 
     // Containers
     NodeRegistery::registerNode("Canvas", NodeCategory::CONTAINER,
@@ -172,12 +193,12 @@ void registerAllNodeTypes() {
         [](Scene* scene) -> Node* { return new ConditionNode(scene, "Condition"); },
         200, 150);
 
-    // If/Else node with nested else-if support
-    NodeRegistery::registerNode("If / Else", NodeCategory::FUNCTION,
-        [](Scene* scene) -> Node* {
-            return new IfElseNode(scene, "If / Else");
-        },
-        260, 160);
+    // // If/Else node with nested else-if support
+    // NodeRegistery::registerNode("If / Else", NodeCategory::FUNCTION,
+    //     [](Scene* scene) -> Node* {
+    //         return new IfElseNode(scene, "If / Else");
+    //     },
+    //     260, 160);
 
     // Register Print If node under Function category
     NodeRegistery::registerNode("Print If", NodeCategory::FUNCTION,
@@ -187,6 +208,20 @@ void registerAllNodeTypes() {
                 std::vector<QString>{});
         },
         240, 120);
+
+    NodeRegistery::registerNode("Print List+Matrix", NodeCategory::FUNCTION,
+        [](Scene* scene) -> Node* {
+            return new PrintListMatrixNode(scene, "Print List+Matrix",
+                std::vector<QString>{QString("List"), QString("Matrix")}, std::vector<QString>{});
+        },
+        280, 160);
+
+    NodeRegistery::registerNode("Print Matrix", NodeCategory::OUTPUT,
+        [](Scene* scene) -> Node* {
+            return new PrintMatrixNode(scene, "Print Matrix",
+                std::vector<QString>{QString("Matrix")}, std::vector<QString>{});
+        },
+        260, 140);
 
     NodeRegistery::registerNode("Input", NodeCategory::INPUT,
         [](Scene* scene) -> Node* {
@@ -228,6 +263,10 @@ void registerAllNodeTypes() {
     Node::registerType("MatrixInputNode", [](Scene* scene){ return new MatrixInputNode(scene); });
     Node::registerType("MatrixIndexNode", [](Scene* scene){ return new MatrixIndexNode(scene); });
     Node::registerType("CanvasNode", [](Scene* scene){ return new CanvasNode(scene); });
+    Node::registerType("MatrixAddPointwiseNode", [](Scene* scene){ return new MatrixAddPointwiseNode(scene); });
+    Node::registerType("MatrixSubPointwiseNode", [](Scene* scene){ return new MatrixSubPointwiseNode(scene); });
+    Node::registerType("MatrixMulPointwiseNode", [](Scene* scene){ return new MatrixMulPointwiseNode(scene); });
+    Node::registerType("MatrixDivPointwiseNode", [](Scene* scene){ return new MatrixDivPointwiseNode(scene); });
 
     Node::registerType("InputNode", [](Scene* scene){ return new InputNode(scene); });
     Node::registerType("ConstantNode", [](Scene* scene){ return new ConstantNode(scene); });
@@ -236,6 +275,8 @@ void registerAllNodeTypes() {
     Node::registerType("ConditionNode", [](Scene* scene){ return new ConditionNode(scene); });
     // Register PrintIfNode type for deserialization
     Node::registerType("PrintIfNode", [](Scene* scene){ return new PrintIfNode(scene); });
+    Node::registerType("PrintListMatrixNode", [](Scene* scene){ return new PrintListMatrixNode(scene); });
+    Node::registerType("PrintMatrixNode", [](Scene* scene){ return new PrintMatrixNode(scene); });
     Node::registerType("GCDNode", [](Scene* scene){ return new GCDNode(scene); });
     Node::registerType("FactorialNode", [](Scene* scene){ return new FactorialNode(scene); });
 
@@ -245,4 +286,11 @@ void registerAllNodeTypes() {
     Node::registerType("XorNode", [](Scene* scene){ return new XorNode(scene); });
     // IfElse node type for deserialization
     Node::registerType("IfElseNode", [](Scene* scene){ return new IfElseNode(scene); });
+    Node::registerType("ListInputNode", [](Scene* scene){ return new ListInputNode(scene); });
+    NodeRegistery::registerNode("Input List", NodeCategory::LISTS,
+        [](Scene* scene) -> Node* {
+            return new ListInputNode(scene, "Input List",
+                std::vector<QString>{}, std::vector<QString>{QString("List")});
+        },
+        240, 180);
 }

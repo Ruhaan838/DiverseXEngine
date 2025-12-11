@@ -14,6 +14,10 @@
 #include <QHBoxLayout>
 #include <QDir>
 #include <QShortcut>
+#include <QTabWidget>
+#include <QFileInfo>
+#include <QTabBar>
+#include <QIcon>
 
 #include "../canvas/canvasview.h"
 #include "../canvas/canvasScene.h"
@@ -35,35 +39,25 @@ void MainWindow::initUI() {
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    // central layout: left icon bar + main splitter
+    // central layout: left icon bar + tabs
     centralLayout = new QHBoxLayout();
     centralLayout->setContentsMargins(0,0,0,0);
     centralLayout->setSpacing(0);
 
-    scene = new Scene();
-    grScene = scene->grScene;
-    view = new CanvasView(grScene);
-    view->setScene(grScene);
+    // QTabWidget to host per-tab splitters
+    tabs = new QTabWidget(this);
+    tabs->setTabsClosable(true);
+    tabs->setMovable(true);
+    tabs->setDocumentMode(true);
 
-    editWin = new EditorWindow(this);
-    scene->setEditorWindow(editWin);
-    editWin->setScene(scene);
-
-    nodeList = new NodeRegistery(scene);
-    // keep NodeRegistery styling; don't override here
-    // nodeList->setStyleSheet("");
-
-    splitter = new QSplitter(config.splitterOrientation, this);
-    splitter->addWidget(nodeList);
-    splitter->addWidget(view);
-    splitter->addWidget(editWin);
-    splitter->setHandleWidth(1);
-    splitter->setStyleSheet("QSplitter::handle{background:#222;}");
+    connect(tabs, &QTabWidget::currentChanged, this, &MainWindow::onTabChanged);
+    connect(tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::onTabCloseRequested);
 
     setupLeftIconPanel();
 
     centralLayout->addWidget(leftPanel);
-    centralLayout->addWidget(splitter);
+    centralLayout->addWidget(tabs);
+    centralLayout->setStretchFactor(tabs, 1);
     layout->addLayout(centralLayout);
 
     // keyboard shortcuts for file actions
@@ -83,6 +77,10 @@ void MainWindow::initUI() {
     } else {
         qDebug() << "Successfully loaded Python templates";
     }
+
+    // Create initial tab
+    createTab("Untitled");
+    updateLeftPanelTheme();
 }
 
 void MainWindow::centerOnScreen() {
@@ -114,6 +112,124 @@ void MainWindow::setWindowTitleWithFilename(const QString& filename) {
         newTitle = QString("DiverseXEngine - %1").arg(filename);
     }
     setWindowTitle(newTitle);
+}
+
+// Helper: current tab
+MainWindow::Tab* MainWindow::currentTab() const {
+    if (!tabs) return nullptr;
+    int idx = tabs->currentIndex();
+    if (idx < 0 || idx >= tabList.size()) return nullptr;
+    return tabList.at(idx);
+}
+
+QGraphicsView* MainWindow::currentView() const {
+    Tab* t = currentTab();
+    return t ? static_cast<QGraphicsView*>(t->view) : nullptr;
+}
+
+Scene* MainWindow::currentScene() const {
+    Tab* t = currentTab();
+    return t ? t->scene : nullptr;
+}
+
+CanvasScene* MainWindow::currentGraphicsScene() const {
+    Tab* t = currentTab();
+    return t ? t->grScene : nullptr;
+}
+
+int MainWindow::createTab(const QString& title) {
+    // Build per-tab components
+    auto* t = new Tab();
+
+    t->scene = new Scene();
+    t->grScene = t->scene->grScene; // nodescene constructs CanvasScene inside initUI
+
+    // Ensure CanvasScene exists; Scene::initUI sets it, but in this codebase Scene() likely does it itself.
+    // If not set yet, create CanvasScene explicitly and bind.
+    if (!t->grScene) {
+        t->grScene = new CanvasScene(t->scene);
+        t->scene->grScene = t->grScene;
+    }
+
+    t->view = new CanvasView(t->grScene);
+    t->view->setScene(t->grScene);
+
+    t->editor = new EditorWindow(this);
+    t->scene->setEditorWindow(t->editor);
+    t->editor->setScene(t->scene);
+
+    t->nodeList = new NodeRegistery(t->scene);
+
+    t->splitter = new QSplitter(config.splitterOrientation, this);
+    t->splitter->addWidget(t->nodeList);
+    t->splitter->addWidget(t->view);
+    t->splitter->addWidget(t->editor);
+    t->splitter->setHandleWidth(1);
+    t->splitter->setStyleSheet("QSplitter::handle{background:#222;}");
+
+    t->container = new QWidget(this);
+    auto* contLayout = new QHBoxLayout();
+    contLayout->setContentsMargins(0,0,0,0);
+    contLayout->setSpacing(0);
+    t->container->setLayout(contLayout);
+    contLayout->addWidget(t->splitter);
+
+    // Add to tabs; insert before trailing '+' tab if present
+    int idx = tabs->addTab(t->container, title.isEmpty() ? QString("Untitled") : title);
+    tabs->setCurrentIndex(idx);
+    if (idx >= tabList.size()) {
+        tabList.append(t);
+    } else {
+        tabList.insert(idx, t);
+    }
+
+    // Default both side panels visible
+    t->nodeList->setVisible(true);
+    t->editor->setVisible(true);
+
+    // Install custom close button on this tab
+    installTabCloseButton(idx);
+
+    return idx;
+}
+
+void MainWindow::installTabCloseButton(int index) {
+    if (!tabs) return;
+    if (index < 0 || index >= tabs->count()) return;
+    QTabBar* bar = tabs->tabBar();
+    if (!bar) return;
+
+    auto* btn = new QPushButton(bar);
+    btn->setFlat(true);
+    btn->setCursor(Qt::PointingHandCursor);
+    btn->setFocusPolicy(Qt::NoFocus);
+    btn->setIcon(QIcon(":/icons/close.svg"));
+    btn->setIconSize(QSize(12,12));
+    btn->setFixedSize(QSize(18,18));
+    btn->setStyleSheet(
+        "QPushButton { border: none; border-radius: 9px; background: rgba(255,255,255,0.08); }"
+        "QPushButton:hover { background: rgba(255,255,255,0.16); }"
+        "QPushButton:pressed { background: rgba(255,255,255,0.24); }"
+    );
+
+    QObject::connect(btn, &QPushButton::clicked, this, [this, btn]() {
+        if (!tabs) return;
+        QTabBar* b = tabs->tabBar();
+        if (!b) return;
+        for (int i = 0; i < tabs->count(); ++i) {
+            if (b->tabButton(i, QTabBar::RightSide) == btn) {
+                onTabCloseRequested(i);
+                break;
+            }
+        }
+    });
+
+    bar->setTabButton(index, QTabBar::RightSide, btn);
+}
+
+void MainWindow::setTabTitle(int index, const QString& title) {
+    if (!tabs) return;
+    if (index >= 0 && index < tabs->count()) tabs->setTabText(index, title);
 }
 
 void MainWindow::setupLeftIconPanel() {
@@ -169,7 +285,8 @@ void MainWindow::setupLeftIconPanel() {
     mkBtn(saveButton, tip("Save", "Cmd+S"), loadIcon("save", QStyle::SP_DialogSaveButton));
     mkBtn(saveAsButton, tip("Save As", "Shift+Cmd+S"), loadIcon("save_as", QStyle::SP_DialogSaveButton));
 
-    // removed extra right separator and wrapper to avoid width changes
+    // New tab button
+    mkBtn(newTabButton, tip("New Tab", "Cmd+T"), style()->standardIcon(QStyle::SP_FileDialogNewFolder));
 
     // Connections
     connect(runButton, &QToolButton::clicked, this, &MainWindow::onRun);
@@ -177,17 +294,22 @@ void MainWindow::setupLeftIconPanel() {
 
     connect(toggleCodeButton, &QToolButton::clicked, this, &MainWindow::onToggleCodeEditor);
     connect(toggleNodesButton, &QToolButton::clicked, this, &MainWindow::onToggleNodes);
-
     connect(openButton, &QToolButton::clicked, this, &MainWindow::onFileOpen);
     connect(saveButton, &QToolButton::clicked, this, &MainWindow::onFileSave);
     connect(saveAsButton, &QToolButton::clicked, this, &MainWindow::onFileSaveAs);
+
+    connect(newTabButton, &QToolButton::clicked, this, &MainWindow::onNewTab);
+
+    // Shortcut for new tab
+    new QShortcut(QKeySequence("Meta+T"), this, SLOT(onNewTab()));
 
     updateLeftPanelTheme();
 }
 
 void MainWindow::updateLeftPanelTheme() {
-    const bool leftOn = nodeList ? nodeList->isVisible() : false;
-    const bool rightOn = editWin ? editWin->isVisible() : false;
+    Tab* t = currentTab();
+    const bool leftOn = t && t->nodeList ? t->nodeList->isVisible() : false;
+    const bool rightOn = t && t->editor ? t->editor->isVisible() : false;
     const bool bothOn = leftOn && rightOn;
 
     // sync toggle states if visibility changed elsewhere
@@ -212,48 +334,113 @@ void MainWindow::updateLeftPanelTheme() {
         "QToolButton:checked { background:%2; color:#fff; }"
     ).arg(bg, accent);
 
-    // apply to wrapper (leftPanel currently points to wrapper)
     if (leftPanel) leftPanel->setStyleSheet(style);
 }
 
 void MainWindow::onFileOpen() {
-    QString filename = FileIO::loadScene(scene, this);
+    Scene* sc = currentScene();
+    if (!sc) return;
+    QString filename = FileIO::loadScene(sc, this);
     if (!filename.isEmpty()) {
-        setWindowTitleWithFilename(filename);
+        // Set tab title and window title
+        int idx = tabs->currentIndex();
+        QFileInfo fi(filename);
+        setTabTitle(idx, fi.fileName());
+        setWindowTitleWithFilename(fi.fileName());
+        Tab* t = currentTab();
+        if (t) t->currentFilePath = filename;
     }
 }
 
 void MainWindow::onFileSave() {
-    FileIO::saveScene(scene, this, false);
+    Scene* sc = currentScene();
+    if (!sc) return;
+    FileIO::saveScene(sc, this, false);
 }
 
 void MainWindow::onFileSaveAs() {
-    FileIO::saveScene(scene, this, true);
+    Scene* sc = currentScene();
+    if (!sc) return;
+    FileIO::saveScene(sc, this, true);
 }
 
 void MainWindow::onToggleNodes() {
-    if (!nodeList) return;
-    nodeList->setVisible(!nodeList->isVisible());
-    if (toggleNodesButton) toggleNodesButton->setChecked(nodeList->isVisible());
+    Tab* t = currentTab();
+    if (!t || !t->nodeList || !t->splitter) return;
+    bool makeVisible = !t->nodeList->isVisible();
+    t->nodeList->setVisible(makeVisible);
+
+    // When hiding, collapse the first pane; when showing, restore a reasonable width
+    if (makeVisible) {
+        QList<int> sizes = t->splitter->sizes();
+        if (sizes.size() >= 2) {
+            sizes[0] = qMax(200, sizes[0]); // ensure visible width
+            sizes[1] = qMax(1, sizes[1]);
+            t->splitter->setSizes(sizes);
+        }
+    } else {
+        QList<int> sizes = t->splitter->sizes();
+        if (sizes.size() >= 2) {
+            sizes[1] += sizes[0];
+            sizes[0] = 0; // collapse left pane
+            t->splitter->setSizes(sizes);
+        }
+    }
+
+    if (toggleNodesButton) toggleNodesButton->setChecked(t->nodeList->isVisible());
     updateLeftPanelTheme();
 }
 
 void MainWindow::onToggleCodeEditor() {
-    if (!editWin) return;
-    editWin->setVisible(!editWin->isVisible());
-    if (toggleCodeButton) toggleCodeButton->setChecked(editWin->isVisible());
+    Tab* t = currentTab();
+    if (!t || !t->editor) return;
+    t->editor->setVisible(!t->editor->isVisible());
+    if (toggleCodeButton) toggleCodeButton->setChecked(t->editor->isVisible());
     updateLeftPanelTheme();
 }
 
 void MainWindow::onRun() {
-    // Mirror Cmd+Enter behavior: update generated code from the graph
-    if (scene) {
-        scene->updateEditorCode();
+    // Update generated code from the graph for current tab
+    if (Scene* sc = currentScene()) {
+        sc->updateEditorCode();
     }
 }
 
 void MainWindow::onRefresh() {
-    if (scene) {
-        scene->resetNodes();
+    if (Scene* sc = currentScene()) {
+        sc->resetNodes();
     }
+}
+
+void MainWindow::onNewTab() {
+    int idx = createTab("Untitled");
+    tabs->setCurrentIndex(idx);
+    updateLeftPanelTheme();
+}
+
+void MainWindow::onTabChanged(int index) {
+    Q_UNUSED(index);
+    updateLeftPanelTheme();
+    if (tabs) setWindowTitleWithFilename(tabs->tabText(tabs->currentIndex()));
+    if (tabs) {
+        for (int i = 0; i < tabs->count(); ++i) {
+            installTabCloseButton(i);
+        }
+    }
+}
+
+void MainWindow::onTabCloseRequested(int index) {
+    if (!tabs) return;
+    if (index < 0 || index >= tabs->count()) return;
+    bool willBeEmpty = (tabs->count() == 1);
+    Tab* t = tabList.takeAt(index);
+    QWidget* w = tabs->widget(index);
+    tabs->removeTab(index);
+    if (w) w->deleteLater();
+    if (t) delete t;
+    if (willBeEmpty) {
+        createTab("Untitled");
+    }
+    if (tabs->currentIndex() < 0 && tabs->count() > 0) tabs->setCurrentIndex(0);
+    updateLeftPanelTheme();
 }

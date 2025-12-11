@@ -49,6 +49,10 @@ void CanvasView::initUI() {
 
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
+    // Remove default frame/border for a clean edge
+    setFrameShape(QFrame::NoFrame);
+    setStyleSheet("QGraphicsView{ border: none; background: #111214; }");
+
     // accept drags from node palette
     setAcceptDrops(true);
 }

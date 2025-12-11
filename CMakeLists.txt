@@ -83,6 +83,12 @@ set(PROJECT_SOURCES
         core/noderegistry/inout/printNode.h
         core/noderegistry/matrix/matrixNode.cpp
         core/noderegistry/matrix/matrixNode.h
+        core/noderegistry/list/listNode.cpp
+        core/noderegistry/list/listNode.h
+        core/noderegistry/inout/printListMatrixNode.cpp
+        core/noderegistry/inout/printListMatrixNode.h
+        core/noderegistry/matrix/printMatrixNode.cpp
+        core/noderegistry/matrix/matrixOpsNode.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

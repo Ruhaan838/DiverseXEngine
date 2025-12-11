@@ -108,5 +108,20 @@ private:
     QLineEdit* colEdit = nullptr;
 };
 
-#endif // MATRIXNODE_H
+// Matrix Determinant: supports NxN square matrices
+class MatrixDeterminantNode : public FunctionNode {
+public:
+    MatrixDeterminantNode(Scene* scene_, const std::string &title = "Matrix Determinant (NxN)",
+                          std::vector<QString> input_size = {QString("Matrix")},
+                          std::vector<QString> output_size = {QString("Output")});
 
+    void execute() override;
+    double getValues() override { return val; }
+
+    QJsonObject serialize() override;
+    bool deserialize(const QJsonObject &data, std::unordered_map<std::string, uintptr_t> &hashmap) override;
+private:
+    double val = 0.0;
+};
+
+#endif // MATRIXNODE_H

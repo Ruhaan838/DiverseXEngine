@@ -14,16 +14,23 @@ CanvasScene::CanvasScene(Scene* scene_ , QGraphicsScene *parent) : QGraphicsScen
 
     _pen_light.setWidth(1);
     _pen_dark.setWidth(2);
+    // Soften grid colors slightly
+    QColor light = _pen_light.color(); light.setAlpha(70); _pen_light.setColor(light);
+    QColor dark = _pen_dark.color(); dark.setAlpha(110); _pen_dark.setColor(dark);
 }
 
 void CanvasScene::drawBackground(QPainter *painter, const QRectF &rect) {
     QGraphicsScene::drawBackground(painter, rect);
 
+    // Inset the grid a bit so it doesn't touch the view edges
+    const int margin = 8;
+    QRectF r = rect.adjusted(margin, margin, -margin, -margin);
+
     // create the grid of Canvas
-    int left = floor(rect.left());
-    int right = ceil(rect.right());
-    int top = floor(rect.top());
-    int bottom = ceil(rect.bottom());
+    int left = floor(r.left());
+    int right = ceil(r.right());
+    int top = floor(r.top());
+    int bottom = ceil(r.bottom());
 
     auto first_left = left - (left % grid_size);
     auto first_top = top - (top % grid_size);

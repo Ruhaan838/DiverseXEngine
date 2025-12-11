@@ -103,5 +103,45 @@
     "def": "def print_if(cond, msg):\n  if cond:\n    print(msg)\n  return 1 if cond else 0",
     "call": "{} = print_if({}, MESSAGE_LITERAL)",
     "type": "function"
+  },
+  "python.print_matrix": {
+    "def": "def print_matrix(mat):\n  for row in mat:\n    print('[ ' + ', '.join(str(x) for x in row) + ' ]')",
+    "call": "print_matrix({})",
+    "type": "function"
+  },
+  "python.determinant2x2": {
+    "def": "def determinant2x2(mat):\n  # expects 2x2 matrix [[a,b],[c,d]]\n  if len(mat) != 2 or any(len(r) != 2 for r in mat):\n    raise ValueError('determinant2x2 requires a 2x2 matrix')\n  a, b = mat[0][0], mat[0][1]\n  c, d = mat[1][0], mat[1][1]\n  return a * d - b * c",
+    "call": "{} = determinant2x2({})",
+    "type": "function"
+  },
+  "python.matrix_index": {
+    "def": "def matrix_index(mat, r, c):\n  if r < 0 or c < 0 or r >= len(mat) or c >= len(mat[0]):\n    raise IndexError('matrix index out of range')\n  return mat[r][c]",
+    "call": "{} = matrix_index({}, ROW_INDEX, COL_INDEX)",
+    "type": "function"
+  },
+  "python.matrix_add_pointwise": {
+    "def": "def matrix_add_pointwise(a, b):\n  if len(a) != len(b) or (len(a)>0 and len(a[0]) != len(b[0])):\n    raise ValueError('matrix sizes must match')\n  return [[a[r][c] + b[r][c] for c in range(len(a[0]))] for r in range(len(a))]",
+    "call": "{} = matrix_add_pointwise({}, {})",
+    "type": "function"
+  },
+  "python.matrix_sub_pointwise": {
+    "def": "def matrix_sub_pointwise(a, b):\n  if len(a) != len(b) or (len(a)>0 and len(a[0]) != len(b[0])):\n    raise ValueError('matrix sizes must match')\n  return [[a[r][c] - b[r][c] for c in range(len(a[0]))] for r in range(len(a))]",
+    "call": "{} = matrix_sub_pointwise({}, {})",
+    "type": "function"
+  },
+  "python.matrix_mul_pointwise": {
+    "def": "def matrix_mul_pointwise(a, b):\n  if len(a) != len(b) or (len(a)>0 and len(a[0]) != len(b[0])):\n    raise ValueError('matrix sizes must match')\n  return [[a[r][c] * b[r][c] for c in range(len(a[0]))] for r in range(len(a))]",
+    "call": "{} = matrix_mul_pointwise({}, {})",
+    "type": "function"
+  },
+  "python.matrix_div_pointwise": {
+    "def": "def matrix_div_pointwise(a, b):\n  if len(a) != len(b) or (len(a)>0 and len(a[0]) != len(b[0])):\n    raise ValueError('matrix sizes must match')\n  res = []\n  for r in range(len(a)):\n    row = []\n    for c in range(len(a[0])):\n      row.append(0 if b[r][c] == 0 else a[r][c] / b[r][c])\n    res.append(row)\n  return res",
+    "call": "{} = matrix_div_pointwise({}, {})",
+    "type": "function"
+  },
+  "python.determinant_nxn": {
+    "def": "def determinant_nxn(mat):\n  n = len(mat)\n  if n == 0: return 0.0\n  if any(len(row) != n for row in mat):\n    raise ValueError('determinant requires square matrix')\n  a = [row[:] for row in mat]\n  det = 1.0\n  swaps = 0\n  for i in range(n):\n    pivot = i\n    best = abs(a[i][i])\n    for r in range(i+1, n):\n      v = abs(a[r][i])\n      if v > best:\n        best = v; pivot = r\n    if best == 0.0: return 0.0\n    if pivot != i:\n      a[i], a[pivot] = a[pivot], a[i]\n      swaps ^= 1\n    pii = a[i][i]\n    det *= pii\n    if pii == 0.0: return 0.0\n    for r in range(i+1, n):\n      factor = a[r][i] / pii\n      for c in range(i, n):\n        a[r][c] -= factor * a[i][c]\n  return -det if (swaps & 1) else det",
+    "call": "{} = determinant_nxn({})",
+    "type": "function"
   }
 }

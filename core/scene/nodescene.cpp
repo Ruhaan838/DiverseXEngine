@@ -16,6 +16,8 @@
 #include "../../ui/graphics/nodeGraphics.h"
 #include "../noderegistry/canvasNode.h"
 #include "../noderegistry/matrix/matrixNode.h"
+#include "../noderegistry/matrix/printMatrixNode.h"
+#include "../noderegistry/matrix/matrixOpsNode.h"
 
 #include <QDebug>
 #include <QDir>
@@ -354,6 +356,35 @@ void Scene::updateEditorCode() {
         }
     }
 
+    // Emit matrix inputs as literals for codegen
+    for (Node* node : nodes) {
+        if (auto* mat = dynamic_cast<MatrixInputNode*>(node)) {
+            QString varName = getOrCreateVarName(mat);
+            auto vals = mat->getMatrixValues();
+            QStringList rowStrs;
+            for (const auto &row : vals) {
+                QStringList nums;
+                for (double d : row) nums << QString::number(d, 'g', 16);
+                rowStrs << QString("[%1]").arg(nums.join(", "));
+            }
+            QString rowsJoined = rowStrs.join(", ");
+            QString callTemplate = CodeTemplateManager::getInstance().getFunctionCallTemplate("matrix_input");
+            if (!callTemplate.isEmpty()) {
+                QString line = callTemplate;
+                int idx = line.indexOf("{}"); if (idx>=0) line.replace(idx,2,varName);
+                idx = line.indexOf("{}"); if (idx>=0) line.replace(idx,2,rowsJoined);
+                mainCode += line + "\n";
+            } else {
+                mainCode += QString("%1 = [%2]\n").arg(varName, rowsJoined);
+            }
+            QString defTemplate = CodeTemplateManager::getInstance().getFunctionTemplate("matrix_input");
+            if (!defTemplate.isEmpty() && !addedFunctionDefs.contains("matrix_input")) {
+                functionsCode += defTemplate + "\n\n";
+                addedFunctionDefs.insert("matrix_input");
+            }
+        }
+    }
+
     auto functionNameForNode = [](FunctionNode* fn)->QString {
         //arithmatic
         if (dynamic_cast<AddNode*>(fn)) return "add";
@@ -385,6 +416,17 @@ void Scene::updateEditorCode() {
 
         // print-if
         if (dynamic_cast<PrintIfNode*>(fn)) return "print_if";
+
+        // matrix ops
+        if (dynamic_cast<Determinant2x2Node*>(fn)) return "determinant2x2";
+        // Add mapping for NxN determinant node
+        if (dynamic_cast<MatrixDeterminantNode*>(fn)) return "determinant_nxn";
+        if (dynamic_cast<MatrixIndexNode*>(fn)) return "matrix_index";
+        if (dynamic_cast<PrintMatrixNode*>(fn)) return "print_matrix";
+        if (dynamic_cast<MatrixAddPointwiseNode*>(fn)) return "matrix_add_pointwise";
+        if (dynamic_cast<MatrixSubPointwiseNode*>(fn)) return "matrix_sub_pointwise";
+        if (dynamic_cast<MatrixMulPointwiseNode*>(fn)) return "matrix_mul_pointwise";
+        if (dynamic_cast<MatrixDivPointwiseNode*>(fn)) return "matrix_div_pointwise";
 
         // if (dynamic_cast<*>(fn)) return "";
 
@@ -459,6 +501,7 @@ void Scene::updateEditorCode() {
                 if (auto *inN = dynamic_cast<InputNode*>(nn)) arg = getOrCreateVarName(inN);
                 else if (auto *fnN = dynamic_cast<FunctionNode*>(nn)) arg = getOrCreateVarName(fnN);
                 else if (auto *cN = dynamic_cast<ConstantNode*>(nn)) arg = getOrCreateVarName(cN);
+                else if (auto *mN = dynamic_cast<MatrixInputNode*>(nn)) arg = getOrCreateVarName(mN);
             }
             args << arg;
         }
@@ -466,28 +509,51 @@ void Scene::updateEditorCode() {
 
         QString resultVar = getOrCreateVarName(fn);
         QString callTemplate = CodeTemplateManager::getInstance().getFunctionCallTemplate(fname);
-        if (!callTemplate.isEmpty() && args.size() <= 2) {
-            QString callLine = callTemplate;
-            int idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,resultVar);
-            idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args.size() > 0 ? args[0] : QString("0"));
-            idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args.size() > 1 ? args[1] : QString("0"));
-            if (fname == "condition") {
-                int opIndex = 0;
-                if (auto *cnode = dynamic_cast<ConditionNode*>(fn)) {
-                    if (cnode->bool_list) opIndex = cnode->bool_list->currentIndex();
+        if (!callTemplate.isEmpty()) {
+            // Determine placeholder count
+            int placeholders = 0; int pos = 0; while ((pos = callTemplate.indexOf("{}", pos)) != -1) { placeholders++; pos += 2; }
+            if (placeholders == args.size() + 1 && args.size() <= 2) {
+                // Assignment style: first {} is result
+                QString callLine = callTemplate;
+                int idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,resultVar);
+                idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args.size() > 0 ? args[0] : QString("0"));
+                idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args.size() > 1 ? args[1] : QString("0"));
+                if (fname == "condition") {
+                    int opIndex = 0;
+                    if (auto *cnode = dynamic_cast<ConditionNode*>(fn)) {
+                        if (cnode->bool_list) opIndex = cnode->bool_list->currentIndex();
+                    }
+                    callLine.replace("OP_INDEX", QString::number(opIndex));
                 }
-                callLine.replace("OP_INDEX", QString::number(opIndex));
+                functionCallLines << callLine;
+            } else if (placeholders == args.size()) {
+                // Pure call with side-effects: no assignment
+                QString callLine = callTemplate;
+                for (int i = 0; i < args.size(); ++i) {
+                    int idx = callLine.indexOf("{}"); if (idx>=0) callLine.replace(idx,2,args[i]);
+                }
+                if (fname == "condition") {
+                    int opIndex = 0;
+                    if (auto *cnode = dynamic_cast<ConditionNode*>(fn)) {
+                        if (cnode->bool_list) opIndex = cnode->bool_list->currentIndex();
+                    }
+                    callLine.replace("OP_INDEX", QString::number(opIndex));
+                }
+                functionCallLines << callLine;
+            } else {
+                // Fallback to generic formatting below
+                goto generic_call_fmt;
             }
-            dest.append(callLine);
         } else {
-            if (args.empty()) dest.append(resultVar + " = " + fname + "()");
-            else if (args.size() == 1) dest.append(resultVar + " = " + fname + "(" + args[0] + ")");
-            else if (args.size() == 2) dest.append(resultVar + " = " + fname + "(" + args[0] + ", " + args[1] + ")");
+        generic_call_fmt:
+            if (args.empty()) functionCallLines << (resultVar + " = " + fname + "()");
+            else if (args.size() == 1) functionCallLines << (resultVar + " = " + fname + "(" + args[0] + ")");
+            else if (args.size() == 2) functionCallLines << (resultVar + " = " + fname + "(" + args[0] + ", " + args[1] + ")");
             else {
                 QString nested = args[0];
                 nested = QString("%1(%2, %3)").arg(fname, args[0], args[1]);
                 for (int i = 2; i < args.size(); ++i) nested = QString("%1(%2, %3)").arg(fname, nested, args[i]);
-                dest.append(QString("%1 = %2").arg(resultVar, nested));
+                functionCallLines << QString("%1 = %2").arg(resultVar, nested);
             }
         }
 

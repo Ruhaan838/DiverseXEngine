@@ -378,9 +378,10 @@ void DivNode::execute() {
             result = v;
             firstFound = true;
         } else {
-            if (v == 0) {
-                vals = INFINITY;
-                setInfoText("Number is not Divisible by 0");
+            if (v == 0.0L) {
+                // Avoid non-finite values that can break UI/serialization
+                vals = 0.0;
+                setInfoText("Division by zero");
                 return;
             }
             result /= v;
@@ -388,7 +389,13 @@ void DivNode::execute() {
         connectedCount++;
     }
     if (connectedCount >= 2 && firstFound) {
-        vals = result;
+        double out = static_cast<double>(result);
+        if (!std::isfinite(out)) {
+            setInfoText("Non-finite result");
+            vals = 0.0;
+        } else {
+            vals = out;
+        }
     }
 }
 
@@ -426,9 +433,10 @@ void FloorDivNode::execute() {
             result = v;
             firstFound = true;
         } else {
-            if (v == 0) {
-                vals = INFINITY;
-                setInfoText("Number is not Divisible by 0");
+            if (v == 0.0L) {
+                // Avoid non-finite values that can break UI/serialization
+                vals = 0.0;
+                setInfoText("Division by zero");
                 return;
             }
             result /= v;
@@ -436,8 +444,14 @@ void FloorDivNode::execute() {
         connectedCount++;
     }
     if (connectedCount >= 2 && firstFound) {
-        // Apply floor at the end to mirror math.floor(a/b)
-        vals = std::floor(static_cast<double>(result));
+        double out = static_cast<double>(result);
+        if (!std::isfinite(out)) {
+            setInfoText("Non-finite result");
+            vals = 0.0;
+        } else {
+            // Apply floor at the end to mirror math.floor(a/b)
+            vals = std::floor(out);
+        }
     }
 }
 

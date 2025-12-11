@@ -26,8 +26,9 @@ enum class NodeCategory {
     MATH,
     PERMUTATION,
     BITOPERATIONS,
-    MATRIX, // new group for matrix-related nodes
-    CONTAINER, // container-like nodes (e.g., Canvas)
+    MATRIX,
+    CONTAINER,
+    LISTS, // new category for list-like collection nodes
 };
 
 struct NodeInfo {
@@ -69,6 +70,7 @@ private:
     QTreeWidgetItem* outputs;
     QTreeWidgetItem* containers;
     QTreeWidgetItem* matrix; // new Matrix group
+    QTreeWidgetItem* lists; // new Lists group
 
     Scene* scene;
 

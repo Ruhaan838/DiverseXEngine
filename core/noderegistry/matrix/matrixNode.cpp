@@ -413,3 +413,65 @@ void MatrixInputNode::resetMatrixValues() {
         }
     }
 }
+
+MatrixDeterminantNode::MatrixDeterminantNode(Scene *scene_, const std::string &title,
+                                 vector<QString> input_size, vector<QString> output_size)
+    : FunctionNode(scene_, title, std::move(input_size), std::move(output_size), false) {}
+
+static double detNxN(const std::vector<std::vector<double>>& m) {
+    int n = (int)m.size();
+    if (n == 0) return 0.0;
+    for (const auto &row : m) if ((int)row.size() != n) return 0.0;
+    // Copy to a working matrix
+    std::vector<std::vector<double>> a = m;
+    double det = 1.0;
+    int swaps = 0;
+    for (int i = 0; i < n; ++i) {
+        // Pivot
+        int pivot = i;
+        double best = std::abs(a[i][i]);
+        for (int r = i+1; r < n; ++r) {
+            double v = std::abs(a[r][i]);
+            if (v > best) { best = v; pivot = r; }
+        }
+        if (best == 0.0) return 0.0;
+        if (pivot != i) { std::swap(a[pivot], a[i]); swaps ^= 1; }
+        double pii = a[i][i];
+        det *= pii;
+        if (pii == 0.0) return 0.0;
+        // Eliminate below
+        for (int r = i+1; r < n; ++r) {
+            double factor = a[r][i] / pii;
+            for (int c = i; c < n; ++c) {
+                a[r][c] -= factor * a[i][c];
+            }
+        }
+    }
+    if (swaps & 1) det = -det;
+    return det;
+}
+
+void MatrixDeterminantNode::execute() {
+    val = 0.0;
+    if (inputs.empty()) return;
+    auto *s = inputs[0];
+    if (!s || !s->hasEdge() || !s->getFirstEdge() || !s->getFirstEdge()->startSocket) return;
+    Node* prev = s->getFirstEdge()->startSocket->node;
+    auto *prov = dynamic_cast<MatrixProvider*>(prev);
+    if (!prov) { setInfoText("Input is not a matrix"); return; }
+    if (prov->rowCount() != prov->colCount()) { setInfoText("Determinant requires square matrix"); return; }
+    auto m = prov->getMatrixValues();
+    val = detNxN(m);
+}
+
+QJsonObject MatrixDeterminantNode::serialize() {
+    QJsonObject obj = FunctionNode::serialize();
+    obj["node_type"] = "MatrixDeterminantNode";
+    obj["value"] = val;
+    return obj;
+}
+
+bool MatrixDeterminantNode::deserialize(const QJsonObject &data, std::unordered_map<std::string, uintptr_t> &hashmap) {
+    val = data.value("value").toDouble(0.0);
+    return FunctionNode::deserialize(data, hashmap);
+}
